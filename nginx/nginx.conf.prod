@@ -1,0 +1,9 @@
+server {
+    listen 80;
+
+    server_name words.com;
+
+    location / {
+        proxy_pass http://frontend:3000;
+    }
+}
