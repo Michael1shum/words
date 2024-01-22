@@ -1,7 +1,13 @@
 import logo from './logo.svg';
+import {useState} from "react"
 import './App.css';
 
 function App() {
+  // const [words, setWords] = useState([])
+  //
+  // fetch('http://words.com/api/words').then(resp => resp.json()).then((resp)=>{
+  //   setWords(resp)
+  // })
   return (
     <div className="App">
       <header className="App-header">
