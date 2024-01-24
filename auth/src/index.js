@@ -12,18 +12,18 @@ const startServer = () => {
   });
 };
 
-app.get("/api/test", (req, res) => {
+app.get("/test", (req, res) => {
   res.send("Server is working! Auth service");
 });
 
-app.get("/api/currentUser", (req, res) => {
+app.get("/currentUser", (req, res) => {
   res.json({
     id: 123,
     email: "test@example.com",
   });
 });
 
-app.get("/api/testWithApiData", (req, res) => {
+app.get("/testWithApiData", (req, res) => {
   axios
     .get(`${apiUrl}/testApiData`)
     .then((response) => res.json(response.data));

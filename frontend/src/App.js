@@ -1,13 +1,12 @@
 import logo from './logo.svg';
 import {useState} from "react"
 import './App.css';
+import axios from "axios";
 
 function App() {
-  // const [words, setWords] = useState([])
-  //
-  // fetch('http://words.com/api/words').then(resp => resp.json()).then((resp)=>{
-  //   setWords(resp)
-  // })
+  const makeApiRequest = () => {
+    axios.get('/api/test')
+  }
   return (
     <div className="App">
       <header className="App-header">
@@ -24,6 +23,7 @@ function App() {
           Learn React
         </a>
       </header>
+      <button onClick={makeApiRequest}>Make api request</button>
     </div>
   );
 }
