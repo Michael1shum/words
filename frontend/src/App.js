@@ -1,12 +1,12 @@
-import logo from './logo.svg';
-import {useState} from "react"
-import './App.css';
+import logo from "./logo.svg";
+import { useState } from "react";
+import "./App.css";
 import axios from "axios";
 
 function App() {
   const makeApiRequest = () => {
-    axios.get('/api/test')
-  }
+    axios.get("/api/testwithCurrentUser");
+  };
   return (
     <div className="App">
       <header className="App-header">
