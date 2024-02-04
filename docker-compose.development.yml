@@ -5,12 +5,11 @@ services:
     build:
       context: ./frontend
       dockerfile: Dockerfile.dev
-    command: npm run start
+    command: npm run start:dev
     volumes:
       - ./frontend/src:/usr/src/app/src
-    # for cra
-    stdin_open: true
-    tty: true
+    environment:
+      - MODE=DEV
 
   api:
     command: npm run dev

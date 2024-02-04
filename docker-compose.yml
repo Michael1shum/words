@@ -11,7 +11,8 @@ services:
     restart: unless-stopped
     networks:
       - words-docker-network
-
+    environment:
+       - MODE=PROD
 
   api: 
     build: ./api

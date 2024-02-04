@@ -1,0 +1,16 @@
+.listWrapper{
+    display: flex;
+    gap: 32px;
+    border: 1px solid black;
+}
+
+.wordsWrapper{
+    display: flex;
+    flex-direction: column;
+    border: 1px solid black;
+}
+
+.entity{
+    border: 1px solid black;
+
+}
