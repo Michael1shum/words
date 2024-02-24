@@ -1,9 +1,13 @@
 const express = require("express");
+const bodyParser = require("body-parser");
 // const axios = require("axios");
 // const { connectDb } = require("./helpers/db");
+const { addTest } = require("./helpers/db");
 // const { port, db, authApiUrl } = require("./configuration");
 // const mongoose = require("mongoose");
 const app = express();
+app.use(bodyParser.json());
+app.use(bodyParser.urlencoded({ extended: true }));
 
 // const postSchema = new mongoose.Schema({
 //   name: String,
@@ -24,9 +28,18 @@ const startServer = () => {
     // console.log("posts", posts);
   });
 };
-
+const testsArray = [{ name: "Vanya", id: "id1" }];
 app.get("/test2", (req, res) => {
-  res.send("Server is working!");
+  const vanya = array.find((item) => item.name === req?.query?.studentName);
+  console.log(vanya);
+  res.json(vanya);
+});
+
+"test/1/response"[{ id1: 2, q2: [1, 2, 3], q3: "sd;lfkhsd" }];
+
+app.post("/testPost", (req, res) => {
+  addTest(req.body);
+  res.send("post!");
 });
 
 // app.get("/testwithCurrentUser", (req, res) => {
