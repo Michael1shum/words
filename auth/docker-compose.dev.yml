@@ -11,6 +11,8 @@ services:
       - MONGO_URL=mongodb://auth_db:27017/auth
     depends_on:
       - auth_db
+    ports:
+      - '3002:3002'
     networks:
       - words-dev-docker-network
     volumes:
