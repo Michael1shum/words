@@ -9,6 +9,8 @@ services:
     environment:
       - PORT=3002
       - MONGO_URL=mongodb://auth_db:27017/auth
+      - ACCESS_TOKEN_SECRET=word-access-secret-key
+      - REFRESH_TOKEN_SECRET=word-refresh-secret-key
     depends_on:
       - auth_db
     ports:
@@ -21,6 +23,8 @@ services:
   auth_db:
     container_name: words-auth-db-dev
     image: mongo:latest
+    ports:
+      - '27017:27017'
     volumes:
       - mongodb_auth:/data/db
     networks:
