@@ -1,0 +1,32 @@
+version: '3'
+
+services:
+  auth:
+    build: ./
+    container_name: words-auth-dev
+    command: npm run dev
+    restart: unless-stopped
+    environment:
+      - PORT=3002
+      - MONGO_URL=mongodb://auth_db:27017/auth
+    depends_on:
+      - auth_db
+    networks:
+      - words-dev-docker-network
+    volumes:
+      - ./src:/usr/src/app/src
+
+  auth_db:
+    container_name: words-auth-db-dev
+    image: mongo:latest
+    volumes:
+      - mongodb_auth:/data/db
+    networks:
+      - words-dev-docker-network
+
+volumes:
+  mongodb_auth:
+
+networks:
+  words-dev-docker-network:
+    driver: bridge
