@@ -26,7 +26,7 @@ const startServer = () => {
 
 
 // app.get("/test", (req, res) => {
-//   res.send("Server is working! Auth service");
+//   res.send("Server is working! Auth services");
 // });
 //
 // app.get("/currentUser", (req, res) => {
