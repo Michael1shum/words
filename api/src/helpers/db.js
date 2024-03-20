@@ -1,14 +1,16 @@
 const mongoose = require("mongoose");
 const { db } = require("../configuration");
 
+// const testsArray = require('../index');
+
+
 module.exports.connectDb = () => {
   mongoose.connect(db);
 
   return mongoose.connection;
 };
-const testArray = [];
 
-module.exports.addTest = (test) => {
-  testArray.push(test);
-  console.log("testArrayasd", testArray);
-};
+// module.exports.addTest = (test) => {
+//   testsArray.push(test);
+//    console.log("testArrayasd", testsArray);
+// };
