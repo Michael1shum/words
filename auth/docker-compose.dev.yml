@@ -11,6 +11,9 @@ services:
       - MONGO_URL=mongodb://auth_db:27017/auth
       - ACCESS_TOKEN_SECRET=word-access-secret-key
       - REFRESH_TOKEN_SECRET=word-refresh-secret-key
+      - MAIL_ID=sup.words.el@gmail.com
+      - MAIL_PASSWORD=12qwaszx!@QWASZX
+      - APP_URL=http://localhost:3002
     depends_on:
       - auth_db
     ports:
