@@ -1,20 +1,22 @@
-const express = require("express");
+const express = require('express');
 
-const axios = require("axios");
+const axios = require('axios');
 const cors = require('cors');
 const cookieParser = require('cookie-parser');
-const { connectDb } = require("./helpers/db");
-const { port, db, apiUrl } = require("./configuration");
-const router = require('./router/index')
+const { connectDb } = require('./helpers/db');
+const { port, db, apiUrl } = require('./configuration');
+const router = require('./router/index');
+const errorsMiddleware = require('./middlewares/errors');
 
-const PORT = port || 3002
+const PORT = port || 3002;
 
 
 const app = express();
-app.use(express.json())
-app.use(cookieParser())
-app.use(cors())
-app.use('/api', router)
+app.use(express.json());
+app.use(cookieParser());
+app.use(cors());
+app.use('/api', router);
+app.use(errorsMiddleware);
 
 const startServer = () => {
   app.listen(PORT, async () => {
@@ -22,7 +24,6 @@ const startServer = () => {
     console.log(`DataBase ${db}`);
   });
 };
-
 
 
 // app.get("/test", (req, res) => {
@@ -43,6 +44,6 @@ const startServer = () => {
 // });
 
 connectDb()
-  .on("error", console.log)
-  .on("disconnect", connectDb)
-  .once("open", startServer);
+  .on('error', console.log)
+  .on('disconnect', connectDb)
+  .once('open', startServer);
