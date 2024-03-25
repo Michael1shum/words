@@ -1,34 +1,34 @@
 /** @format */
 
-const express = require("express");
+const express = require('express');
 
 
-const { getID } = require("./helpers/id");
-const bodyParser = require("body-parser");
+const { getID } = require('./helpers/id');
+const bodyParser = require('body-parser');
 
 // const axios = require("axios");
 // const cors = require('cors');
-const { connectDb } = require("./helpers/db");
+const { connectDb } = require('./helpers/db');
 // const { addTest } = require("./helpers/db");
-const { port, db} = require("./configuration");
-const mongoose = require("mongoose");
+const { port, db } = require('./configuration');
+const mongoose = require('mongoose');
 const router = require('./router/index');
 
 const app = express();
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: true }));
-app.use(express.json())
+app.use(express.json());
 // app.use(cors())
-app.use('/api', router)
+app.use('/api', router);
 
-const PORT = port || 3000
+const PORT = port || 3000;
 // const postSchema = new mongoose.Schema({
 //   name: String,
 // });
 //
 // const Post = mongoose.model("Post", postSchema);
 const startServer = async () => {
-  try{
+  try {
     app.listen(PORT, async () => {
       console.log(`Service api started on port:  ${PORT}`);
       // console.log(`DataBase ${db}`);
@@ -41,82 +41,12 @@ const startServer = async () => {
       // console.log("posts", posts);
     });
   } catch (e) {
-    console.error(e)
+    console.error(e);
   }
 
 };
 
-const testsArray = [ //Массив тестов
-  {
-    name: "Test3",
-    // id: getID(),
-    id: "id1",
-    questions: [
-      {
-        // questionID: getID(),
-        questionID: "q1",
-        question: "Как работает чета там?",
-        description: " Выберите несколько вариантов",
-        type: "checkbox",
-        options: ["ответ 1", "ответ 2", "ответ 3"],
-        answer: "ответ 1",
-      },
-      {
-        // questionID: getID(),
-        questionID: "q2",
-        question: "Как работает чета там?",
-        description: " Выберите один вариант",
-        type: "radio",
-        options: ["ответ 1", "ответ 2", "ответ 3"],
-        answer: "ответ 3",
-      },
-      {
-        // questionID: getID(),
-        questionID: "q3",
-        question: "Как работает чета там?",
-        description: "Введите значение",
-        type: "input",
-        answer: "правда",
-      },
-    ],
-  },
-  {
-    name: "Test 1",
-    id: "id2",
-    questions:[
-      {questionID: "q1",
-        question: "Как работает чета там?",
-        description: " Выберите несколько вариантов",
-        type: "checkbox",
-        options: ["ответ 1", "ответ 2", "ответ 3"],
-        answer: "ответ 1",}
-    ]
-  }
-];
 
-
-
-let users = [ // Массив пользователей
-  {
-    userId: "5",
-    userName: "Vasya",
-    passedTests: [
-      { testId: "id1", answers: [] },
-      { testId: "id2", answers: [] },
-    ],
-  },
-  {
-    userId: "1",
-    userName: "Alesha",
-    passedTests: [{ testId: "id1", answers: [] }],
-  },
-];
-
-module.exports.testsArray = testsArray;
-module.exports.users = users;
-
-module.exports.test = ['123'];
-module.exports.test2 = ['55555'];
 // export {testsArray, users};
 
 startServer();

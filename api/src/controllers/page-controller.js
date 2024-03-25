@@ -1,118 +1,119 @@
 // import {testsArray, users} from "../index";
 // let {users} = require('../index');
-const testsArray = require('../index');
-let users = require('../index');
+// const testsArray = require('../index');
+// let users = require('../index');
 
-const {test, test2} = require('../index')
-console.log('test ',test, 'test2 ', test2)
+const { test, test2, users, testsArray } = require('../configuration/index');
+
 // const {testsArray, users} = require('../index')
 
 
 class PageController {
-    async getTests(req, res, next) {
-        try {
-            res.json(testsArray);
-            console.log(testsArray)
-        } catch (e) {
-            console.error(e);
-        }
+  async getTests(req, res, next) {
+    try {
+      console.log('test ', test, 'test2 ', test2);
+      res.json(testsArray);
+      console.log(testsArray);
+    } catch (e) {
+      console.error(e);
     }
+  }
 
-    async testById(req, res, next) {
-        try {
-          const testId = req.params.testId;
-          const findTest = testsArray.find((test) => test.id === testId);
+  async testById(req, res, next) {
+    try {
+      const testId = req.params.testId;
+      const findTest = testsArray.find((test) => test.id === testId);
 
-          for (let option of findTest.questions) {
-            delete option.answer;
-          }
+      for (let option of findTest.questions) {
+        delete option.answer;
+      }
+      res.json(findTest);
+    } catch (e) {
+      console.error(e);
+    }
+  }
+
+  async testResultById(req, res, next) {
+    try {
+      const testId = req.params.testId;
+      const findUser = users.find((user) => user.userId === req.body.userId);
+      const findTest = findUser.passedTests.find((test) => test.testId === testId);
+
+      if (!findUser) {
+        res.json('Нет такого пользовтеля');
+      } else {
+        if (!findTest) {
+          res.json(`Нет такого теста у пользователя ${findUser.userName}`);
+        } else {
           res.json(findTest);
-        } catch (e) {
-            console.error(e);
         }
+      }
+    } catch (e) {
+      console.error(e);
     }
+  }
 
-    async testResultById(req, res, next) {
-        try {
-            const testId = req.params.testId;
-            const findUser = users.find((user) => user.userId === req.body.userId);
-            const findTest = findUser.passedTests.find((test) => test.testId === testId);
+  async testAdd(req, res, next) {
+    try {
+      req.body.id = req.params.testId;
+      testsArray.push(req.body);
+      res.send('Тест добавлен.');
+    } catch (e) {
+      console.error(e);
+    }
+  }
 
-            if (!findUser){
-                res.json("Нет такого пользовтеля");
+  async testAnswer(req, res, next) {
+    try {
+      console.log(req.body);
+      const { userId, ...answers } = req.body;
+      const testId = req.params.testId;
+      const currentTest = testsArray.find((item) => item.id === testId);
+
+      const result = currentTest.questions.reduce((res, cur) => {
+        if (answers[cur.questionID] === cur.answer) {
+          res[cur.questionID] = true;
+        } else {
+          res[cur.questionID] = false;
+        }
+        return res;
+      }, {});
+
+      users = users.map((user) => {
+        if (user.userId === userId) {
+          const newPassedTest = user.passedTests.map((item) => {
+            if (item.testId === testId) {
+              return { testId, answers: result };
             } else {
-                if (!findTest){
-                    res.json(`Нет такого теста у пользователя ${findUser.userName}`);
-                } else {
-                  res.json(findTest)
-                }
-          }
-        } catch (e) {
-            console.error(e);
+              return item;
+            }
+          });
+
+          return { ...user, passedTests: newPassedTest };
+        } else {
+          return user;
         }
-    }
+      });
 
-    async testAdd(req, res, next) {
-        try {
-            req.body.id = req.params.testId;
-            testsArray.push(req.body);
-            res.send('Тест добавлен.')
-        } catch (e) {
-            console.error(e);
+      res.send(result);
+    } catch (e) {
+      console.error(e);
+    }
+  }
+
+  async testDelete(req, res, next) {
+    try {
+      const testId = req.params.testId;
+      testsArray.forEach((test, index) => {
+        if (test.id === testId) {
+          res.json(`Тест ${test.name} удалён`);
+          testsArray.splice(index, 1);
         }
+      });
+    } catch (e) {
+      console.error(e);
     }
-
-    async testAnswer(req, res, next) {
-        try {
-            console.log(req.body);
-            const { userId, ...answers } = req.body;
-            const testId = req.params.testId;
-            const currentTest = testsArray.find((item) => item.id === testId);
-
-            const result = currentTest.questions.reduce((res, cur) => {
-                if (answers[cur.questionID] === cur.answer) {
-                    res[cur.questionID] = true;
-                } else {
-                    res[cur.questionID] = false;
-                }
-                return res;
-            }, {});
-
-            users = users.map((user) => {
-                if (user.userId === userId) {
-                    const newPassedTest = user.passedTests.map((item) => {
-                        if (item.testId === testId) {
-                            return { testId, answers: result };
-                        } else {
-                            return item;
-                        }
-                    });
-
-                    return { ...user, passedTests: newPassedTest };
-                } else {
-                    return user;
-                }
-            });
-
-            res.send(result);
-        } catch (e) {
-            console.error(e);
-        }
-    }
-
-    async testDelete(req, res, next) {
-        try {
-            const testId = req.params.testId;
-            testsArray.forEach((test,index) => {
-                if (test.id === testId) {
-                    res.json(`Тест ${test.name} удалён`);
-                    testsArray.splice(index,1)
-                }
-            });
-        } catch (e) {
-            console.error(e);
-        }
-    }
+  }
 }
 
 // const testsArray = [ //Массив тестов
