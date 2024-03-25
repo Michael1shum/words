@@ -38,6 +38,19 @@ class UserService {
     user.isActivated = true;
     await user.save();
   }
+
+  async login(email, password) {
+    const user = await UserModel.findOne({ email });
+    const hashPassword = await bcrypt.hash(password, 3);
+
+    if (!user || (user && hashPassword !== user.password)) {
+      throw ApiError.BadRequest(`Некорректный email или пароль`);
+    }
+
+    return {
+      refreshToken: user.refreshToken,
+    };
+  }
 }
 
 module.exports = new UserService();
