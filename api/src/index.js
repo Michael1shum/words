@@ -19,7 +19,7 @@ app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: true }));
 app.use(express.json());
 // app.use(cors())
-app.use('/api', router);
+app.use(router);
 
 const PORT = port || 3000;
 // const postSchema = new mongoose.Schema({

@@ -14,7 +14,7 @@ services:
   api:
     command: npm run dev
     ports:
-      - '3002:3002'
+      - '3001:3001'
     volumes:
       - ./api/src:/usr/src/app/src
 
@@ -38,8 +38,10 @@ services:
       - mongodb_api:/data/db
 
   nginx:
+    ports:
+      - '3000:80'
     volumes:
-      - ./nginx/nginx.conf.dev:/etc/nginx/conf.d/nginx.conf
+      - ./nginx/nginx.conf.dev:/etc/nginx/conf.d/default.conf
 
 volumes:
   mongodb_auth:

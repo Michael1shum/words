@@ -1,8 +1,6 @@
 server {
     listen 80;
 
-    server_name words.local;
-
     location / {
         proxy_pass http://frontend:3000;
     }
@@ -12,8 +10,8 @@ server {
         rewrite ^/api(.*) $1 break;
     }
 
-    location /auth/api {
+    location /auth {
         proxy_pass http://auth:3002;
-        rewrite ^/api(.*) $1 break;
+        rewrite ^/auth(.*) $1 break;
     }
 }
