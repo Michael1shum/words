@@ -23,10 +23,11 @@ class UserController {
   async login(req, res, next) {
     try {
       const { email, password } = req.body;
-      const userData = userService.login(email, password);
+      const userData = await userService.login(email, password);
 
       res.cookie('refreshToken', userData.refreshToken, { maxAge: 24 * 60 * 60 * 1000, httpOnly: true });
-      return res.json(userData);
+      res.cookie('accessToken', userData.accessToken, { maxAge: 15 * 60 * 1000, httpOnly: true });
+      return res.json(userData.user);
     } catch (e) {
       next(e);
     }
@@ -34,7 +35,12 @@ class UserController {
 
   async logout(req, res, next) {
     try {
-
+      const { refreshToken } = req.cookies;
+      console.log(refreshToken);
+      await userService.logout(refreshToken);
+      res.clearCookie('refreshToken');
+      res.clearCookie('accessToken');
+      res.status(200).send('logout success');
     } catch (e) {
       next(e);
     }
@@ -52,7 +58,12 @@ class UserController {
 
   async refresh(req, res, next) {
     try {
+      const { refreshToken } = req.cookies;
+      const userData = await userService.refresh(refreshToken);
 
+      res.cookie('refreshToken', userData.refreshToken, { maxAge: 24 * 60 * 60 * 1000, httpOnly: true });
+      res.cookie('accessToken', userData.accessToken, { maxAge: 15 * 60 * 1000, httpOnly: true });
+      return res.json(userData.user);
     } catch (e) {
       next(e);
     }
@@ -60,7 +71,8 @@ class UserController {
 
   async getUsers(req, res, next) {
     try {
-      res.json(['123', '456']);
+      const users = await userService.getAllUsers();
+      return res.json(users);
     } catch (e) {
       next(e);
     }

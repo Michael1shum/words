@@ -41,15 +41,53 @@ class UserService {
 
   async login(email, password) {
     const user = await UserModel.findOne({ email });
-    const hashPassword = await bcrypt.hash(password, 3);
+    const isPassEquals = await bcrypt.compare(password, user?.password || '');
 
-    if (!user || (user && hashPassword !== user.password)) {
-      throw ApiError.BadRequest(`Некорректный email или пароль`);
+    if (!user) {
+      throw ApiError.BadRequest(`Пользователя с таким email не существует`);
     }
 
-    return {
-      refreshToken: user.refreshToken,
-    };
+    if (user && !isPassEquals) {
+      throw ApiError.BadRequest(`Некорректный пароль`);
+    }
+
+    const userDto = new UserDTO(user);
+    const tokens = TokenService.generateToken({ ...userDto });
+
+    await TokenService.saveToken(userDto.id, tokens.refreshToken);
+
+    return { ...tokens, user: userDto };
+  }
+
+  async logout(refreshToken) {
+    await TokenService.removeToken(refreshToken);
+  }
+
+  async refresh(refreshToken) {
+    if (!refreshToken) {
+      throw ApiError.UnauthorizedError();
+    }
+
+    const tokenData = TokenService.validateRefreshToken(refreshToken);
+    const tokenFromDb = TokenService.findToken(refreshToken);
+    if (!tokenData || !tokenFromDb) {
+      throw ApiError.UnauthorizedError();
+    }
+    const user = await UserModel.findById(tokenData.id);
+    const userDto = new UserDTO(user);
+    const tokens = TokenService.generateToken({ ...userDto });
+
+    await TokenService.saveToken(userDto.id, tokens.refreshToken);
+
+    return { ...tokens, user: userDto };
+  }
+
+  async getAllUsers() {
+    const users = await UserModel.find();
+    return users.map(user => {
+      const userDTO = new UserDTO(user);
+      return { ...userDTO };
+    });
   }
 }
 
