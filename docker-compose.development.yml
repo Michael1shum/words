@@ -13,14 +13,34 @@ services:
 
   api:
     command: npm run dev
+    ports:
+      - '3002:3002'
     volumes:
       - ./api/src:/usr/src/app/src
 
   auth:
     command: npm run dev
+    ports:
+      - '3002:3002'
     volumes:
       - ./auth/src:/usr/src/app/src
+
+  auth_db:
+    ports:
+      - '27017:27017'
+    volumes:
+      - mongodb_auth:/data/db
+
+  api_db:
+    ports:
+      - '27018:27017'
+    volumes:
+      - mongodb_api:/data/db
 
   nginx:
     volumes:
       - ./nginx/nginx.conf.dev:/etc/nginx/conf.d/nginx.conf
+
+volumes:
+  mongodb_auth:
+  mongodb_api:
