@@ -7,15 +7,19 @@ const { getID } = require("./helpers/id");
 const bodyParser = require("body-parser");
 
 // const axios = require("axios");
+// const cors = require('cors');
 const { connectDb } = require("./helpers/db");
 // const { addTest } = require("./helpers/db");
-const { port, db } = require("./configuration");
+const { port, db} = require("./configuration");
 const mongoose = require("mongoose");
-const app = express();
+const router = require('./router/index');
 
+const app = express();
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: true }));
-
+app.use(express.json())
+// app.use(cors())
+app.use('/api', router)
 
 const PORT = port || 3000
 // const postSchema = new mongoose.Schema({
@@ -90,7 +94,7 @@ const testsArray = [ //Массив тестов
   }
 ];
 
-// module.exports = testsArray;
+
 
 let users = [ // Массив пользователей
   {
@@ -108,93 +112,96 @@ let users = [ // Массив пользователей
   },
 ];
 
-app.get("/tests", (req, res) => { // вывод всех тестов
-  res.json(testsArray);
-});
+module.exports.testsArray = testsArray;
+module.exports.users = users;
 
-app.get("/tests/:testId", (req, res) => { // выыод теста по id
-  const testId = req.params.testId;
-  const findTest = testsArray.find((test) => test.id === testId);
+module.exports.test = ['123'];
+module.exports.test2 = ['55555'];
+// export {testsArray, users};
 
-  for (let option of findTest.questions) {
-    delete option.answer;
-  }
-  res.json(findTest);
-});
+startServer();
 
-app.get("/tests/results/:testId", (req, res) => {   // Вывод определенного теста по id
-  const testId = req.params.testId;
-  const findUser = users.find((user) => user.userId === req.body.userId);
-  const findTest = findUser.passedTests.find((test) => test.testId === testId);
-
-  if (!findUser){
-    res.json("Нет такого пользовтеля");
-  } else {
-    if (!findTest){
-      res.json(`Нет такого теста у пользователя ${findUser.userName}`);
-    } else {
-      res.json(findTest)
-    }
-  }
-});
-
-app.post("/tests/:testId", (req, res) => { // Добавление теста
-  req.body.id = req.params.testId;
-  testsArray.push(req.body);
-  res.send('Тест добавлен.')
-});
-
-app.post("/tests/:testId/answer", (req, res) => { // Обработка ответов (сравнение) теста
-  console.log(req.body);
-  const { userId, ...answers } = req.body;
-  const testId = req.params.testId;
-  const currentTest = testsArray.find((item) => item.id === testId);
-
-  const result = currentTest.questions.reduce((res, cur) => {
-    if (answers[cur.questionID] === cur.answer) {
-      res[cur.questionID] = true;
-    } else {
-      res[cur.questionID] = false;
-    }
-    return res;
-  }, {});
-
-  users = users.map((user) => {
-    if (user.userId === userId) {
-      const newPassedTest = user.passedTests.map((item) => {
-        if (item.testId === testId) {
-          return { testId, answers: result };
-        } else {
-          return item;
-        }
-      });
-
-      return { ...user, passedTests: newPassedTest };
-    } else {
-      return user;
-    }
-  });
-
-  res.send(result);
-});
-
-// app.get("/testApiData", (req, res) => {
-//   res.json({
-//     testWithApi: true,
+// app.get("/tests", (req, res) => { // вывод всех тестов
+//   res.json(testsArray);
+// });
+//
+// app.get("/tests/:testId", (req, res) => { // выыод теста по id
+//   const testId = req.params.testId;
+//   const findTest = testsArray.find((test) => test.id === testId);
+//
+//   for (let option of findTest.questions) {
+//     delete option.answer;
+//   }
+//   res.json(findTest);
+// });
+//
+// app.get("/tests/results/:testId", (req, res) => {   // Вывод определенного теста по id
+//   const testId = req.params.testId;
+//   const findUser = users.find((user) => user.userId === req.body.userId);
+//   const findTest = findUser.passedTests.find((test) => test.testId === testId);
+//
+//   if (!findUser){
+//     res.json("Нет такого пользовтеля");
+//   } else {
+//     if (!findTest){
+//       res.json(`Нет такого теста у пользователя ${findUser.userName}`);
+//     } else {
+//       res.json(findTest)
+//     }
+//   }
+// });
+//
+// app.post("/tests/:testId", (req, res) => { // Добавление теста
+//   req.body.id = req.params.testId;
+//   testsArray.push(req.body);
+//   res.send('Тест добавлен.')
+// });
+//
+// app.post("/tests/:testId/answer", (req, res) => { // Обработка ответов (сравнение) теста
+//   console.log(req.body);
+//   const { userId, ...answers } = req.body;
+//   const testId = req.params.testId;
+//   const currentTest = testsArray.find((item) => item.id === testId);
+//
+//   const result = currentTest.questions.reduce((res, cur) => {
+//     if (answers[cur.questionID] === cur.answer) {
+//       res[cur.questionID] = true;
+//     } else {
+//       res[cur.questionID] = false;
+//     }
+//     return res;
+//   }, {});
+//
+//   users = users.map((user) => {
+//     if (user.userId === userId) {
+//       const newPassedTest = user.passedTests.map((item) => {
+//         if (item.testId === testId) {
+//           return { testId, answers: result };
+//         } else {
+//           return item;
+//         }
+//       });
+//
+//       return { ...user, passedTests: newPassedTest };
+//     } else {
+//       return user;
+//     }
+//   });
+//
+//   res.send(result);
+// });
+//
+// app.delete("/tests/:testId", (req, res) => {
+//   const testId = req.params.testId;
+//   testsArray.forEach((test,index) => {
+//     if (test.id === testId) {
+//       res.json(`Тест ${test.name} удалён`);
+//       testsArray.splice(index,1)
+//     }
 //   });
 // });
 
-app.delete("/tests/:testId", (req, res) => {
-  const testId = req.params.testId;
-  testsArray.forEach((test,index) => {
-    if (test.id === testId) {
-      res.json(`Тест ${test.name} удалён`);
-      testsArray.splice(index,1)
-    }
-  });
-});
-
-connectDb()
-  .on("error", console.log)
-  .on("disconnect", connectDb)
-  .once("open", startServer);
+// connectDb()
+//   .on("error", console.log)
+//   .on("disconnect", connectDb)
+//   .once("open", startServer);
