@@ -1,130 +1,207 @@
+/** @format */
+
 const express = require("express");
+
+
+const { getID } = require("./helpers/id");
 const bodyParser = require("body-parser");
+
 // const axios = require("axios");
-// const { connectDb } = require("./helpers/db");
-const { addTest } = require("./helpers/db");
-// const { port, db, authApiUrl } = require("./configuration");
-// const mongoose = require("mongoose");
+// const cors = require('cors');
+const { connectDb } = require("./helpers/db");
+// const { addTest } = require("./helpers/db");
+const { port, db} = require("./configuration");
+const mongoose = require("mongoose");
+const router = require('./router/index');
+
 const app = express();
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: true }));
+app.use(express.json())
+// app.use(cors())
+app.use('/api', router)
 
+const PORT = port || 3000
 // const postSchema = new mongoose.Schema({
 //   name: String,
 // });
 //
 // const Post = mongoose.model("Post", postSchema);
+const startServer = async () => {
+  try{
+    app.listen(PORT, async () => {
+      console.log(`Service api started on port:  ${PORT}`);
+      // console.log(`DataBase ${db}`);
 
-const startServer = () => {
-  app.listen(3000, async () => {
-    console.log(`Service api started on port: ${3000}`);
-    // console.log(`DataBase ${db}`);
-    //
-    // const silence = new Post({ name: "Silence" });
-    // // await silence.save();
-    //
-    // const posts = await Post.find();
-    //
-    // console.log("posts", posts);
-  });
+      // const silence = new Post({ name: "Silence" });
+      // await silence.save();
+
+      // const posts = await Post.find();
+
+      // console.log("posts", posts);
+    });
+  } catch (e) {
+    console.error(e)
+  }
+
 };
-const testsArray = [{ name: "Test1", id: "id1", q1: "How many cows?", q2: "Choose the right answer."}
-  , {name: "Test2", id: "id2", q1: "Choose the right answer.", q2: "how many dogs?"}];
-const keyAnswersArray = [{id: "id1", ans1: "1", ans2: "345"}, {id: "id2", ans1: "abd", ans2: "75"}]
-const users = [{userId: "5", userName: "Vasya"}]
-const usersAnswers = [{userId: "5", id: "id1", ans1: true, ans2: false}]
 
-app.get("/tests", (req, res) => { // вывыод всех тестов
-  res.json(testsArray);
-});
+const testsArray = [ //Массив тестов
+  {
+    name: "Test3",
+    // id: getID(),
+    id: "id1",
+    questions: [
+      {
+        // questionID: getID(),
+        questionID: "q1",
+        question: "Как работает чета там?",
+        description: " Выберите несколько вариантов",
+        type: "checkbox",
+        options: ["ответ 1", "ответ 2", "ответ 3"],
+        answer: "ответ 1",
+      },
+      {
+        // questionID: getID(),
+        questionID: "q2",
+        question: "Как работает чета там?",
+        description: " Выберите один вариант",
+        type: "radio",
+        options: ["ответ 1", "ответ 2", "ответ 3"],
+        answer: "ответ 3",
+      },
+      {
+        // questionID: getID(),
+        questionID: "q3",
+        question: "Как работает чета там?",
+        description: "Введите значение",
+        type: "input",
+        answer: "правда",
+      },
+    ],
+  },
+  {
+    name: "Test 1",
+    id: "id2",
+    questions:[
+      {questionID: "q1",
+        question: "Как работает чета там?",
+        description: " Выберите несколько вариантов",
+        type: "checkbox",
+        options: ["ответ 1", "ответ 2", "ответ 3"],
+        answer: "ответ 1",}
+    ]
+  }
+];
 
-app.get("/tests/:testId", (req, res) => { // Вывод определенного теста по id
-  const id = req.params.testId;
-  const result = testsArray.find((item) => item.id === id);
-  res.json(result);
-  console.log(id);
-});
-
-app.get("/tests/results/:resId", (req, res) => { // Вывод ответов теста
-  const id = req.params.resId;
-  const out = answersArray.find((item) => item.id === id);
-  res.json(out);
-});
-
-app.post("/tests/:testID/answer", (req, res) => { // Ответ на тест от пользователя и сравнение ответов.
-  answersArray = addTest(req.body);
-  const id = req.params.testID;
-  const answersKeysFromReq = Object.keys(req.body)
-  const answerFromServerArray = keyAnswersArray.find(item => item.id === id)
-
-  const resultObj = {}
-
-  answersKeysFromReq.forEach((key) => {
-    if(key !== 'id' & key !== 'userId') {
-      if (!req.body[key]) {
-        resultObj[key]=false
-      } else {
-        if (req.body[key] === answerFromServerArray[key]) {
-          resultObj[key]=true
-        } else {
-          resultObj[key]=false
-        }
-      }
-    } else {
-      resultObj[key] = req.body[key];
-    }
-  });
-
- // res.send(resultObj);
-  console.log(resultObj)
 
 
- usersAnswers.forEach((user) => {
-   if (user.userId !== resultObj.userId) {
-     usersAnswers.push(resultObj);
-   } else {
-     if (user.id === resultObj.id) {
-       for (item in user) {
-         user[item] = resultObj[item];
-       }
+let users = [ // Массив пользователей
+  {
+    userId: "5",
+    userName: "Vasya",
+    passedTests: [
+      { testId: "id1", answers: [] },
+      { testId: "id2", answers: [] },
+    ],
+  },
+  {
+    userId: "1",
+    userName: "Alesha",
+    passedTests: [{ testId: "id1", answers: [] }],
+  },
+];
 
-     }
-   }
-  });
+module.exports.testsArray = testsArray;
+module.exports.users = users;
 
- //console.log(resultObj);
-  res.send(usersAnswers);
-});
+module.exports.test = ['123'];
+module.exports.test2 = ['55555'];
+// export {testsArray, users};
 
-app.get("/test2", (req, res) => {
-  const vanya = testsArray.find((item) => item.name === req?.query?.testName);
-  console.log(vanya);
-  res.json(vanya);
-});
+startServer();
 
-// "test/1/response"[{ id1: 2, q2: [1, 2, 3], q3: "sd;lfkhsd" }];
-
-app.post("/testPost", (req, res) => {
-  addTest(req.body);
-  res.send("post!");
-});
-
-// app.get("/testwithCurrentUser", (req, res) => {
-//   axios.get(`${authApiUrl}/currentUser`).then((response) => {
-//     res.json({ testWithCurrentUser: true, currentUserFromAuth: response.data });
+// app.get("/tests", (req, res) => { // вывод всех тестов
+//   res.json(testsArray);
+// });
+//
+// app.get("/tests/:testId", (req, res) => { // выыод теста по id
+//   const testId = req.params.testId;
+//   const findTest = testsArray.find((test) => test.id === testId);
+//
+//   for (let option of findTest.questions) {
+//     delete option.answer;
+//   }
+//   res.json(findTest);
+// });
+//
+// app.get("/tests/results/:testId", (req, res) => {   // Вывод определенного теста по id
+//   const testId = req.params.testId;
+//   const findUser = users.find((user) => user.userId === req.body.userId);
+//   const findTest = findUser.passedTests.find((test) => test.testId === testId);
+//
+//   if (!findUser){
+//     res.json("Нет такого пользовтеля");
+//   } else {
+//     if (!findTest){
+//       res.json(`Нет такого теста у пользователя ${findUser.userName}`);
+//     } else {
+//       res.json(findTest)
+//     }
+//   }
+// });
+//
+// app.post("/tests/:testId", (req, res) => { // Добавление теста
+//   req.body.id = req.params.testId;
+//   testsArray.push(req.body);
+//   res.send('Тест добавлен.')
+// });
+//
+// app.post("/tests/:testId/answer", (req, res) => { // Обработка ответов (сравнение) теста
+//   console.log(req.body);
+//   const { userId, ...answers } = req.body;
+//   const testId = req.params.testId;
+//   const currentTest = testsArray.find((item) => item.id === testId);
+//
+//   const result = currentTest.questions.reduce((res, cur) => {
+//     if (answers[cur.questionID] === cur.answer) {
+//       res[cur.questionID] = true;
+//     } else {
+//       res[cur.questionID] = false;
+//     }
+//     return res;
+//   }, {});
+//
+//   users = users.map((user) => {
+//     if (user.userId === userId) {
+//       const newPassedTest = user.passedTests.map((item) => {
+//         if (item.testId === testId) {
+//           return { testId, answers: result };
+//         } else {
+//           return item;
+//         }
+//       });
+//
+//       return { ...user, passedTests: newPassedTest };
+//     } else {
+//       return user;
+//     }
+//   });
+//
+//   res.send(result);
+// });
+//
+// app.delete("/tests/:testId", (req, res) => {
+//   const testId = req.params.testId;
+//   testsArray.forEach((test,index) => {
+//     if (test.id === testId) {
+//       res.json(`Тест ${test.name} удалён`);
+//       testsArray.splice(index,1)
+//     }
 //   });
 // });
-
-app.get("/testApiData", (req, res) => {
-  res.json({
-    testWithApi: true,
-    status: "good",
-  });
-});
 
 // connectDb()
 //   .on("error", console.log)
 //   .on("disconnect", connectDb)
 //   .once("open", startServer);
-
-startServer();
