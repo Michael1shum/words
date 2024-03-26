@@ -20,6 +20,7 @@ services:
     command: npm run start
     restart: unless-stopped
     environment:
+      - CHOKIDAR_USEPOLLING=true
       - PORT=3001
       - MONGO_URL=mongodb://api_db:27017/api
       - AUTH_API_URL=http://auth:3002
@@ -34,6 +35,7 @@ services:
     command: npm run start
     restart: unless-stopped
     environment:
+      - CHOKIDAR_USEPOLLING=true
       - PORT=3002
       - MONGO_URL=mongodb://auth_db:27017/auth
       - API_URL=http://api:3001
