@@ -3,46 +3,37 @@
 const express = require('express');
 
 
-const {getID} = require('./helpers/id');
+const { getID } = require('./helpers/id');
 const bodyParser = require('body-parser');
 
-// const axios = require("axios");
 // const cors = require('cors');
-const {connectDb} = require('./helpers/db');
-// const { addTest } = require("./helpers/db");
-const {port, db} = require('./configuration');
-const mongoose = require('mongoose');
+const { connectDb } = require('./helpers/db');
+const { port, db } = require('./configuration');
 const router = require('./router/index');
+const errorsMiddleware = require('./middlewares/errors');
+const authMiddleware = require('./middlewares/auth');
+
 
 const app = express();
 app.use(bodyParser.json());
-app.use(bodyParser.urlencoded({extended: true}));
+app.use(bodyParser.urlencoded({ extended: true }));
 app.use(express.json());
 // app.use(cors())
+app.use(authMiddleware);
 app.use(router);
+app.use(errorsMiddleware);
 
-const PORT = port || 3000;
-// const postSchema = new mongoose.Schema({
-//   name: String,
-// });
-//
-// const Post = mongoose.model("Post", postSchema);
+const PORT = port || 3001;
+
 const startServer = async () => {
-    try {
-        app.listen(PORT, async () => {
-            console.log(`Service api started on port:  ${PORT}`);
-            console.log(`DataBase ${db}`);
-
-            // const silence = new Post({ name: "Silence" });
-            // await silence.save();
-
-            // const posts = await Post.find();
-
-            // console.log("posts", posts);
-        });
-    } catch (e) {
-        console.error(e);
-    }
+  try {
+    app.listen(PORT, async () => {
+      console.log(`Service api started on port:  ${PORT}`);
+      console.log(`DataBase ${db}`);
+    });
+  } catch (e) {
+    console.error(e);
+  }
 
 };
 
@@ -132,6 +123,6 @@ const startServer = async () => {
 // });
 
 connectDb()
-    .on("error", console.log)
-    .on("disconnect", connectDb)
-    .once("open", startServer);
+  .on('error', console.log)
+  .on('disconnect', connectDb)
+  .once('open', startServer);
