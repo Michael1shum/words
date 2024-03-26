@@ -43,7 +43,7 @@ services:
       - REFRESH_TOKEN_SECRET=word-refresh-secret-key
       - MAIL_ID=words.sup@mail.ru
       - MAIL_PASSWORD=C7pk1KpAh4YkyUu6gY0S
-      - APP_URL=http://localhost:3002
+      - APP_URL=http://localhost:3000
       - CLIENT_URL=http://ya.ru
     depends_on:
       - auth_db

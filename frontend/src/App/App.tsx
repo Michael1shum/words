@@ -1,7 +1,5 @@
-/** @format */
-
-import { Button, Col, Row } from 'antd';
 import React from 'react';
+import { Button, Col, Row } from 'antd';
 
 export const App = () => {
   return (
