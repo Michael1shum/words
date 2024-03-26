@@ -6,7 +6,7 @@ const router = new Router()
 router.get('/tests', PageController.getTests)
 router.get('/tests/:testId', PageController.testById)
 router.get('/tests/results/:testId', PageController.testResultById)
-router.post('/tests/:testId', PageController.testAdd)
+router.post('/test/add', PageController.addTest)
 router.post('/tests/:testId/answer', PageController.testAnswer)
 router.delete('/tests/:testId', PageController.testDelete)
 
