@@ -9,6 +9,7 @@ const bodyParser = require('body-parser');
 const { connectDb } = require('./helpers/db');
 const { port, db } = require('./configuration');
 const router = require('./router/index');
+const cookieParser = require('cookie-parser');
 const errorsMiddleware = require('./middlewares/errors');
 const authMiddleware = require('./middlewares/auth');
 
@@ -17,6 +18,7 @@ const app = express();
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: true }));
 app.use(express.json());
+app.use(cookieParser());
 // app.use(cors())
 app.use(authMiddleware);
 app.use(router);

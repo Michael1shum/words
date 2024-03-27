@@ -5,12 +5,7 @@ const { authApiUrl } = require('../configuration/index');
 
 module.exports = async function(req, res, next) {
   try {
-    const authorizationHeader = req.headers.authorization;
-    if (!authorizationHeader) {
-      return next(ApiError.UnauthorizedError());
-    }
-
-    const accessToken = authorizationHeader.split(' ')[1];
+    const { accessToken } = req.cookies;
     if (!accessToken) {
       return next(ApiError.UnauthorizedError());
     }
