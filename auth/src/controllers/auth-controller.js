@@ -1,4 +1,5 @@
 const TokenService = require('../services/token');
+const ApiError = require('../exceptions/api-error');
 
 
 class AuthController {
@@ -8,6 +9,7 @@ class AuthController {
       const accessData = TokenService.validateAccessToken(accessToken);
 
       if (!accessData) {
+        // throw ApiError.BadRequest('Токен не валидный')
         return res.status(401).send('Токен не валидный');
       }
       return res.status(200).send('Токен валидный');
