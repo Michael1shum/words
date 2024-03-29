@@ -49,6 +49,12 @@ class TokenService {
     const token = await tokenModel.findOne({ refreshToken });
     return token;
   }
+
+  setTokensInCookies(userData, res) {
+    res.cookie('refreshToken', userData.refreshToken, { maxAge: 24 * 60 * 60 * 1000, httpOnly: true });
+    res.cookie('accessToken', userData.accessToken, { maxAge: 15 * 60 * 1000, httpOnly: true });
+    res.cookie('role', userData?.user?.role, { maxAge: 15 * 60 * 1000, httpOnly: true });
+  }
 }
 
 module.exports = new TokenService();

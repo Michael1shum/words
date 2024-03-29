@@ -2,6 +2,7 @@ const userService = require('../services/user');
 const { clientUrl } = require('../configuration/index');
 const { validationResult } = require('express-validator');
 const ApiError = require('../exceptions/api-error');
+const TokenService = require('../services/token');
 
 class UserController {
   async registration(req, res, next) {
@@ -24,9 +25,7 @@ class UserController {
     try {
       const { email, password } = req.body;
       const userData = await userService.login(email, password);
-
-      res.cookie('refreshToken', userData.refreshToken, { maxAge: 24 * 60 * 60 * 1000, httpOnly: true });
-      res.cookie('accessToken', userData.accessToken, { maxAge: 15 * 60 * 1000, httpOnly: true });
+      TokenService.setTokensInCookies(userData, res);
 
       return res.status(200).send('login success');
     } catch (e) {
@@ -40,6 +39,7 @@ class UserController {
       await userService.logout(refreshToken);
       res.clearCookie('refreshToken');
       res.clearCookie('accessToken');
+      res.clearCookie('role');
       res.status(200).send('logout success');
     } catch (e) {
       next(e);
