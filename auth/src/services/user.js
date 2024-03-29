@@ -15,9 +15,11 @@ class UserService {
       throw ApiError.BadRequest(`Пользователь с адресом ${email} уже существует!`);
     }
     const hashPassword = await bcrypt.hash(password, 3);
+    //TODO добавить выставление роли при регистрации
+    const hashRole = await bcrypt.hash('user', 3);
     const activationLink = uuid.v4();
 
-    const user = await UserModel.create({ email, password: hashPassword, activationLink });
+    const user = await UserModel.create({ email, password: hashPassword, activationLink, role: hashRole });
     await MailService.sendActivationMail(email, `${appUrl}/auth/activate/${activationLink}`);
 
     const userDto = new UserDTO(user);
@@ -80,14 +82,6 @@ class UserService {
     await TokenService.saveToken(userDto.id, tokens.refreshToken);
 
     return { ...tokens, user: userDto };
-  }
-
-  async getAllUsers() {
-    const users = await UserModel.find();
-    return users.map(user => {
-      const userDTO = new UserDTO(user);
-      return { ...userDTO };
-    });
   }
 }
 

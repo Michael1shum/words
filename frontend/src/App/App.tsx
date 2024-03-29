@@ -19,6 +19,11 @@ export const App = () => {
     return data.data;
   };
 
+  const getUsers = async () => {
+    const data = await axios.get('/users/list');
+    return data.data;
+  };
+
   const registration = async () => {
     await axios.post('/api/registration', { email, password });
     setPassword('');
@@ -43,6 +48,12 @@ export const App = () => {
             const data = getTests();
             console.log(data);
           }}>getTests</Button>
+        </Col>
+        <Col>
+          <Button type={'primary'} onClick={() => {
+            const data = getUsers();
+            console.log(data);
+          }}>getUsers</Button>
         </Col>
         <Col>
           <Button type={'primary'} onClick={() => {

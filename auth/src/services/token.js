@@ -1,5 +1,6 @@
 const jwt = require('jsonwebtoken');
 const tokenModel = require('../models/token-model');
+const bcrypt = require('bcrypt');
 
 class TokenService {
   generateToken(payload) {
@@ -50,10 +51,11 @@ class TokenService {
     return token;
   }
 
-  setTokensInCookies(userData, res) {
+  async setTokensInCookies(userData, res) {
+    const hashedRole = await bcrypt.hash(userData?.user?.role, 3);
     res.cookie('refreshToken', userData.refreshToken, { maxAge: 24 * 60 * 60 * 1000, httpOnly: true });
     res.cookie('accessToken', userData.accessToken, { maxAge: 15 * 60 * 1000, httpOnly: true });
-    res.cookie('role', userData?.user?.role, { maxAge: 15 * 60 * 1000, httpOnly: true });
+    res.cookie('role', hashedRole, { maxAge: 15 * 60 * 1000, httpOnly: true });
   }
 }
 

@@ -2,14 +2,16 @@ const { createProxyMiddleware } = require('http-proxy-middleware');
 const TokenService = require('../services/token');
 const userService = require('../services/user');
 const ApiError = require('../exceptions/api-error');
-const { apiUrl } = require('../configuration/index');
+const { apiUrl, usersUrl } = require('../configuration/index');
 const UserModel = require('../models/user-model');
+const bcrypt = require('bcrypt');
 
 
 module.exports.authMiddleware = async (req, res, next) => {
   try {
     const { accessToken, refreshToken } = req.cookies;
-
+    console.log('accessToken', accessToken);
+    console.log('refreshToken', refreshToken);
     /**
      * нет токенов
      */
@@ -32,7 +34,7 @@ module.exports.authMiddleware = async (req, res, next) => {
        * валидный рефреш, но нет аксесса, перевыпускаем токены
        */
       const userData = await userService.refresh(refreshToken);
-      TokenService.setTokensInCookies(userData, res);
+      await TokenService.setTokensInCookies(userData, res);
 
       return next();
     }
@@ -54,7 +56,7 @@ module.exports.authMiddleware = async (req, res, next) => {
           return next(ApiError.UnauthorizedError());
         }
         const userData = await userService.refresh(refreshToken);
-        TokenService.setTokensInCookies(userData, res);
+        await TokenService.setTokensInCookies(userData, res);
 
         return next();
       }
@@ -71,7 +73,9 @@ module.exports.authMiddleware = async (req, res, next) => {
       const tokenFromDb = await TokenService.findToken(refreshToken);
       if (tokenData && tokenFromDb) {
         const user = await UserModel.findById(tokenData.id);
-        res.cookie('role', user.role, { maxAge: 15 * 60 * 1000, httpOnly: true });
+        const hashedRole = await bcrypt.hash(user.role, 3);
+
+        res.cookie('role', hashedRole, { maxAge: 15 * 60 * 1000, httpOnly: true });
       }
     }
     next();
@@ -81,6 +85,18 @@ module.exports.authMiddleware = async (req, res, next) => {
 };
 
 module.exports.apiProxy = createProxyMiddleware({
-  target: apiUrl,
+  target: '', // Пустой target для избежания ошибки
   changeOrigin: true,
+  router: function(req) {
+    switch (req.headers.path) {
+      case 'users': {
+        console.log('ttttttttt')
+        return usersUrl;
+      }
+
+      default:
+        return apiUrl;
+    }
+    return apiUrl; // Здесь должен быть ваш логика определения apiUrl на основе req
+  },
 });

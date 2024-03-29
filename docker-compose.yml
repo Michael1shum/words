@@ -29,6 +29,22 @@ services:
     networks:
       - words-docker-network
 
+  users:
+    build: ./users
+    container_name: words-users
+    command: npm run start
+    restart: unless-stopped
+    environment:
+      - CHOKIDAR_USEPOLLING=true
+      - PORT=3003
+      - MONGO_URL=mongodb://auth_db:27017/auth
+      - AUTH_API_URL=http://auth:3002
+      - API_URL=http://api:3001
+    depends_on:
+      - auth_db
+    networks:
+      - words-docker-network
+
   auth:
     build: ./auth
     container_name: words-auth
@@ -39,6 +55,7 @@ services:
       - PORT=3002
       - MONGO_URL=mongodb://auth_db:27017/auth
       - API_URL=http://api:3001
+      - USERS_URL=http://users:3003
       - ACCESS_TOKEN_SECRET=word-access-secret-key
       - REFRESH_TOKEN_SECRET=word-refresh-secret-key
       - MAIL_ID=words.sup@mail.ru

@@ -3,7 +3,14 @@ server {
 
     location /api/ {
         proxy_pass http://auth:3002;
+        proxy_set_header path api;
         rewrite ^/api(.*) $1 break;
+    }
+
+    location /users/ {
+        proxy_pass http://auth:3002;
+        proxy_set_header path users;
+         rewrite ^/users(.*) $1 break;
     }
 
     location /auth/ {

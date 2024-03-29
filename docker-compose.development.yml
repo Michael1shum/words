@@ -25,6 +25,13 @@ services:
     volumes:
       - ./auth/src:/usr/src/app/src
 
+  users:
+    command: npm run dev
+    ports:
+      - '3003:3003'
+    volumes:
+      - ./users/src:/usr/src/app/src
+
   auth_db:
     ports:
       - '27017:27017'
