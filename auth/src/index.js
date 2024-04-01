@@ -1,6 +1,5 @@
 const express = require('express');
 
-const cors = require('cors');
 const cookieParser = require('cookie-parser');
 const { connectDb } = require('./helpers/db');
 const { port, db } = require('./configuration');
@@ -14,7 +13,6 @@ const PORT = port || 3002;
 const app = express();
 app.use(express.json());
 app.use(cookieParser());
-app.use(cors());
 app.use(router);
 app.use(authMiddleware);
 app.use(apiProxy);
