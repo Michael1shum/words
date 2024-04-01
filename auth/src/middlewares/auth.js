@@ -1,15 +1,15 @@
-const {createProxyMiddleware} = require('http-proxy-middleware');
+const { createProxyMiddleware } = require('http-proxy-middleware');
 const TokenService = require('../services/token');
 const userService = require('../services/user');
 const ApiError = require('../exceptions/api-error');
-const {apiUrl, usersUrl} = require('../configuration/index');
+const { apiUrl, usersUrl } = require('../configuration/index');
 const UserModel = require('../models/user-model');
 const bcrypt = require('bcrypt');
 
 
 module.exports.authMiddleware = async (req, res, next) => {
     try {
-        const {accessToken, refreshToken} = req.cookies;
+        const { accessToken, refreshToken } = req.cookies;
         /**
          * нет токенов
          */
@@ -64,15 +64,15 @@ module.exports.authMiddleware = async (req, res, next) => {
             return next(ApiError.UnauthorizedError());
         }
         /**
-         * валидный аксесс. Дописываем роль в заголовки для сервиса api
+         * валидный аксесс. Дописываем роль в куки
          */
         if (refreshToken && accessTokenData) {
             const tokenData = TokenService.validateRefreshToken(refreshToken);
             const tokenFromDb = await TokenService.findToken(refreshToken);
             if (tokenData && tokenFromDb) {
                 const user = await UserModel.findById(tokenData.id);
-
-                res.cookie('role', user.role ?? 'user', {maxAge: 15 * 60 * 1000, httpOnly: true});
+                res.cookie('role', user.role ?? 'user', { maxAge: 15 * 60 * 1000, httpOnly: true });
+                req.headers.id = user._id;
             }
         }
         next();
@@ -84,7 +84,7 @@ module.exports.authMiddleware = async (req, res, next) => {
 module.exports.apiProxy = createProxyMiddleware({
     target: '',
     changeOrigin: true,
-    router: function (req) {
+    router: function(req) {
         switch (req.headers.path) {
             case 'users': {
                 return usersUrl;

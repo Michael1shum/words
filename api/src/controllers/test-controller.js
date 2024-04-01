@@ -1,14 +1,7 @@
-// import {testsArray, users} from "../index";
-// let {users} = require('../index');
-// const testsArray = require('../index');
-// let users = require('../index');
 const TestService = require('../services/test');
-const { test, test2, users, testsArray } = require('../configuration/index');
+const { users, testsArray } = require('../configuration/index');
 
-// const {testsArray, users} = require('../index')
-
-
-class PageController {
+class TestController {
   async getTests(req, res, next) {
     try {
       const tests = await TestService.getAllTests();
@@ -181,4 +174,4 @@ class PageController {
 //     },
 // ];
 
-module.exports = new PageController();
+module.exports = new TestController();

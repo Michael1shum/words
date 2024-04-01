@@ -1,10 +1,9 @@
 const express = require('express');
 
-const axios = require('axios');
 const cors = require('cors');
 const cookieParser = require('cookie-parser');
 const { connectDb } = require('./helpers/db');
-const { port, db, apiUrl } = require('./configuration');
+const { port, db } = require('./configuration');
 const router = require('./router/index');
 const errorsMiddleware = require('./middlewares/errors');
 const { authMiddleware, apiProxy } = require('./middlewares/auth');
@@ -27,24 +26,6 @@ const startServer = () => {
     console.log(`DataBase ${db}`);
   });
 };
-
-
-// app.get("/test", (req, res) => {
-//   res.send("Server is working! Auth services");
-// });
-//
-// app.get("/currentUser", (req, res) => {
-//   res.json({
-//     id: 123,
-//     email: "test@example.com",
-//   });
-// });
-//
-// app.get("/testWithApiData", (req, res) => {
-//   axios
-//     .get(`${apiUrl}/testApiData`)
-//     .then((response) => res.json(response.data));
-// });
 
 connectDb()
   .on('error', console.log)
