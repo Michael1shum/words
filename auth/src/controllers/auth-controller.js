@@ -1,4 +1,4 @@
-const userService = require('../services/user');
+const authService = require('../services/auth');
 const { clientUrl } = require('../configuration/index');
 const { validationResult } = require('express-validator');
 const ApiError = require('../exceptions/api-error');
@@ -12,7 +12,7 @@ class AuthController {
         return next(ApiError.BadRequest('Ошибки при валидации', errors.array()));
       }
       const { email, password } = req.body;
-      const userData = await userService.registration(email, password);
+      const userData = await authService.registration(email, password);
       res.cookie('refreshToken', userData.refreshToken, { maxAge: 24 * 60 * 60 * 1000, httpOnly: true });
       res.cookie('accessToken', userData.accessToken, { maxAge: 15 * 60 * 1000, httpOnly: true });
       return res.json(userData.user);
@@ -24,7 +24,7 @@ class AuthController {
   async login(req, res, next) {
     try {
       const { email, password } = req.body;
-      const userData = await userService.login(email, password);
+      const userData = await authService.login(email, password);
       await TokenService.setTokensInCookies(userData, res);
 
       return res.status(200).send('login success');
@@ -35,11 +35,9 @@ class AuthController {
 
   async logout(req, res, next) {
     try {
-      const { refreshToken } = req.cookies;
-      await userService.logout(refreshToken);
-      res.clearCookie('refreshToken');
-      res.clearCookie('accessToken');
-      res.clearCookie('role');
+      const { refreshToken, accessToken } = req.cookies;
+      await authService.logout(refreshToken, accessToken);
+      authService.deleteCookie(res);
       res.status(200).send('logout success');
     } catch (e) {
       next(e);
@@ -49,7 +47,7 @@ class AuthController {
   async activate(req, res, next) {
     try {
       const activationLink = req.params.link;
-      await userService.activate(activationLink);
+      await authService.activate(activationLink);
       return res.redirect(clientUrl);
     } catch (e) {
       next(e);
@@ -59,7 +57,7 @@ class AuthController {
   async refresh(req, res, next) {
     try {
       const { refreshToken } = req.cookies;
-      const userData = await userService.refresh(refreshToken);
+      const userData = await authService.refresh(refreshToken);
 
       res.cookie('refreshToken', userData.refreshToken, { maxAge: 24 * 60 * 60 * 1000, httpOnly: true });
       res.cookie('accessToken', userData.accessToken, { maxAge: 15 * 60 * 1000, httpOnly: true });
@@ -69,10 +67,10 @@ class AuthController {
     }
   }
 
-  checkAuth(req, res, next) {
+  async checkAuth(req, res, next) {
     try {
       const { accessToken } = req.body;
-      const accessData = TokenService.validateAccessToken(accessToken);
+      const accessData = await TokenService.validateAccessToken(accessToken);
 
       if (!accessData) {
         return res.status(401).send('Токен не валидный');

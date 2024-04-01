@@ -1,5 +1,6 @@
 const UserModel = require('../models/user-model');
 const UserDTO = require('../dto/user-dto');
+const ApiError = require('../exceptions/api-error');
 
 class UserService {
   async getAllUsers() {
@@ -9,6 +10,15 @@ class UserService {
       const userDTO = new UserDTO(user);
       return { ...userDTO };
     });
+  }
+
+  async getUserById(id) {
+    const user = await UserModel.findById(id);
+    if (!user) {
+      throw ApiError.BadRequest('Пользователя не существует');
+    }
+    const userDTO = new UserDTO(user);
+    return { ...userDTO };
   }
 }
 

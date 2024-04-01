@@ -10,6 +10,15 @@ class UserController {
       next(e);
     }
   }
+
+  async getUserById(req, res, next) {
+    try {
+      const user = await userService.getUserById(req.params.id);
+      return res.json(user);
+    } catch (e) {
+      next(e);
+    }
+  }
 }
 
 module.exports = new UserController();
