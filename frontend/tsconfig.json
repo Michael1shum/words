@@ -1,17 +1,25 @@
 {
-  "include": ["src/**/*.ts", "src/**/*.tsx",
+  "include": [
+    "src/**/*.ts",
+    "src/**/*.tsx",
     "global.d.ts"
   ],
   "compilerOptions": {
     "baseUrl": "src",
     "paths": {
-      "@components/*": ["components/*"]
+      "@components/*": [
+        "components/*"
+      ]
     },
     "outDir": "./dist/",
     "noImplicitAny": true,
     "sourceMap": true,
     "module": "commonjs",
-    "target": "es5",
+    "target": "ESNext",
+    "lib": [
+      "ES2015",
+      "DOM"
+    ],
     "jsx": "react",
     "esModuleInterop": true,
     "allowJs": true,
