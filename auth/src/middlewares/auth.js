@@ -103,7 +103,7 @@ module.exports.authMiddleware = async (req, res, next) => {
       if (tokenData && tokenFromDb) {
         const user = await UserModel.findById(tokenData.id);
         res.cookie('role', user.role ?? 'user', { maxAge: 15 * 60 * 1000, httpOnly: true });
-        req.headers['X-id'] = user._id;
+        req.headers['x-id'] = user._id;
       }
     }
     next();
@@ -116,14 +116,18 @@ module.exports.apiProxy = createProxyMiddleware({
   target: '',
   changeOrigin: true,
   router: function(req) {
-    switch (req.headers.path) {
+    console.log('vot1:', req.headers);
+    switch (req.headers['x-path']) {
       case 'users': {
         return usersUrl;
+      }
+
+      case 'api': {
+        return apiUrl;
       }
 
       default:
         return apiUrl;
     }
-    return apiUrl;
   },
 });

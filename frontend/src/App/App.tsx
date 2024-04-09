@@ -26,6 +26,26 @@ export const App = () => {
     return data.data;
   };
 
+  const addTest = async () => {
+    const data = await axios.post('/api/tests/add', {
+      name: 'Test 777',
+      questions: [
+        {
+          questionID: 'id1',
+          description: 'Выберите несколько вариантов',
+          controlType: 'checkbox',
+          options: [
+            'ответ 1',
+            'ответ 2',
+            'ответ 3',
+          ],
+          answer: 'ответ 1',
+        },
+      ],
+    });
+    console.log(data);
+  };
+
   const registration = async () => {
     await axios.post('/api/registration', { email, password });
     setPassword('');
@@ -61,6 +81,11 @@ export const App = () => {
           <Button type={'primary'} onClick={() => {
             registration();
           }}>registration</Button>
+        </Col>
+        <Col>
+          <Button type={'primary'} onClick={() => {
+            addTest();
+          }}>addTest</Button>
         </Col>
       </Row>
       <Row gutter={24}>

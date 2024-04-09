@@ -48,6 +48,7 @@ class TestController {
   async addTest(req, res, next) {
     try {
       const test = req.body;
+      console.log('test,', test);
       const newTest = await TestService.addTest(test);
       res.json(newTest);
     } catch (e) {
