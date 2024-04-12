@@ -111,12 +111,18 @@ module.exports.authMiddleware = async (req, res, next) => {
     return next(ApiError.UnauthorizedError());
   }
 };
-
 module.exports.apiProxy = createProxyMiddleware({
   target: '',
   changeOrigin: true,
+  onProxyReq: (proxyReq, req, res, options) => {
+    if (req.body || req.headers['content-type'] === 'application/json') {
+      let body = JSON.stringify(req.body);
+      proxyReq.setHeader('Content-Type', 'application/json');
+      proxyReq.setHeader('Content-Length', Buffer.byteLength(body));
+      proxyReq.write(body);
+    }
+  },
   router: function(req) {
-    console.log('vot1:', req.headers);
     switch (req.headers['x-path']) {
       case 'users': {
         return usersUrl;
