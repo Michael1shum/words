@@ -1,14 +1,18 @@
 const { Schema, model } = require('mongoose');
 
 const TestSchema = new Schema({
-  name: { type: String, required: true },
-  questions: [{
-    controlType: { type: String, required: true },
-    options: { type: [String], required: true },
-    answer: { type: String, required: true },
-    description: String,
-    questionID: { type: String, required: true },
-  }],
+    user: { type: Schema.Types.ObjectId, ref: 'User' },
+    TestId: {type: Schema.Types.ObjectId, ref:'Test'},
+    name: { type: String },
+    questions: [{
+        controlType: { type: String },
+        options: { type: [String] },
+        answer: { type: String },
+        userAnswer: String,
+        answerIsCorrect: String,
+        description: String,
+        questionID: { type: String },
+    }],
 });
 
 module.exports = model('Test', TestSchema);

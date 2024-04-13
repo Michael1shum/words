@@ -11,40 +11,6 @@ class TestController {
     }
   }
 
-  async testById(req, res, next) {
-    try {
-      const testId = req.params.testId;
-      const findTest = testsArray.find((test) => test.id === testId);
-
-      for (let option of findTest.questions) {
-        delete option.answer;
-      }
-      res.json(findTest);
-    } catch (e) {
-      console.error(e);
-    }
-  }
-
-  async testResultById(req, res, next) {
-    try {
-      const testId = req.params.testId;
-      const findUser = users.find((user) => user.userId === req.body.userId);
-      const findTest = findUser.passedTests.find((test) => test.testId === testId);
-
-      if (!findUser) {
-        res.json('Нет такого пользовтеля');
-      } else {
-        if (!findTest) {
-          res.json(`Нет такого теста у пользователя ${findUser.userName}`);
-        } else {
-          res.json(findTest);
-        }
-      }
-    } catch (e) {
-      console.error(e);
-    }
-  }
-
   async addTest(req, res, next) {
     try {
       const test = req.body;
@@ -55,41 +21,40 @@ class TestController {
     }
   }
 
+  async testById(req, res, next) {
+    try {
+      const testId = req.params.testId;
+      const test = await TestService.getTestById(testId);
+      res.json(test);
+    } catch (e) {
+      next(e);
+    }
+  }
+
+  async testResultById(req, res, next) {
+    try {
+      const testId = req.params.testId;
+      const userId = "6617c09bf1b0905de3ff2e78";
+      console.log(userId, "||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||");
+      const test = await TestService.getUserTestById(testId, userId);
+      res.json(test);
+    } catch (e) {
+      next(e);
+    }
+  }
+
+
+
   async testAnswer(req, res, next) {
     try {
-      console.log(req.body);
-      const { userId, ...answers } = req.body;
+      // const { userId, ...answers } = req.body;
       const testId = req.params.testId;
-      const currentTest = testsArray.find((item) => item.id === testId);
-
-      const result = currentTest.questions.reduce((res, cur) => {
-        if (answers[cur.questionID] === cur.answer) {
-          res[cur.questionID] = true;
-        } else {
-          res[cur.questionID] = false;
-        }
-        return res;
-      }, {});
-//TODO обратить внимание на то, что меняем константное значение
-      users = users.map((user) => {
-        if (user.userId === userId) {
-          const newPassedTest = user.passedTests.map((item) => {
-            if (item.testId === testId) {
-              return { testId, answers: result };
-            } else {
-              return item;
-            }
-          });
-
-          return { ...user, passedTests: newPassedTest };
-        } else {
-          return user;
-        }
-      });
-
-      res.send(result);
+      const userId = "6617c09bf1b0905de3ff2e78";
+      const testResult = await TestService.getComparison(testId, userId, req.body);
+      await TestService.addTest(testResult);
+      res.json(testResult);
     } catch (e) {
-      console.error(e);
+      next(e);
     }
   }
 
