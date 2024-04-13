@@ -3,7 +3,6 @@ const common = require('./webpack.common');
 const path = require('path');
 
 module.exports = (env) => {
-  console.log('dev env', env);
   return merge(common(env), {
     mode: 'development',
     devtool: 'inline-source-map',

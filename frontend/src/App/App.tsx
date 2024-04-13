@@ -1,29 +1,75 @@
-/** @format */
-
-import { ListForm } from '@components/ListForm';
-import { WordList } from '@components/WordsList/WordsList';
-import { Col, FormProps, Row } from 'antd';
-import Typography from 'antd/es/typography/Typography';
 import React, { useState } from 'react';
-import { WordsFields } from './types';
+import { Button, Col, Input, Row } from 'antd';
+import axios from 'axios';
 
 export const App = () => {
-  const [data, setData] = useState<WordsFields[]>([]);
-  console.log(data);
+  const [email, setEmail] = useState('');
+  const [password, setPassword] = useState('');
 
-  const onFinish: FormProps['onFinish'] = (values) => {
-    setData(values.data);
+  const login = async () => {
+    await axios.post('/auth/login', { email, password });
+    setPassword('');
+    setEmail('');
   };
+
+  const logout = async () => {
+    await axios.post('/auth/logout');
+  };
+
+  const getTests = async () => {
+    const data = await axios.get('/api/tests');
+    return data.data;
+  };
+
+  const getUsers = async () => {
+    const data = await axios.get('/users/list');
+    return data.data;
+  };
+
+  const registration = async () => {
+    await axios.post('/api/registration', { email, password });
+    setPassword('');
+    setEmail('');
+  };
+
   return (
     <>
-      <Row justify={'center'}>
-        <Col span={24}>
-          <ListForm onFinish={onFinish} />
+      <Row justify={'center'} gutter={16}>
+        <Col>
+          <Button type={'primary'} onClick={() => {
+            login();
+          }}>login</Button>
+        </Col>
+        <Col>
+          <Button type={'primary'} onClick={() => {
+            logout();
+          }}>logout</Button>
+        </Col>
+        <Col>
+          <Button type={'primary'} onClick={() => {
+            const data = getTests();
+            console.log(data);
+          }}>getTests</Button>
+        </Col>
+        <Col>
+          <Button type={'primary'} onClick={() => {
+            const data = getUsers();
+            console.log(data);
+          }}>getUsers</Button>
+        </Col>
+        <Col>
+          <Button type={'primary'} onClick={() => {
+            registration();
+          }}>registration</Button>
         </Col>
       </Row>
-      <Row>
-        <Col span={24}>
-          <WordList data={data} />
+      <Row gutter={24}>
+        <Col>
+          <Input placeholder={'Введите email'} value={email} onChange={(e) => setEmail(e.target.value)} />
+        </Col>
+        <Col>
+          <Input placeholder={'Введите пароль'} value={password}
+                 onChange={(e) => setPassword(e.target.value)} />
         </Col>
       </Row>
     </>
