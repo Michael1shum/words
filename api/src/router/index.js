@@ -6,10 +6,7 @@ const router = new Router();
 router.get('/tests', TestController.getTests);
 router.get('/tests/:testId', TestController.testById);
 router.get('/tests/results/:testId', TestController.testResultById);
-router.post('/tests/add', (req, res, next) => {
-  console.log('POST request received');
-  next();
-}, TestController.addTest);
+router.post('/tests/add', TestController.addTest);
 router.post('/tests/:testId/answer', TestController.testAnswer);
 router.delete('/tests/:testId', TestController.testDelete);
 

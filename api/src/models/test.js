@@ -1,18 +1,16 @@
-const { Schema, model } = require('mongoose');
+const {Schema, model} = require('mongoose');
+
+const QuestionSchema = new Schema({
+    controlType: {type: String},
+    options: {type: [String]},
+    answer: {type: String},
+    description: String,
+})
 
 const TestSchema = new Schema({
-    user: { type: Schema.Types.ObjectId, ref: 'User' },
-    TestId: {type: Schema.Types.ObjectId, ref:'Test'},
-    name: { type: String },
-    questions: [{
-        controlType: { type: String },
-        options: { type: [String] },
-        answer: { type: String },
-        userAnswer: String,
-        answerIsCorrect: String,
-        description: String,
-        questionID: { type: String },
-    }],
-});
+    name: {type: String},
+    questions: [QuestionSchema],
+    studentsAnswers: {type: Object, default: {}}
+}, {strict: false});
 
 module.exports = model('Test', TestSchema);
