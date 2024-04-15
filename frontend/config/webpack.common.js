@@ -6,7 +6,7 @@ module.exports = (env) => {
   let title = 'Prod';
 
   if (env) {
-    title = env.production === 'production' ? 'Production' : 'Development';
+    title = env.DEV === 'production' ? 'Production' : 'Development';
   }
   return {
     entry: './src/index.tsx',

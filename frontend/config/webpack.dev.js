@@ -7,8 +7,11 @@ module.exports = (env) => {
     mode: 'development',
     devtool: 'inline-source-map',
     devServer: {
+      client: {
+        webSocketURL: 'ws://127.0.0.1:3000/ws',
+      },
       static: {
-        directory: path.join(__dirname, '..', 'public '),
+        directory: path.join(__dirname, '..', 'public'),
       },
       compress: true,
       port: 3000,
@@ -16,10 +19,6 @@ module.exports = (env) => {
     },
     watch: {
       ignored: 'node_modules',
-    },
-    watchOptions: {
-      aggregateTimeout: 500, // delay before reloading
-      poll: 1000, // enable polling since fsevents are not supported in docker
     },
   });
 };
