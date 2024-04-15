@@ -1,12 +1,15 @@
 const path = require('path');
 const HtmlWebpackPlugin = require('html-webpack-plugin');
 const MiniCssExtractPlugin = require('mini-css-extract-plugin');
+const webpack = require('webpack');
+
+const MODE = process.env.MODE;
 
 module.exports = (env) => {
-  let title = 'Prod';
+  let title = 'Production';
 
-  if (env) {
-    title = env.DEV === 'production' ? 'Production' : 'Development';
+  if (MODE) {
+    title = MODE === 'PROD' ? 'Production' : 'Development';
   }
   return {
     entry: './src/index.tsx',
@@ -33,6 +36,7 @@ module.exports = (env) => {
       ],
     },
     plugins: [
+      new webpack.EnvironmentPlugin(['MODE']),
       new HtmlWebpackPlugin({ template: 'public/index.html', title }),
       new MiniCssExtractPlugin({
         filename: '[name].css',
