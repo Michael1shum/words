@@ -19,6 +19,16 @@ class UserController {
       next(e);
     }
   }
+
+  async postUserDataById(req, res, next) {
+    try {
+      const userData = await userService.postUserDataById(req.body);
+      return res.json(userData);
+    } catch (e) {
+      next(e);
+    }
+  }
+
 }
 
 module.exports = new UserController();
