@@ -1,76 +1,98 @@
-const TestModel = require('../models/test')
+const TestModel = require('../models/test-model');
+// const UserModel = require('../../../auth/src/models/user-model');
 const mongoose = require('mongoose');
-const {users} = require("../configuration");
+const { usersUrl } = require('../configuration/index');
+const uuid = require('uuid')
+const TestDTO = require('../dto/test-dto');
+const axios = require('axios');
+const ApiError = require('../exceptions/api-error');
+const {response} = require("express");
 
-// const objectId = new mongoose.Types.ObjectId('66143a2da3ab8bffb7de34d6');
-// console.log(typeof(objectId),'|||||||||||||||||||||||||||||||||||||||||||||||||||||||');
 
 class TestService {
     async getAllTests() {
         const tests = await TestModel.find();
-        return tests
+        const emptyTests = []
+        for (let test of tests){
+            let testDTO = new TestDTO(test);
+            emptyTests.push(testDTO);
+        }
+        if (emptyTests.length === 0){
+            return "Список тестов пуст!"
+        }
+        else {
+            return emptyTests
+        }
     }
 
     async getTestById(testId) {
-        const test =  await TestModel.findById(testId).lean();
-        delete test.__v;
-        return test
-    }
-
-    async getUserTestById(testId, userId){
-        const userAnswer = await TestModel.findOne({user: userId});
-        console.log(userAnswer,"111111111111111111111111111111111111111111111111111111")
-        const originalTest = await TestModel.findById(testId);
-        const testAnswers = [userAnswer, originalTest];
-        return testAnswers;
-
-    }
-
-    async getComparison(testId, userId, userTestAnswer){
-        const currentTest = await TestModel.findById(testId).lean();
-        // console.log("getComparison: currentTest", currentTest, "userTestAnswer", userTestAnswer)
-        for (let key in userTestAnswer.questions) {
-            console.log(currentTest.questions[key].answer);
-            if (userTestAnswer.questions[key].userAnswer === currentTest.questions[key].answer) {
-                userTestAnswer.questions[key].answerIsCorrect = true;
-            } else {
-                userTestAnswer.questions[key].answerIsCorrect = false;
-            }
+        const test = await TestModel.findById(testId);
+        if (!test) {
+            throw ApiError.NotFound(`Такого теста не существует!`)
         }
-        userTestAnswer.TestId = testId;
-
-        return userTestAnswer;
-
-//         const result = currentTest.questions.reduce((res, cur) => {
-//             if (answers[cur.questionID] === cur.answer) {
-//                 res[cur.questionID] = true;
-//             } else {
-//                 res[cur.questionID] = false;
-//             }
-//             return res;
-//         }, {});
-// //TODO обратить внимание на то, что меняем константное значение
-//
-//         users = users.map((user) => {
-//             if (user.userId === userId) {
-//                 const newPassedTest = user.passedTests.map((item) => {
-//                     if (item.testId === testId) {
-//                         return { testId, answers: result };
-//                     } else {
-//                         return item;
-//                     }
-//                 });
-//
-//                 return { ...user, passedTests: newPassedTest };
-//             } else {
-//                 return user;
-//             }
-//         });
+        const testDTO = new TestDTO(test);
+        return testDTO
     }
 
-    async addTest(test) {
-        const newTest = await TestModel.create({...test})
+    async testResultById(testId, userId) {
+        const currentUser = await axios.get(`${usersUrl}/user/${userId}`);
+        const requestedTestScore = currentUser.data.testsAnswers[testId];
+        if (!requestedTestScore) {
+            throw ApiError.NotFound('Данные запрошенного теста не найдены.')
+        }
+        return requestedTestScore
+    }
+
+    async getComparison(testId, userId, userTestAnswer) {
+        // const currentUser = await UserModel.findById(userId);
+        const currentTest = await TestModel.findById(testId);
+        if (!currentTest) {
+            throw ApiError.NotFound(`Такого теста не существует!`)
+        } else {
+            const questions = currentTest.questions;
+            const correctAnswersArray = []
+
+            for (let answer of userTestAnswer.answers) {
+                const answerFromDb = questions.find(item => item._id.toString() === answer.id)?.answer
+                if (answer.value === answerFromDb) {
+                    correctAnswersArray.push(answer.id)
+                }
+            }
+            const correctAnswersPercent = correctAnswersArray.length / currentTest.questions.length * 100;
+
+            currentTest.studentsAnswers[userId] = correctAnswersPercent;
+            currentTest.markModified('studentsAnswers');
+            await currentTest.save();
+            const currentUser = await axios.get(`${usersUrl}/user/${userId}`);
+
+            currentUser.data.testsAnswers = {[testId]: correctAnswersPercent};
+            await axios.put(`${usersUrl}/user/${userId}`, currentUser.data)
+                .then(response => {
+                    console.log('Данные пользователя успешно обновлены:', response.data);
+                })
+                .catch(error => {
+                    console.error('Ошибка при обновлении данных пользователя:', error);
+                });
+            return correctAnswersPercent;
+        }
+    }
+
+    async addTest(testData) {
+        const newTest = await TestModel.create({...testData})
         return newTest
+    }
+
+    async deleteTest(testId) {
+        const test = await TestModel.findByIdAndDelete(testId);
+        if (!test) {
+            throw ApiError.NotFound(`Тест не был найден.`);
+        } else {
+            // await axios.patch(`${usersUrl}/user/${userId}`, test)
+            //     .then( response => {
+            //
+            //     })
+            return (`Тест удалён.`);
+        }
     }
 }
 

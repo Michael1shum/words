@@ -13,7 +13,7 @@ const errorsMiddleware = require('./middlewares/errors');
 const app = express();
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({extended: true}));
-app.use(express.json());
+// app.use(express.json());
 app.use(cookieParser());
 app.use(router);
 app.use(errorsMiddleware);
