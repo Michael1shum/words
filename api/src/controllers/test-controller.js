@@ -1,5 +1,6 @@
 const TestService = require('../services/test');
 const {users, testsArray} = require('../configuration/index');
+const ApiError = require('../exceptions/api-error');
 
 class TestController {
     async getTests(req, res, next) {
@@ -34,10 +35,9 @@ class TestController {
     async testResultById(req, res, next) {
         try {
             const testId = req.params.testId;
-            const userId = "6617c09bf1b0905de3ff2e78";
-            console.log(userId, "||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||");
-            const test = await TestService.getUserTestById(testId, userId);
-            res.json(test);
+            const userId = req.headers['x-id']
+            const testScore = await TestService.testResultById(testId, userId);
+            res.json(testScore);
         } catch (e) {
             next(e);
         }
@@ -54,18 +54,14 @@ class TestController {
             next(e);
         }
     }
-
+//TODO Удаляться должны также и % сдачи теста
     async testDelete(req, res, next) {
         try {
             const testId = req.params.testId;
-            testsArray.forEach((test, index) => {
-                if (test.id === testId) {
-                    res.json(`Тест ${test.name} удалён`);
-                    testsArray.splice(index, 1);
-                }
-            });
+            const result = await TestService.deleteTest(testId);
+            res.json(result);
         } catch (e) {
-            console.error(e);
+            next(e);
         }
     }
 }

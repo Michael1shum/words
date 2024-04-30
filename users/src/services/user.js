@@ -20,6 +20,14 @@ class UserService {
     const userDTO = new UserDTO(user);
     return { ...userDTO };
   }
+
+  async postUserDataById(userData) {
+    const user = await UserModel.findById(userData.id);
+    const [[testId, correctAnswersPercent]] = Object.entries(userData.testsAnswers);
+    user.testsAnswers[testId] = correctAnswersPercent;
+    user.markModified('testsAnswers');
+    await user.save();
+  }
 }
 
 module.exports = new UserService();
