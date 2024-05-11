@@ -8,7 +8,6 @@ const errorsMiddleware = require('./middlewares/errors');
 
 const PORT = port || 3003;
 
-
 const app = express();
 app.use(express.json());
 app.use(cookieParser());
@@ -22,7 +21,4 @@ const startServer = () => {
   });
 };
 
-connectDb()
-  .on('error', console.log)
-  .on('disconnect', connectDb)
-  .once('open', startServer);
+connectDb().on('error', console.log).on('disconnect', connectDb).once('open', startServer);

@@ -23,7 +23,7 @@
     "style-loader": "3.3.3",
     "ts-loader": "9.5.0",
     "tslib": "2.6.2",
-    "typescript": "5.2.2",
+    "typescript": "5.4.5",
     "typescript-plugin-css-modules": "5.0.2",
     "webpack": "5.90.1",
     "webpack-cli": "5.1.4",

@@ -4,7 +4,5 @@ import { router } from '../routes';
 import '../assets/global.scss';
 
 export const App = () => {
-  return (
-    <RouterProvider router={router} />
-  );
+  return <RouterProvider router={router} />;
 };

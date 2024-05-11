@@ -1,4 +1,4 @@
 export interface WordsFields {
-    word: string;
-    translation: string;
+  word: string;
+  translation: string;
 }

@@ -1,25 +1,16 @@
 {
-  "include": [
-    "src/**/*.ts",
-    "src/**/*.tsx",
-    "global.d.ts"
-  ],
+  "include": ["src/**/*.ts", "src/**/*.tsx", "global.d.ts"],
   "compilerOptions": {
     "baseUrl": "src",
     "paths": {
-      "@components/*": [
-        "components/*"
-      ]
+      "@components/*": ["components/*"]
     },
     "outDir": "./dist/",
     "noImplicitAny": true,
     "sourceMap": true,
     "module": "commonjs",
     "target": "ESNext",
-    "lib": [
-      "ES2015",
-      "DOM"
-    ],
+    "lib": ["ES2015", "DOM"],
     "jsx": "react",
     "esModuleInterop": true,
     "allowJs": true,

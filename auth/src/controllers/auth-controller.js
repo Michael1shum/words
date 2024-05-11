@@ -13,7 +13,10 @@ class AuthController {
       }
       const { email, password } = req.body;
       const userData = await authService.registration(email, password);
-      res.cookie('refreshToken', userData.refreshToken, { maxAge: 24 * 60 * 60 * 1000, httpOnly: true });
+      res.cookie('refreshToken', userData.refreshToken, {
+        maxAge: 24 * 60 * 60 * 1000,
+        httpOnly: true,
+      });
       res.cookie('accessToken', userData.accessToken, { maxAge: 15 * 60 * 1000, httpOnly: true });
       return res.json(userData.user);
     } catch (e) {
@@ -59,7 +62,10 @@ class AuthController {
       const { refreshToken } = req.cookies;
       const userData = await authService.refresh(refreshToken);
 
-      res.cookie('refreshToken', userData.refreshToken, { maxAge: 24 * 60 * 60 * 1000, httpOnly: true });
+      res.cookie('refreshToken', userData.refreshToken, {
+        maxAge: 24 * 60 * 60 * 1000,
+        httpOnly: true,
+      });
       res.cookie('accessToken', userData.accessToken, { maxAge: 15 * 60 * 1000, httpOnly: true });
       return res.status(200).send('token refreshed');
     } catch (e) {
@@ -79,7 +85,6 @@ class AuthController {
     } catch (e) {
       next(e);
     }
-
   }
 }
 

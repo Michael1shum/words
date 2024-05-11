@@ -34,11 +34,7 @@ export const TestsPage = () => {
         {
           description: 'Выберите несколько вариантов',
           controlType: 'checkbox',
-          options: [
-            'ответ 1',
-            'ответ 2',
-            'ответ 3',
-          ],
+          options: ['ответ 1', 'ответ 2', 'ответ 3'],
           answer: 'ответ 1',
         },
       ],
@@ -48,16 +44,13 @@ export const TestsPage = () => {
 
   const getAnswerForTest = async () => {
     await axios.post('/api/tests/661a68d821e60c64f1a2732e/answer', {
-      answers: [
-        { id: '661a68d821e60c64f1a2732f', value: 'ответ 323' },
-      ],
-
+      answers: [{ id: '661a68d821e60c64f1a2732f', value: 'ответ 323' }],
     });
   };
 
   const getTestById = async () => {
-    const test = await axios.get('/api/tests/661a4ac7c6cd9837dab98a47');
-    console.log(test.data.questions[0]._id);
+    const test = await axios.get('/api/tests/660305f1cea24fac6288f1e8');
+    console.log(test);
   };
 
   const registration = async () => {
@@ -70,56 +63,103 @@ export const TestsPage = () => {
     <div className={styles.container}>
       <Row justify={'center'} gutter={[16, 16]}>
         <Col>
-          <Button type={'primary'} onClick={() => {
-            login();
-          }}>login</Button>
+          <Button
+            type={'primary'}
+            onClick={() => {
+              login();
+            }}
+          >
+            login
+          </Button>
         </Col>
         <Col>
-          <Button type={'primary'} onClick={() => {
-            logout();
-          }}>logout</Button>
+          <Button
+            type={'primary'}
+            onClick={() => {
+              logout();
+            }}
+          >
+            logout
+          </Button>
         </Col>
         <Col>
-          <Button type={'primary'} onClick={() => {
-            const data = getTests();
-            console.log(data);
-          }}>getTests</Button>
+          <Button
+            type={'primary'}
+            onClick={() => {
+              const data = getTests();
+              console.log(data);
+            }}
+          >
+            getTests
+          </Button>
         </Col>
         <Col>
-          <Button type={'primary'} onClick={() => {
-            const data = getUsers();
-            console.log(data);
-          }}>getUsers</Button>
+          <Button
+            type={'primary'}
+            onClick={() => {
+              const data = getUsers();
+              console.log(data);
+            }}
+          >
+            getUsers
+          </Button>
         </Col>
         <Col>
-          <Button type={'primary'} onClick={() => {
-            registration();
-          }}>registration</Button>
+          <Button
+            type={'primary'}
+            onClick={() => {
+              registration();
+            }}
+          >
+            registration
+          </Button>
         </Col>
         <Col>
-          <Button type={'primary'} onClick={() => {
-            addTest();
-          }}>addTest</Button>
+          <Button
+            type={'primary'}
+            onClick={() => {
+              addTest();
+            }}
+          >
+            addTest
+          </Button>
         </Col>
         <Col>
-          <Button type={'primary'} onClick={() => {
-            getTestById();
-          }}>getTestById</Button>
+          <Button
+            type={'primary'}
+            onClick={() => {
+              getTestById();
+            }}
+          >
+            getTestById
+          </Button>
         </Col>
 
         <Col>
-          <Button type={'primary'} onClick={() => {
-            getAnswerForTest();
-          }}>getAnswerForTest</Button>
+          <Button
+            type={'primary'}
+            onClick={() => {
+              getAnswerForTest();
+            }}
+          >
+            getAnswerForTest
+          </Button>
         </Col>
       </Row>
       <Row gutter={24}>
         <Col>
-          <Input placeholder={'Введите email'} value={email} onChange={(e) => setEmail(e.target.value)} />
+          <Input
+            placeholder={'Введите email'}
+            value={email}
+            onChange={(e) => setEmail(e.target.value)}
+          />
         </Col>
         <Col>
-          <Input placeholder={'Введите пароль'} value={password}
-                 onChange={(e) => setPassword(e.target.value)} />
+          <Input
+            placeholder={'Введите пароль'}
+            value={password}
+            onChange={(e) => setPassword(e.target.value)}
+          />
         </Col>
       </Row>
     </div>

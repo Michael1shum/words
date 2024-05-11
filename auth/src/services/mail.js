@@ -2,7 +2,6 @@ const nodeMailer = require('nodemailer');
 const { mailId, mailPassword } = require('../configuration/index');
 
 class MailService {
-
   constructor() {
     this.transporter = nodeMailer.createTransport({
       host: 'smtp.mail.ru',

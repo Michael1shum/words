@@ -6,7 +6,7 @@ class UserService {
   async getAllUsers() {
     const users = await UserModel.find();
     console.log(users);
-    return users.map(user => {
+    return users.map((user) => {
       const userDTO = new UserDTO(user);
       return { ...userDTO };
     });

@@ -1,69 +1,69 @@
 const TestService = require('../services/test');
-const {users, testsArray} = require('../configuration/index');
+const { users, testsArray } = require('../configuration/index');
 const ApiError = require('../exceptions/api-error');
 
 class TestController {
-    async getTests(req, res, next) {
-        try {
-            const tests = await TestService.getAllTests();
-            return res.json(tests);
-        } catch (e) {
-            next(e);
-        }
+  async getTests(req, res, next) {
+    try {
+      const tests = await TestService.getAllTests();
+      return res.json(tests);
+    } catch (e) {
+      next(e);
     }
+  }
 
-    async addTest(req, res, next) {
-        try {
-            const testData = req.body;
-            const newTest = await TestService.addTest(testData);
-            res.json(newTest);
-        } catch (e) {
-            next(e);
-        }
+  async addTest(req, res, next) {
+    try {
+      const testData = req.body;
+      const newTest = await TestService.addTest(testData);
+      res.json(newTest);
+    } catch (e) {
+      next(e);
     }
+  }
 
-    async testById(req, res, next) {
-        try {
-            const testId = req.params.testId;
-            const test = await TestService.getTestById(testId);
-            res.json(test);
-        } catch (e) {
-            next(e);
-        }
+  async testById(req, res, next) {
+    try {
+      const testId = req.params.testId;
+      const test = await TestService.getTestById(testId);
+      res.json(test);
+    } catch (e) {
+      next(e);
     }
+  }
 
-    async testResultById(req, res, next) {
-        try {
-            const testId = req.params.testId;
-            const userId = req.headers['x-id']
-            const testScore = await TestService.testResultById(testId, userId);
-            res.json(testScore);
-        } catch (e) {
-            next(e);
-        }
+  async testResultById(req, res, next) {
+    try {
+      const testId = req.params.testId;
+      const userId = req.headers['x-id'];
+      const testScore = await TestService.testResultById(testId, userId);
+      res.json(testScore);
+    } catch (e) {
+      next(e);
     }
+  }
 
+  async testAnswer(req, res, next) {
+    try {
+      const testId = req.params.testId;
+      const userId = req.headers['x-id'];
+      const testResult = await TestService.getComparison(testId, userId, req.body);
+      res.json(testResult);
+    } catch (e) {
+      next(e);
+    }
+  }
 
-    async testAnswer(req, res, next) {
-        try {
-            const testId = req.params.testId;
-            const userId = req.headers['x-id']
-            const testResult = await TestService.getComparison(testId, userId, req.body);
-            res.json(testResult);
-        } catch (e) {
-            next(e);
-        }
+  //TODO Удаляться должны также и % сдачи теста
+  async testDelete(req, res, next) {
+    try {
+      const testId = req.params.testId;
+      const result = await TestService.deleteTest(testId);
+      res.json(result);
+    } catch (e) {
+      next(e);
     }
-//TODO Удаляться должны также и % сдачи теста
-    async testDelete(req, res, next) {
-        try {
-            const testId = req.params.testId;
-            const result = await TestService.deleteTest(testId);
-            res.json(result);
-        } catch (e) {
-            next(e);
-        }
-    }
+  }
 }
 
 // const testsArray = [ //Массив тестов

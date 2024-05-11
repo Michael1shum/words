@@ -9,7 +9,6 @@ const { authMiddleware, apiProxy } = require('./middlewares/auth');
 
 const PORT = port || 3002;
 
-
 const app = express();
 app.use(express.json());
 app.use(cookieParser());
@@ -25,7 +24,4 @@ const startServer = () => {
   });
 };
 
-connectDb()
-  .on('error', console.log)
-  .on('disconnect', connectDb)
-  .once('open', startServer);
+connectDb().on('error', console.log).on('disconnect', connectDb).once('open', startServer);
