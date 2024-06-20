@@ -4,15 +4,20 @@ import { Button, Col, Input, Row } from 'antd';
 import styles from './TestPage.module.scss';
 import { Layout } from "antd";
 import { MenuUnfoldOutlined, MenuFoldOutlined } from '@ant-design/icons';
+import { useNavigate  } from 'react-router-dom';
+
 
 const {Header, Footer, Content, Sider} = Layout;
 
 export const TestsPage = () => {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
+  const navigate = useNavigate();
+
 
   const logout = async () => {
     await axios.post('/auth/logout');
+    navigate('/login')
   };
 
   const getTests = async () => {
