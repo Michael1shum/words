@@ -13,6 +13,7 @@ export const TestsPage = () => {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const navigate = useNavigate();
+  const [tests, setTests] = useState(undefined);
 
 
   const logout = async () => {
@@ -68,7 +69,7 @@ export const TestsPage = () => {
     const onCollapse = (collapsed: boolean) => {
       setCollapsed(collapsed);
     };
-
+  console.log(tests)
   return (
     <div className={styles.container}>
       <Layout>
@@ -113,9 +114,9 @@ export const TestsPage = () => {
               <>
             <Button
               className = {styles.siderButton}
-              onClick={() => {
-                const data = getTests();
-                console.log(data);
+               onClick={async () => {
+                const data = await getTests();
+                setTests(data);
               }}
             >
               getTests
@@ -141,7 +142,8 @@ export const TestsPage = () => {
               )}
           </Sider>
           <Content className= {styles.content}>
-            {/* Ваш контент */}kontent
+            {tests?.length > 0 ? tests.map((item) =>
+            <div key = {item?.name || ''}> {String(item)} </div>): "loading"}
           </Content>
         </Layout>
 

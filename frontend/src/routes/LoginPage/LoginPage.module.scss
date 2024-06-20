@@ -1,11 +1,14 @@
-/* loginPage.css */
+@import 'src/assets/color';
+
+
 .container {
-  height: 100%;
+  //height: 100%;
   margin: 0;
   display: flex;
   justify-content: center;
   align-items: center;
   height: 100vh;
+  background-color: $main-color;
 }
 
 .loginContainer {
@@ -37,8 +40,15 @@
   border-radius: 5px;
 }
 
+.buttonsContainer{
+  width: 380px;
+  display: flex;
+
+}
+
 .loginButton {
-  width: calc(100% - 20px);
+  width: 180px;
+  height: 40px;
   padding: 10px;
   background-color: #509e41;
   color: white;
@@ -49,5 +59,23 @@
   display: flex;
   align-items: center;
   justify-content: center;
+  margin-right: 10px;
+}
+
+.signUpButton {
+  width: 180px;
+  height: 40px;
+  padding: 10px;
+  background-color: #418d9e;
+  color: white;
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
+  text-align: center;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  left: 10px;
+
 }
 

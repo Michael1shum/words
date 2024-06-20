@@ -3,7 +3,7 @@ import axios from 'axios';
 import styles from './LoginPage.module.scss';
 import {Button, Input} from "antd";
 import { useNavigate  } from 'react-router-dom';
-
+// import text from 'src/assets/text/login.json';
 
 
 export const  LoginPage = () => {
@@ -17,11 +17,13 @@ export const  LoginPage = () => {
     setEmail('');
     navigate('/tests');
   };
-/*TODO
-   основная страничка с перенаправлением на логин/регистрацию
-   регистрация: страничка, перенаправление
-   логин: перенаправление, ошибка ввода
- */
+
+  const registration = async () => {
+    await axios.post('/api/registration', { email, password });
+    setPassword('');
+    setEmail('');
+  };
+
   return(
     <div className={styles.container}>
       <div className={styles.loginContainer}>
@@ -39,15 +41,26 @@ export const  LoginPage = () => {
                value={password}
                onChange={(e) => setPassword(e.target.value)}
         />
-        <Button
-          className={styles.loginButton}
-          onClick={() => {
-            login();
+        <div className = {styles.buttonsContainer}>
+          <Button
+            className={styles.loginButton}
+            onClick={() => {
+              login();
+            }}
+          >
+            Login
+            {/*{text.buttons.login}*/}
+          </Button>
+          <Button
+            className = {styles.signUpButton}
+            onClick={() => {
+              registration();
+            }}
+          >
+            Sign up
+          </Button>
+        </div>
 
-          }}
-        >
-          login
-        </Button>
     </div>
     </div>
   );

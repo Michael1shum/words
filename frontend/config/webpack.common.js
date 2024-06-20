@@ -16,6 +16,10 @@ module.exports = (env) => {
     module: {
       rules: [
         {
+          test: /\.json$/,
+          use: 'json-loader',
+        },
+        {
           test: /\.tsx?$/,
           use: 'ts-loader',
           exclude: /node_modules/,

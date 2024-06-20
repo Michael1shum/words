@@ -1,3 +1,6 @@
+@import 'src/assets/color';
+
+
 .container {
   display: flex;
   flex-direction: column;
@@ -11,7 +14,7 @@
   align-items: center;
   height: 60px;
   width: 100%;
-  background-color: #10B582;
+  background-color: $main-color;
   border-bottom: 2px solid #FA9F42;
   //top: 40px;
   //left: 395px;
