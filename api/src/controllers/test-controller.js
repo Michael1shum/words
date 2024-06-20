@@ -54,7 +54,6 @@ class TestController {
     }
   }
 
-  //TODO Удаляться должны также и % сдачи теста
   async testDelete(req, res, next) {
     try {
       const testId = req.params.testId;
