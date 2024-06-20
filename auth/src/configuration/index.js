@@ -6,5 +6,3 @@ module.exports.mailId = process.env.MAIL_ID;
 module.exports.mailPassword = process.env.MAIL_PASSWORD;
 module.exports.appUrl = process.env.APP_URL;
 module.exports.clientUrl = process.env.CLIENT_URL;
-
-

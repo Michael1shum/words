@@ -11,14 +11,18 @@ class AuthService {
   async registration(email, password) {
     const candidate = await UserModel.findOne({ email });
     if (candidate) {
-
       throw ApiError.BadRequest(`Пользователь с адресом ${email} уже существует!`);
     }
     const hashPassword = await bcrypt.hash(password, 3);
     //TODO добавить возможность добавить роль пользователю через админку
     const activationLink = uuid.v4();
 
-    const user = await UserModel.create({ email, password: hashPassword, activationLink, role: 'user' });
+    const user = await UserModel.create({
+      email,
+      password: hashPassword,
+      activationLink,
+      role: 'user',
+    });
     await MailService.sendActivationMail(email, `${appUrl}/auth/activate/${activationLink}`);
 
     const userDto = new UserDTO(user);

@@ -6,7 +6,6 @@ const { apiUrl, usersUrl } = require('../configuration/index');
 const UserModel = require('../models/user-model');
 const axios = require('axios');
 
-
 module.exports.authMiddleware = async (req, res, next) => {
   try {
     const { accessToken, refreshToken, role } = req.cookies;
@@ -122,7 +121,7 @@ module.exports.apiProxy = createProxyMiddleware({
       proxyReq.write(body);
     }
   },
-  router: function(req) {
+  router: function (req) {
     switch (req.headers['x-path']) {
       case 'users': {
         return usersUrl;

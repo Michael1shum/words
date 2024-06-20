@@ -98,7 +98,6 @@ services:
     networks:
       - words-docker-network
 
-
 volumes:
   mongodb_api:
   mongodb_auth:
@@ -106,4 +105,3 @@ volumes:
 networks:
   words-docker-network:
     driver: bridge
-

@@ -1,7 +1,6 @@
 const userService = require('../services/user');
 
 class UserController {
-
   async getUsers(req, res, next) {
     try {
       const users = await userService.getAllUsers();
@@ -28,7 +27,6 @@ class UserController {
       next(e);
     }
   }
-
 }
 
 module.exports = new UserController();

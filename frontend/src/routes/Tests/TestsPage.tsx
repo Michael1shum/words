@@ -2,19 +2,23 @@ import React, { useState } from 'react';
 import axios from 'axios';
 import { Button, Col, Input, Row } from 'antd';
 import styles from './TestPage.module.scss';
+import { Layout } from "antd";
+import { MenuUnfoldOutlined, MenuFoldOutlined } from '@ant-design/icons';
+import { useNavigate  } from 'react-router-dom';
+
+
+const {Header, Footer, Content, Sider} = Layout;
 
 export const TestsPage = () => {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
+  const navigate = useNavigate();
+  const [tests, setTests] = useState(undefined);
 
-  const login = async () => {
-    await axios.post('/auth/login', { email, password });
-    setPassword('');
-    setEmail('');
-  };
 
   const logout = async () => {
     await axios.post('/auth/logout');
+    navigate('/login')
   };
 
   const getTests = async () => {
@@ -34,11 +38,7 @@ export const TestsPage = () => {
         {
           description: 'Выберите несколько вариантов',
           controlType: 'checkbox',
-          options: [
-            'ответ 1',
-            'ответ 2',
-            'ответ 3',
-          ],
+          options: ['ответ 1', 'ответ 2', 'ответ 3'],
           answer: 'ответ 1',
         },
       ],
@@ -47,17 +47,14 @@ export const TestsPage = () => {
   };
 
   const getAnswerForTest = async () => {
-    await axios.post('/api/tests/661a68d821e60c64f1a2732e/answer', {
-      answers: [
-        { id: '661a68d821e60c64f1a2732f', value: 'ответ 323' },
-      ],
-
+    await axios.post('/api/tests/666eb354412a8fc3b93f34d8/answer', {
+      answers: [{ id: '661a68d821e60c64f1a2732f', value: 'ответ 323' }],
     });
   };
 
   const getTestById = async () => {
-    const test = await axios.get('/api/tests/661a4ac7c6cd9837dab98a47');
-    console.log(test.data.questions[0]._id);
+    const test = await axios.get('/api/tests/666eb354412a8fc3b93f34d8');
+    console.log(test);
   };
 
   const registration = async () => {
@@ -66,62 +63,118 @@ export const TestsPage = () => {
     setEmail('');
   };
 
+    const [collapsed, setCollapsed] = useState(false);
+
+    // Функция для обработки изменения состояния collapse
+    const onCollapse = (collapsed: boolean) => {
+      setCollapsed(collapsed);
+    };
+  console.log(tests)
   return (
     <div className={styles.container}>
-      <Row justify={'center'} gutter={[16, 16]}>
-        <Col>
-          <Button type={'primary'} onClick={() => {
-            login();
-          }}>login</Button>
-        </Col>
-        <Col>
-          <Button type={'primary'} onClick={() => {
-            logout();
-          }}>logout</Button>
-        </Col>
-        <Col>
-          <Button type={'primary'} onClick={() => {
-            const data = getTests();
-            console.log(data);
-          }}>getTests</Button>
-        </Col>
-        <Col>
-          <Button type={'primary'} onClick={() => {
-            const data = getUsers();
-            console.log(data);
-          }}>getUsers</Button>
-        </Col>
-        <Col>
-          <Button type={'primary'} onClick={() => {
-            registration();
-          }}>registration</Button>
-        </Col>
-        <Col>
-          <Button type={'primary'} onClick={() => {
-            addTest();
-          }}>addTest</Button>
-        </Col>
-        <Col>
-          <Button type={'primary'} onClick={() => {
-            getTestById();
-          }}>getTestById</Button>
-        </Col>
+      <Layout>
+        <Header className = {styles.header}>
+          <Button
+            className = {styles.headerButton}
+            onClick={() => {
+              logout();
+            }}
+          >
+            logout
+          </Button>
+          <Button
+            className = {styles.headerButton}
+            onClick={() => {
+              registration();
+            }}
+          >
+            Sign up
+          </Button>
 
-        <Col>
-          <Button type={'primary'} onClick={() => {
-            getAnswerForTest();
-          }}>getAnswerForTest</Button>
-        </Col>
-      </Row>
-      <Row gutter={24}>
-        <Col>
-          <Input placeholder={'Введите email'} value={email} onChange={(e) => setEmail(e.target.value)} />
-        </Col>
-        <Col>
-          <Input placeholder={'Введите пароль'} value={password}
-                 onChange={(e) => setPassword(e.target.value)} />
-        </Col>
-      </Row>
+        </Header>
+        <Layout className = {styles.layout}>
+          <Sider
+            className= {styles.sider}
+            width = {200}
+            theme = "dark"
+            collapsible
+            collapsedWidth={60}
+            collapsed={collapsed}
+            onCollapse={onCollapse}
+            trigger={null}
+          >
+            <div>
+              {collapsed ? (
+                <MenuUnfoldOutlined className={styles.trigger} onClick={() => setCollapsed(!collapsed)} />
+              ) : (
+                <MenuFoldOutlined className={styles.trigger} onClick={() => setCollapsed(!collapsed)} />
+              )}
+            </div>
+            {!collapsed && (
+              <>
+            <Button
+              className = {styles.siderButton}
+               onClick={async () => {
+                const data = await getTests();
+                setTests(data);
+              }}
+            >
+              getTests
+            </Button>
+            <Button
+              className = {styles.siderButton}
+              onClick={() => {
+                const data = getUsers();
+                console.log(data);
+              }}
+            >
+              getUsers
+            </Button>
+            <Button
+              className = {styles.siderButton}
+              onClick={() => {
+                addTest();
+              }}
+            >
+              addTest
+            </Button>
+              </>
+              )}
+          </Sider>
+          <Content className= {styles.content}>
+            {tests?.length > 0 ? tests.map((item) =>
+            <div key = {item?.name || ''}> {String(item)} </div>): "loading"}
+          </Content>
+        </Layout>
+
+
+
+      {/*<Row justify={'center'} gutter={[16, 16]}>*/}
+      {/*  <Col>*/}
+      {/*    <Button*/}
+      {/*      type={'primary'}*/}
+      {/*      onClick={() => {*/}
+      {/*        getTestById();*/}
+      {/*      }}*/}
+      {/*    >*/}
+      {/*      getTestById*/}
+      {/*    </Button>*/}
+      {/*  </Col>*/}
+
+      {/*  <Col>*/}
+      {/*    <Button*/}
+      {/*      type={'primary'}*/}
+      {/*      onClick={() => {*/}
+      {/*        getAnswerForTest();*/}
+      {/*      }}*/}
+      {/*    >*/}
+      {/*      getAnswerForTest*/}
+      {/*    </Button>*/}
+      {/*  </Col>*/}
+      {/*</Row>*/}
+
+      </Layout>
     </div>
+
   );
 };
