@@ -1,5 +1,5 @@
 import React from 'react';
-import {Outlet} from 'react-router-dom';
+import {Link, Outlet} from 'react-router-dom';
 import {useCookies} from "react-cookie";
 
 export const Layout = () => {
@@ -7,7 +7,11 @@ export const Layout = () => {
   console.log("cookie", cookies.role)
   return (
     <div>
-      <Outlet/>
+      <div>
+        <Link to='/login'>Login</Link>
+        <Link to='/tests'>Tests</Link>
+      </div>
+      <Outlet />
     </div>
   );
 };

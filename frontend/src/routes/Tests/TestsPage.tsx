@@ -13,7 +13,7 @@ export const TestsPage = () => {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const navigate = useNavigate();
-  const [tests, setTests] = useState(undefined);
+  const [tests, setTests] = useState([]);
 
 
   const logout = async () => {

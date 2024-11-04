@@ -7,8 +7,8 @@ const TokenService = require('../services/token');
 class AuthController {
   async registration(req, res, next) {
     try {
-      const errors = validationResult(req);
-      if (!errors.isEmpty()) {
+      const errors = validationResult(req); //сбор ошибок при валидации?
+      if (!errors.isEmpty()) { //Проверка на ошибки
         return next(ApiError.BadRequest('Ошибки при валидации', errors.array()));
       }
       const { email, password } = req.body;
@@ -87,5 +87,4 @@ class AuthController {
     }
   }
 }
-
 module.exports = new AuthController();

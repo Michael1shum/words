@@ -1,4 +1,4 @@
-const Router = require('express').Router;
+const Router = require('express').Router; //Роутинг по запросам
 const UserController = require('../controllers/user-controller');
 const router = new Router();
 

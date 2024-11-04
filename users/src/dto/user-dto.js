@@ -1,4 +1,4 @@
-module.exports = class UserDTO {
+module.exports = class UserDTO { //DTO - (Data transfer objecct) позволяет преобразовать типы данных из хранящихся в монго в json
   email;
   id;
   isActivated;

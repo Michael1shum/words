@@ -1,4 +1,4 @@
-const express = require('express');
+const express = require('express'); //Работа приложения.
 
 const cookieParser = require('cookie-parser');
 const { connectDb } = require('./helpers/db');
@@ -7,14 +7,14 @@ const router = require('./router/index');
 const errorsMiddleware = require('./middlewares/errors');
 
 const PORT = port || 3003;
-
+//app.use прорабатывают по очереди.
 const app = express();
 app.use(express.json());
 app.use(cookieParser());
 app.use(router);
 app.use(errorsMiddleware);
 
-const startServer = () => {
+const startServer = () => { //Запуск сервера
   app.listen(PORT, async () => {
     console.log(`Service users service started on port: ${PORT}`);
     console.log(`DataBase ${db}`);
