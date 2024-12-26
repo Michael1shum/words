@@ -6,6 +6,7 @@ const TokenService = require('./token');
 const UserDTO = require('../dto/user-dto');
 const { appUrl } = require('../configuration/index');
 const ApiError = require('../exceptions/api-error');
+//TODO добавить возможность добавить роль пользователю через админку
 
 class AuthService {
 
@@ -17,7 +18,6 @@ class AuthService {
     }
 
     const hashPassword = await bcrypt.hash(password, 3);
-    //TODO добавить возможность добавить роль пользователю через админку
 
     const activationLink = uuid.v4();
 
