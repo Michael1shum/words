@@ -9,3 +9,50 @@ body {
     height: 100%;
   }
 }
+// Установка базовых стилей
+body {
+  margin: 0;
+  font-family: "Arial", sans-serif;
+  background-color: #f0f2f5;
+  color: #333;
+}
+
+a {
+  color: #1890ff;
+  text-decoration: none;
+
+  &:hover {
+    text-decoration: underline;
+  }
+}
+
+// Обнуление стандартных стилей
+* {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+button {
+  cursor: pointer;
+  border: none;
+  outline: none;
+  background: transparent;
+
+  &:disabled {
+    cursor: not-allowed;
+    opacity: 0.6;
+  }
+}
+
+// Утилитарные классы
+.text-center {
+  text-align: center;
+}
+.mt-16 {
+  margin-top: 16px;
+}
+.mb-16 {
+  margin-bottom: 16px;
+}
+

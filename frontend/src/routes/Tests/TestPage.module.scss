@@ -14,7 +14,7 @@
   align-items: center;
   height: 60px;
   width: 100%;
-  background-color: $main-color;
+  background-color: $primary-color;
   border-bottom: 2px solid #FA9F42;
   //top: 40px;
   //left: 395px;
@@ -90,7 +90,7 @@
   justify-content: center;
   padding: 10px;
   width: 200px;
-  background: #001529;
+  background: #121abb;
 }
 
 .content {
@@ -114,4 +114,8 @@
   padding: 10px;
   cursor: pointer;
   color: #fff;
+}
+
+.tests{
+
 }
