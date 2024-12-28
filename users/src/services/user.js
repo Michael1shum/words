@@ -2,6 +2,8 @@ const UserModel = require('../models/user-model');
 const UserDTO = require('../dto/user-dto');
 const ApiError = require('../exceptions/api-error');
 
+//Функции для работы с БД
+
 class UserService {
   async getAllUsers() {
     const users = await UserModel.find();

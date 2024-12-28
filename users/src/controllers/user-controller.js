@@ -1,4 +1,6 @@
-const userService = require('../services/user');
+const userService = require('../services/user'); // Импорт функций
+
+//Классы для работы с БД
 
 class UserController {
   async getUsers(req, res, next) {

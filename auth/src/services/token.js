@@ -4,8 +4,12 @@ const bcrypt = require('bcrypt');
 
 class TokenService {
   generateToken(payload) {
-    const accessToken = jwt.sign(payload, process.env.ACCESS_TOKEN_SECRET, {expiresIn: '30m'});
-    const refreshToken = jwt.sign(payload, process.env.REFRESH_TOKEN_SECRET, {expiresIn: '1d'});
+    const accessToken = jwt.sign(
+      payload, process.env.ACCESS_TOKEN_SECRET, {expiresIn: '30m'}
+    );
+    const refreshToken = jwt.sign(
+      payload, process.env.REFRESH_TOKEN_SECRET, {expiresIn: '1d'}
+    );
 
     return {
       accessToken,

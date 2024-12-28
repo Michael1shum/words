@@ -10,7 +10,7 @@ const { authMiddleware, apiProxy } = require('./middlewares/auth');
 const PORT = port || 3002;
 
 const app = express();
-app.use(express.json());
+app.use(express.json()); //Сбор(парсинг) json-объектов
 app.use(cookieParser());
 app.use(router);
 app.use(authMiddleware);

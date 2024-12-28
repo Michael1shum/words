@@ -3,12 +3,15 @@ import axios from 'axios';
 import styles from './LoginPage.module.scss';
 import {Button, Input} from "antd";
 import { useNavigate  } from 'react-router-dom';
+import showIcon from './icons/show_icon.png';
+import hideIcon from './icons/hide_icon.png';
 // import text from 'src/assets/text/login.json';
 
 
 export const  LoginPage = () => {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
+  const [showPassword, setShowPassword] = useState(false);
   const navigate = useNavigate();
 
   const login = async () => {
@@ -19,9 +22,14 @@ export const  LoginPage = () => {
   };
 
   const registration = async () => {
+    console.log("Регистрация полетела на api/registration")
     await axios.post('/api/registration', { email, password });
     setPassword('');
     setEmail('');
+  };
+
+  const toggleShowPassword = () => {
+    setShowPassword(prev => !prev);
   };
 
   return(
@@ -34,13 +42,24 @@ export const  LoginPage = () => {
           value={email}
           onChange={(e) => setEmail(e.target.value)}
         />
-        <Input className={styles.loginInput}
-               type = "password"
-               background-color ='red'
-               placeholder={'Введите пароль'}
-               value={password}
-               onChange={(e) => setPassword(e.target.value)}
-        />
+        <div className={styles.passwordContainer}>
+          <input
+            className={styles.passwordInput}
+            type={showPassword ? 'text' : 'password'}
+            placeholder="Введите пароль"
+            value={password}
+            onChange={(e) => setPassword(e.target.value)}
+          />
+          <button
+            className={styles.toggleButton}
+            onClick={toggleShowPassword}
+            type="button"
+          >
+            <img className={styles.imageIcon}
+                 src={showPassword ? hideIcon : showIcon}
+                 alt="toggle password visibility" />
+          </button>
+        </div>
         <div className = {styles.buttonsContainer}>
           <Button
             className={styles.loginButton}
@@ -49,7 +68,6 @@ export const  LoginPage = () => {
             }}
           >
             Login
-            {/*{text.buttons.login}*/}
           </Button>
           <Button
             className = {styles.signUpButton}

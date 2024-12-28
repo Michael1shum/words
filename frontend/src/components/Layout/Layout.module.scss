@@ -1,0 +1,60 @@
+@import 'src/assets/color';
+
+.header {
+  background-color: $primary-color;
+  color: #fff;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0 16px;
+  height: 64px;
+
+  .headerButton {
+    color: #fff;
+    font-weight: bold;
+
+    &:hover {
+      color: #40a9ff;
+    }
+  }
+}
+
+.sider {
+  background-color: $primary-color;
+  color: #fff;
+
+  .siderButton {
+    width: 100%;
+    text-align: left;
+    padding: 8px 16px;
+    color: #fff;
+
+    &:hover {
+      background-color: $primary-light-color;
+    }
+  }
+
+  .trigger {
+    color: #fff;
+    font-size: 18px;
+    padding: 16px;
+    cursor: pointer;
+
+    &:hover {
+      color: $primary-light-color;
+    }
+  }
+}
+
+.content {
+  background: #fff;
+  padding: 16px;
+  min-height: 100vh;
+}
+
+.footer {
+  text-align: center;
+  background-color: #f0f2f5;
+  padding: 16px;
+  font-size: 14px;
+}

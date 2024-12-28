@@ -37,6 +37,18 @@ module.exports = (env) => {
             'sass-loader',
           ],
         },
+        {
+          test: /\.(png|jpe?g|gif|svg|ico)$/, // Добавлено правило для изображений
+          use: [
+            {
+              loader: 'url-loader',
+              options: {
+                limit: 8192, // Размер в байтах, после которого используется file-loader
+                name: '[name].[hash].[ext]',
+              },
+            },
+          ],
+        },
       ],
     },
     plugins: [

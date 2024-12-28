@@ -6,15 +6,19 @@ const TokenService = require('./token');
 const UserDTO = require('../dto/user-dto');
 const { appUrl } = require('../configuration/index');
 const ApiError = require('../exceptions/api-error');
+//TODO добавить возможность добавить роль пользователю через админку
 
 class AuthService {
+
   async registration(email, password) {
     const candidate = await UserModel.findOne({ email });
+
     if (candidate) {
       throw ApiError.BadRequest(`Пользователь с адресом ${email} уже существует!`);
     }
+
     const hashPassword = await bcrypt.hash(password, 3);
-    //TODO добавить возможность добавить роль пользователю через админку
+
     const activationLink = uuid.v4();
 
     const user = await UserModel.create({
@@ -27,7 +31,6 @@ class AuthService {
 
     const userDto = new UserDTO(user);
     const tokens = TokenService.generateToken({ ...userDto });
-
     await TokenService.saveTokens(userDto.id, tokens.refreshToken, tokens.accessToken);
 
     return { ...tokens, user: userDto };
@@ -58,7 +61,6 @@ class AuthService {
 
     const userDto = new UserDTO(user);
     const tokens = TokenService.generateToken({ ...userDto });
-
     await TokenService.saveTokens(userDto.id, tokens.refreshToken, tokens.accessToken);
 
     return { ...tokens, user: userDto };
