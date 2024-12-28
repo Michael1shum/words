@@ -38,7 +38,7 @@ export const Layout = () => {
           },
         ],
       });
-      getTests();
+      await getTests();
     } catch (error) {
       console.error("Error adding test:", error);
     }
