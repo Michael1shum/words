@@ -1,14 +1,14 @@
-const { createProxyMiddleware } = require('http-proxy-middleware');
+const {createProxyMiddleware} = require('http-proxy-middleware');
 const TokenService = require('../services/token');
 const authService = require('../services/auth');
 const ApiError = require('../exceptions/api-error');
-const { apiUrl, usersUrl } = require('../configuration/index');
+const {apiUrl, usersUrl} = require('../configuration/index');
 const UserModel = require('../models/user-model');
 const axios = require('axios');
 
 module.exports.authMiddleware = async (req, res, next) => {
   try {
-    const { accessToken, refreshToken, role } = req.cookies;
+    const {accessToken, refreshToken, role} = req.cookies;
 
     if (role) {
       const refreshTokenData = await TokenService.validateRefreshToken(refreshToken);
@@ -101,7 +101,7 @@ module.exports.authMiddleware = async (req, res, next) => {
       const tokenFromDb = await TokenService.findToken(refreshToken);
       if (tokenData && tokenFromDb) {
         const user = await UserModel.findById(tokenData.id);
-        res.cookie('role', user.role ?? 'user', { maxAge: 15 * 60 * 1000, httpOnly: true });
+        res.cookie('role', user.role ?? 'user', {maxAge: 15 * 60 * 1000});
         req.headers['x-id'] = user._id;
       }
     }

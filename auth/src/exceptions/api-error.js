@@ -3,7 +3,7 @@ module.exports = class ApiError extends Error {
   errors;
 
   constructor(status, message, errors = []) {
-    super(message);
+    super(message); //Вызов родительского класса Error
     this.errors = errors;
     this.status = status;
   }
