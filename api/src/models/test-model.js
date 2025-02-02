@@ -4,7 +4,7 @@ const QuestionSchema = new Schema({
   controlType: { type: String },
   question: { type: String },
   options: { type: [String] },
-  answer: { type: String },
+  answer: { type: [String] },
   description: String,
 });
 

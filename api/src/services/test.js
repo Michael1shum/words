@@ -16,6 +16,7 @@ class TestService {
       let testDTO = new TestDTO(test);
       emptyTests.push(testDTO);
     }
+    // console.log("Сработало")
     if (emptyTests.length === 0) {
       return 'Список тестов пуст!';
     } else {
@@ -29,8 +30,12 @@ class TestService {
       throw ApiError.NotFound(`Такого теста не существует!`);
     }
     const testDTO = new TestDTO(test);
+    if (!testDTO.questions) {
+      throw ApiError.NotFound(`У теста нет вопросов!`);
+    }
     return testDTO;
   }
+
 
   async testResultById(testId, userId) {
     const currentUser = await axios.get(`${usersUrl}/user/${userId}`);
@@ -79,7 +84,8 @@ class TestService {
 
   async addTest(testData) {
     const newTest = await TestModel.create({ ...testData });
-    return newTest;
+    const testDTO = new TestDTO(newTest);  // Преобразуем модель в DTO
+    return testDTO;
   }
 
   async deleteTest(testId) {

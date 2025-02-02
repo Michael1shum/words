@@ -1,13 +1,15 @@
 import React, { useState } from "react";
-import { Outlet, Link } from "react-router-dom";
+import {Outlet, Link, useNavigate} from "react-router-dom";
 import { Layout as AntLayout, Button, Menu, Dropdown } from "antd";
 import { MenuUnfoldOutlined, MenuFoldOutlined, DownOutlined } from "@ant-design/icons";
 import axios from "axios";
 import styles from "./Layout.module.scss";
 
+
 const { Header, Sider, Content, Footer } = AntLayout;
 
 export const Layout = () => {
+  const navigate = useNavigate();
   const [collapsed, setCollapsed] = useState(false);
   const [tests, setTests] = useState([]);
 
@@ -23,6 +25,7 @@ export const Layout = () => {
     } catch (error) {
       console.error("Error fetching tests:", error);
     }
+    navigate('/tests');
   };
 
   const addTest = async () => {
@@ -60,7 +63,7 @@ export const Layout = () => {
           Add Test
         </Button>
       ),
-    },
+    }
   ];
 
   return (
@@ -88,7 +91,10 @@ export const Layout = () => {
               <MenuFoldOutlined onClick={handleCollapse} />
             )}
           </div>
-          <Menu
+          <Button onClick={getTests}>
+            Tests
+          </Button>
+{/*          <Menu
             theme="dark"
             mode="inline"
             items={[
@@ -108,7 +114,7 @@ export const Layout = () => {
                 ),
               },
             ]}
-          />
+          />*/}
         </Sider>
 
         {/* Main content */}
