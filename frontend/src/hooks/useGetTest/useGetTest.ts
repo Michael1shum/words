@@ -1,32 +1,21 @@
-import {useEffect, useState} from "react";
-import {useParams} from "react-router-dom";
+import { useEffect, useState } from 'react';
+import { useParams } from 'react-router-dom';
+import { Test } from '../../routes/types';
 
-export interface Question {
-  controlType: "checkbox" | "input" | "radio" | "select";
-  options: string[];
-  description: string;
-}
-
-interface Test {
-  _id: string;
-  name: string;
-  questions: Question[];
-}
 interface useGetTestReturnValue {
   testData?: Test;
   isLoading: boolean;
 }
 
-export const useGetTest = ():useGetTestReturnValue => {
+export const useGetTest = (): useGetTestReturnValue => {
   const [data, setData] = useState<Test | undefined>(undefined);
   const [isLoading, setIsLoading] = useState(false);
-  const { id } = useParams();  // Получаем ID теста из URL
+  const { id } = useParams(); // Получаем ID теста из URL
 
-  const fetchTest = async (id:string) => {
-
+  const fetchTest = async (id: string) => {
     try {
-      setIsLoading(true)
-      const response = await fetch(`/api/tests/${id}`);  // Получаем тест по ID
+      setIsLoading(true);
+      const response = await fetch(`/api/tests/${id}`); // Получаем тест по ID
 
       const data = await response.json();
       setData(data);
@@ -40,9 +29,10 @@ export const useGetTest = ():useGetTestReturnValue => {
     if (id) {
       fetchTest(id);
     }
-  }, [])
+  }, []);
 
   return {
-    testData: data, isLoading
-  }
-}
+    testData: data,
+    isLoading,
+  };
+};

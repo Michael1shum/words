@@ -1,401 +1,183 @@
-import React, { useState } from 'react';
-
-interface Question {
-  question: string;
-  options: string[];
-  controlType: string;
-  description: string;
-  answer: string[]; // Добавляем ответ
+import React, { FC, useState } from 'react';
+import {
+  Button,
+  Checkbox,
+  Col,
+  Form,
+  Input,
+  Radio,
+  Row,
+  Select,
+  SelectProps,
+  Typography,
+} from 'antd';
+import { DeleteOutlined, PlusOutlined } from '@ant-design/icons';
+import { DefaultOptionType } from 'antd/es/select';
+interface InputForAddSelectOptionsProps {
+  setOptions: React.Dispatch<React.SetStateAction<DefaultOptionType[]>>;
+  options: SelectProps['options'];
 }
 
+const InputForAddSelectOptions: FC<InputForAddSelectOptionsProps> = ({ setOptions, options }) => {
+  const [optionValue, setOptionsValue] = useState('');
+  return (
+    <>
+      <Input
+        placeholder='Добавить вариант'
+        value={optionValue}
+        onChange={(e) => setOptionsValue(e.target.value.trim())}
+      />
+      <Button
+        type={'text'}
+        icon={<PlusOutlined />}
+        onClick={() => {
+          if (!options.some((item) => item.label === optionValue)) {
+            setOptions((prev) => [...prev, { value: optionValue, label: optionValue }]);
+            setOptionsValue('');
+          }
+        }}
+      />
+    </>
+  );
+};
 export const AddTestPage = () => {
-  const [name, setName] = useState('');
-  const [questions, setQuestions] = useState<Question[]>([
-    { question: '', options: ['', ''], controlType: 'checkbox', description: '', answer: ['',''] }
-  ]);
-  const [loading, setLoading] = useState(false);
-  const [error, setError] = useState<string | null>(null);
-
-  // Обработчик добавления нового вопроса
-  const handleAddQuestion = () => {
-    setQuestions([
-      ...questions,
-      { question: '', options: ['', ''], controlType: 'checkbox', description: '', answer: ['',''] }
-    ]);
-  };
-
-  // Удалить вопрос
-  const handleRemoveQuestion = (index: number) => {
-    const newQuestions = [...questions];
-    newQuestions.splice(index, 1);
-    setQuestions(newQuestions);
-  };
-
-  // Обработчик изменения значений для конкретного вопроса
-  const handleQuestionChange = (
-    index: number,
-    field: keyof Question,
-    value: string | string[]  // Допускаем как string, так и string[]
-  ) => {
-    const newQuestions = [...questions];
-
-    if (field === 'options') {
-      // Если меняем options, убедимся, что value - это массив строк
-      newQuestions[index][field] = Array.isArray(value) ? value : [value];  // Преобразуем в массив строк, если это не массив
-    } else if (field === 'answer') {
-      // Обработаем ответ (он может быть строкой или массивом строк)
-      newQuestions[index][field] = Array.isArray(value) ? value : [value];  // Преобразуем в массив строк, если это не массив
-    } else {
-      // Для остальных полей (например, question, description) просто присваиваем строку
-      newQuestions[index][field] = value as string;
-    }
-
-    setQuestions(newQuestions);
-  };
-
-
-
-  // Обработчик изменения опций
-  const handleOptionChange = (questionIndex: number, optionIndex: number, value: string) => {
-    const newQuestions = [...questions];
-    newQuestions[questionIndex].options[optionIndex] = value;
-    setQuestions(newQuestions);
-  };
-
-  // Добавить новую опцию
-  const handleAddOption = (questionIndex: number) => {
-    const newQuestions = [...questions];
-    newQuestions[questionIndex].options.push("");
-    setQuestions(newQuestions);
-  };
-
-  // Удалить опцию
-  const handleRemoveOption = (questionIndex: number, optionIndex: number) => {
-    const newQuestions = [...questions];
-    newQuestions[questionIndex].options.splice(optionIndex, 1);
-    setQuestions(newQuestions);
-  };
-
-// Обработчик изменения ответа
-  const handleAnswerChange = (
-    questionIndex: number,
-    value: string | string[] // Допускаем как строку, так и массив строк
-  ) => {
-    const newQuestions = [...questions];
-
-    if (Array.isArray(value)) {
-      newQuestions[questionIndex].answer = value; // Если это массив строк, просто присваиваем
-    } else {
-      newQuestions[questionIndex].answer = [value]; // Если строка, преобразуем в массив
-    }
-
-    setQuestions(newQuestions);
-  };
-
-
-
-  // Обработчик отправки данных на сервер
-  const handleSubmit = async (event: React.FormEvent) => {
-    event.preventDefault();
-    setLoading(true);
-    setError(null);
-
-    const testData = { name, questions };
-
-    try {
-      const response = await fetch('/api/tests/add', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(testData),
-      });
-
-      if (!response.ok) {
-        throw new Error('Не удалось добавить тест');
-      }
-
-      const result = await response.json();
-      console.log('New test added:', result);
-      alert('Test added successfully!');
-    } catch (error) {
-      setError('Error adding test');
-      console.error(error);
-    } finally {
-      setLoading(false);
-    }
-  };
+  const [form] = Form.useForm();
+  const [options, setOptions] = useState<SelectProps['options']>([]);
 
   return (
-    <div>
-      <h1>Add New Test</h1>
-      <form onSubmit={handleSubmit}>
-        <div>
-          <label>Name</label>
-          <input
-            type="text"
-            value={name}
-            onChange={(e) => setName(e.target.value)}
-            required
-          />
-        </div>
-
-        {questions.map((question, index) => (
-          <div key={index}>
-            <h3>Question {index + 1}</h3>
-            <div>
-              <label>Question</label>
-              <input
-                type="text"
-                value={question.question}
-                onChange={(e) => handleQuestionChange(index, 'question', e.target.value)}
-                required
-              />
-            </div>
-
-            <div>
-              <label>Description</label>
-              <input
-                type="text"
-                value={question.description}
-                onChange={(e) => handleQuestionChange(index, 'description', e.target.value)}
-              />
-            </div>
-
-            <div>
-              <label>Type of question</label>
-              <select
-                value={question.controlType}
-                onChange={(e) => handleQuestionChange(index, 'controlType', e.target.value)}
-              >
-                <option value="checkbox">Checkbox</option>
-                <option value="input">Input</option>
-                {/* Можно добавить другие типы вопросов */}
-              </select>
-            </div>
-
-            <div>
-              <label>Options</label>
-              {question.options.map((option, optionIndex) => (
-                <div key={optionIndex}>
-                  <input
-                    type="text"
-                    value={option}
-                    onChange={(e) =>
-                      handleOptionChange(index, optionIndex, e.target.value)
-                    }
-                    placeholder={`Option ${optionIndex + 1}`}
-                    required
-                  />
-                  <button type="button" onClick={() => handleRemoveOption(index, optionIndex)}>
-                    Remove Option
-                  </button>
-                </div>
-              ))}
-              <button type="button" onClick={() => handleAddOption(index)}>
-                Add Option
-              </button>
-            </div>
-
-            {/* Возможность выбора ответа */}
-            {question.controlType === "checkbox" && (
-              <div>
-                <label>Answer</label>
-                <select
-                  multiple
-                  value={question.answer}
-                  onChange={(e) => handleAnswerChange(index, Array.from(e.target.selectedOptions, option => option.value))}
-                >
-                  {question.options.map((option, optionIndex) => (
-                    <option key={optionIndex} value={option}>
-                      {option}
-                    </option>
-                  ))}
-                </select>
-              </div>
-            )}
-
-            {/* Возможность удаления вопроса */}
-            <button type="button" onClick={() => handleRemoveQuestion(index)}>
-              Remove Question
-            </button>
-          </div>
-        ))}
-
-        <button type="button" onClick={handleAddQuestion}>
-          Add Question
-        </button>
-
-        <button type="submit" disabled={loading}>
-          {loading ? 'Submitting...' : 'Add Test'}
-        </button>
-
-        {error && <p>{error}</p>}
-      </form>
-    </div>
-  );
-};
-
-/*  return (
-    <div>
-      <h1>Add New Test</h1>
-      <form onSubmit={handleSubmit}>
-        <div>
-          <label>Name</label>
-          <input
-            type="text"
-            value={name}
-            onChange={(e) => setName(e.target.value)}
-            required
-          />
-        </div>
-        {questions.map((question, index) => (
-          <div key={index}>
-            <h3>Question {index + 1}</h3>
-            <div>
-              <label>Question</label>
-              <input
-                type="text"
-                value={question.question}
-                onChange={(e) => handleQuestionChange(index, 'question', e.target.value)}
-                required
-              />
-            </div>
-            <div>
-              <label>Description</label>
-              <input
-                type="text"
-                value={question.description}
-                onChange={(e) => handleQuestionChange(index, 'description', e.target.value)}
-              />
-            </div>
-            <div>
-              <label>Options</label>
-              {question.options.map((option, optionIndex) => (
-                <div key={optionIndex}>
-                  <input
-                    type="text"
-                    value={option}
-                    onChange={(e) =>
-                      handleOptionChange(index, optionIndex, e.target.value)
-                    }
-                    placeholder={`Option ${optionIndex + 1}`}
-                    required
-                  />
-                </div>
-              ))}
-            </div>
-            <div>
-              <label>Answer</label>
-              <select
-                value={question.answer}
-                onChange={(e) => handleAnswerChange(index, e.target.value)}
-              >
-                {question.options.map((option, optionIndex) => (
-                  <option key={optionIndex} value={option}>
-                    {option}
-                  </option>
-                ))}
-              </select>
-            </div>
-            <button type="button" onClick={() => handleAddQuestion()}>
-              Add Question
-            </button>
-          </div>
-        ))}
-        <button type="submit" disabled={loading}>
-          {loading ? 'Submitting...' : 'Add Test'}
-        </button>
-        {error && <p>{error}</p>}
-      </form>
-    </div>
-  );
-};
-
-return (
-  <div>
-    <h1>Add New Test</h1>
-    <form onSubmit={handleSubmit}>
-      <div>
-        <label>Name</label>
-        <input
-          type="text"
-          value={name}
-          onChange={(e) => setName(e.target.value)}
-          required
-        />
-      </div>
-
-      {questions.map((question, index) => (
-        <div key={index}>
-          <h3>Question {index + 1}</h3>
-          <div>
-            <label>Question</label>
-            <input
-              type="text"
-              value={question.question}
-              onChange={(e) => handleQuestionChange(index, 'question', e.target.value)}
-              required
-            />
-          </div>
-
-          <div>
-            <label>Description</label>
-            <input
-              type="text"
-              value={question.description}
-              onChange={(e) => handleQuestionChange(index, 'description', e.target.value)}
-            />
-          </div>
-
-          <div>
-            <label>Type of question</label>
-            <select
-              value={question.controlType}
-              onChange={(e) => handleQuestionChange(index, 'controlType', e.target.value)}
+    <>
+      <Typography.Title level={1}>Добавление теста</Typography.Title>
+      <Row>
+        <Col span={12}>
+          <Form
+            layout={'vertical'}
+            form={form}
+            onFinish={(values) => console.log('values', values)}
+          >
+            <Col span={12}>
+              <Form.Item name='name' label='Название теста'>
+                <Input />
+              </Form.Item>
+            </Col>
+            <Col span={12}>
+              <Form.Item name='description' label='Описание теста'>
+                <Input />
+              </Form.Item>
+            </Col>
+            <Form.List
+              name='questions'
+              initialValue={[{ controlType: 'input', description: '', answer: '' }]}
             >
-              <option value="checkbox">Checkbox</option>
-              <option value="input">Input</option>
-              {/!* Можно добавить другие типы вопросов *!/}
-            </select>
-          </div>
+              {(fields, { add, remove }) => (
+                <>
+                  {fields.map((field, index) => (
+                    <Row key={field.key} gutter={[0, 12]}>
+                      <Col span={24}>
+                        <Row justify={'space-between'}>
+                          <Typography.Text>{`Вопрос ${index + 1}`}</Typography.Text>
+                          {fields.length > 1 ? (
+                            <Button onClick={() => remove(field.name)} icon={<DeleteOutlined />} />
+                          ) : null}
+                        </Row>
+                      </Col>
+                      <Col span={24}>
+                        <Form.Item name={[field.name, 'question']} noStyle required={true}>
+                          <Input placeholder='Вопрос' />
+                        </Form.Item>
+                      </Col>
+                      <Col span={24}>
+                        <Form.Item name={[field.name, 'description']} noStyle>
+                          <Input placeholder='Описание вопроса' />
+                        </Form.Item>
+                      </Col>
+                      <Col span={24}>
+                        <Row gutter={12}>
+                          <Col span={12}>
+                            <Form.Item name={[field.name, 'controlType']}>
+                              <Select
+                                placeholder='Тип вопроса'
+                                options={[
+                                  { value: 'checkbox', label: 'Множественный выбор' },
+                                  { value: 'radio', label: 'Единичный выбор' },
+                                  { value: 'input', label: 'Ввод значения' },
+                                  { value: 'select', label: 'Выбор значения' },
+                                ]}
+                              />
+                            </Form.Item>
+                          </Col>
+                          <Col span={12}>
+                            <Form.Item shouldUpdate>
+                              {({ getFieldValue }) => {
+                                const controlType = getFieldValue([
+                                  'questions',
+                                  field.name,
+                                  'controlType',
+                                ]);
+                                switch (controlType) {
+                                  case 'input':
+                                    return (
+                                      <Form.Item name={[field.name, 'answer']} noStyle>
+                                        <Input placeholder='Введите ответ' />
+                                      </Form.Item>
+                                    );
+                                  default:
+                                    return (
+                                      <Form.Item name={[field.name, 'answer']} noStyle>
+                                        <Select
+                                          mode={controlType === 'checkbox' ? 'multiple' : undefined}
+                                          placeholder={
+                                            controlType === 'checkbox'
+                                              ? 'Выберите несколько вариантов'
+                                              : 'Выберите вариант'
+                                          }
+                                          dropdownRender={(menu) => (
+                                            <>
+                                              {menu}
+                                              <Form.Item noStyle>
+                                                <InputForAddSelectOptions
+                                                  setOptions={setOptions}
+                                                  options={options}
+                                                />
+                                              </Form.Item>
+                                            </>
+                                          )}
+                                          options={options}
+                                        />
+                                      </Form.Item>
+                                    );
+                                }
 
-          <div>
-            <label>Options</label>
-            {question.options.map((option, optionIndex) => (
-              <div key={optionIndex}>
-                <input
-                  type="text"
-                  value={option}
-                  onChange={(e) => handleOptionChange(index, optionIndex, e.target.value)}
-                  placeholder={`Option ${optionIndex + 1}`}
-                  required
-                />
-                <button type="button" onClick={() => handleRemoveOption(index, optionIndex)}>
-                  Remove Option
-                </button>
-              </div>
-            ))}
-            <button type="button" onClick={() => handleAddOption(index)}>
-              Add Option
-            </button>
-          </div>
-
-          {/!* Возможность удаления вопроса *!/}
-          <button type="button" onClick={() => handleRemoveQuestion(index)}>
-            Remove Question
-          </button>
-        </div>
-      ))}
-
-      <button type="button" onClick={handleAddQuestion}>
-        Add Question
-      </button>
-
-      <button type="submit" disabled={loading}>
-        {loading ? 'Submitting...' : 'Add Test'}
-      </button>
-
-      {error && <p>{error}</p>}
-    </form>
-  </div>
-);
-};*/
+                                return null;
+                              }}
+                            </Form.Item>
+                          </Col>
+                        </Row>
+                      </Col>
+                    </Row>
+                  ))}
+                  <Col span={8}>
+                    <Form.Item>
+                      <Button
+                        type='dashed'
+                        onClick={() => add({ controlType: 'input', question: '', answer: '' })}
+                        style={{ width: '60%' }}
+                        icon={<PlusOutlined />}
+                      >
+                        Добавить вопрос
+                      </Button>
+                    </Form.Item>
+                  </Col>
+                </>
+              )}
+            </Form.List>
+            <Col span={4}>
+              <Button type={'primary'} onClick={() => form.submit()}>
+                Сохранить
+              </Button>
+            </Col>
+          </Form>
+        </Col>
+      </Row>
+    </>
+  );
+};
