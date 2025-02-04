@@ -1,48 +1,10 @@
-import React, { FC, useState } from 'react';
-import {
-  Button,
-  Checkbox,
-  Col,
-  Form,
-  Input,
-  Radio,
-  Row,
-  Select,
-  SelectProps,
-  Typography,
-} from 'antd';
+import React from 'react';
+import { Button, Col, Form, Input, Row, Select, Typography } from 'antd';
 import { DeleteOutlined, PlusOutlined } from '@ant-design/icons';
-import { DefaultOptionType } from 'antd/es/select';
-interface InputForAddSelectOptionsProps {
-  setOptions: React.Dispatch<React.SetStateAction<DefaultOptionType[]>>;
-  options: SelectProps['options'];
-}
+import { SelectWithAddOptions } from './components/SelectWithAddOptions';
 
-const InputForAddSelectOptions: FC<InputForAddSelectOptionsProps> = ({ setOptions, options }) => {
-  const [optionValue, setOptionsValue] = useState('');
-  return (
-    <>
-      <Input
-        placeholder='Добавить вариант'
-        value={optionValue}
-        onChange={(e) => setOptionsValue(e.target.value.trim())}
-      />
-      <Button
-        type={'text'}
-        icon={<PlusOutlined />}
-        onClick={() => {
-          if (!options.some((item) => item.label === optionValue)) {
-            setOptions((prev) => [...prev, { value: optionValue, label: optionValue }]);
-            setOptionsValue('');
-          }
-        }}
-      />
-    </>
-  );
-};
 export const AddTestPage = () => {
   const [form] = Form.useForm();
-  const [options, setOptions] = useState<SelectProps['options']>([]);
 
   return (
     <>
@@ -123,26 +85,7 @@ export const AddTestPage = () => {
                                   default:
                                     return (
                                       <Form.Item name={[field.name, 'answer']} noStyle>
-                                        <Select
-                                          mode={controlType === 'checkbox' ? 'multiple' : undefined}
-                                          placeholder={
-                                            controlType === 'checkbox'
-                                              ? 'Выберите несколько вариантов'
-                                              : 'Выберите вариант'
-                                          }
-                                          dropdownRender={(menu) => (
-                                            <>
-                                              {menu}
-                                              <Form.Item noStyle>
-                                                <InputForAddSelectOptions
-                                                  setOptions={setOptions}
-                                                  options={options}
-                                                />
-                                              </Form.Item>
-                                            </>
-                                          )}
-                                          options={options}
-                                        />
+                                        <SelectWithAddOptions controlType={controlType} />
                                       </Form.Item>
                                     );
                                 }
