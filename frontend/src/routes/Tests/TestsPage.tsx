@@ -1,10 +1,12 @@
 import React from "react";
-import { Link } from "react-router-dom";  // Импортируем Link для создания ссылок
+import {Link, useNavigate} from "react-router-dom";  // Импортируем Link для создания ссылок
 import { useOutletContext } from "react-router-dom";
 import styles from "./TestPage.module.scss";
+import {Button} from "antd";
 
 export const TestsPage = () => {
   const { tests } = useOutletContext<{ tests: any[] }>(); // Получаем список тестов
+  const navigate = useNavigate();
   console.log("tests", tests);
 
   return (
@@ -22,11 +24,7 @@ export const TestsPage = () => {
       </div>
 
       {/* Добавляем кнопку для перехода на страницу добавления теста */}
-      <div className={styles.addTestButton}>
-        <Link to="/add-test">
-          <button>Add New Test</button>
-        </Link>
-      </div>
+      <Button onClick={() => navigate('/add-test')}>Add New Test</Button>
     </div>
   );
 };
