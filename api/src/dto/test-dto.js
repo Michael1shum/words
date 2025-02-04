@@ -3,6 +3,7 @@ module.exports = class TestDTO {
   questions;
 
   constructor(model) {
+    this._id = model._id;
     this.name = model.name;
     this.questions = model.questions.map((questionNumber) => ({
       controlType: questionNumber.controlType,

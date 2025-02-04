@@ -5,6 +5,7 @@ const ApiError = require('../exceptions/api-error');
 class TestController {
   async getTests(req, res, next) {
     try {
+      console.log('Сработал контроллер')
       const tests = await TestService.getAllTests();
       return res.json(tests);
     } catch (e) {
@@ -14,13 +15,28 @@ class TestController {
 
   async addTest(req, res, next) {
     try {
+      const { name, questions } = req.body;  // Извлекаем данные из тела запроса
+      if (!name || !questions) {
+        throw ApiError.BadRequest('Не все данные для теста предоставлены');
+      }
+
+      // Создаем новый тест с полученными данными
+      const newTest = await TestService.addTest({ name, questions });
+      res.status(201).json(newTest);
+    } catch (e) {
+      next(e);
+    }
+  }
+/*  async addTest(req, res, next) {
+    try {
       const testData = req.body;
       const newTest = await TestService.addTest(testData);
       res.json(newTest);
     } catch (e) {
       next(e);
     }
-  }
+  }*/
+
 
   async testById(req, res, next) {
     try {
