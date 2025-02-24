@@ -8,7 +8,7 @@ export const AddTestPage = () => {
 
   return (
     <>
-      <Typography.Title level={1}>Добавление теста</Typography.Title>
+      <Typography.Title level={1}>Добавление теста2</Typography.Title>
       <Row>
         <Col span={12}>
           <Form

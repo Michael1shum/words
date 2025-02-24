@@ -1,21 +1,27 @@
 {
-  "include": ["src/**/*.ts", "src/**/*.tsx",  "declarations.d.ts", "global.d.ts"],
   "compilerOptions": {
-    "baseUrl": "src",
-    "paths": {
-      "@components/*": ["components/*"]
-    },
     "outDir": "./dist/",
     "noImplicitAny": true,
-    "sourceMap": true,
-    "module": "commonjs",
-    "target": "ESNext",
-    "lib": ["ES2015", "DOM"],
-    "jsx": "react",
-    "esModuleInterop": true,
+    "module": "ESNext",
+    "target": "es5",
+    "jsx": "react-jsx",
     "allowJs": true,
     "moduleResolution": "node",
+    "allowSyntheticDefaultImports": true,
+    "esModuleInterop": true,
     "resolveJsonModule": true,
-    "isolatedModules": true
+    "baseUrl": ".",
+    "paths": {
+      "@/*": [
+        "./src/*",
+      ],
+      "@components/*": ["./src/components/*"]
+
+    }
+  },
+  "ts-node": {
+    "compilerOptions": {
+      "module": "CommonJS"
+    }
   }
 }

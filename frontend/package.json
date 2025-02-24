@@ -35,8 +35,8 @@
     "webpack-dev-server": "4.15.1"
   },
   "scripts": {
-    "start:dev": "webpack serve --open --config ./config/webpack.dev.js",
-    "build": "webpack --config ./config/webpack.prod.js"
+    "start:dev": "webpack serve --open",
+    "build": "webpack --env mode=production"
   },
   "browserslist": {
     "production": [
