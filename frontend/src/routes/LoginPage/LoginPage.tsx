@@ -1,43 +1,42 @@
 import React, { useState } from 'react';
 import axios from 'axios';
 import styles from './LoginPage.module.scss';
-import {Button, Input} from "antd";
-import { useNavigate  } from 'react-router-dom';
+import { Button, Input } from 'antd';
+import { useNavigate } from 'react-router-dom';
 import showIcon from './icons/show_icon.png';
 import hideIcon from './icons/hide_icon.png';
 // import text from 'src/assets/text/login.json';
 
-
-export const  LoginPage = () => {
+export const LoginPage = () => {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [showPassword, setShowPassword] = useState(false);
   const navigate = useNavigate();
 
   const login = async () => {
-    await axios.post('/auth/login', { email, password });
+    const response = await axios.post('/auth/login', { email, password });
     setPassword('');
     setEmail('');
     navigate('/tests');
   };
 
   const registration = async () => {
-    console.log("Регистрация полетела на api/registration")
+    console.log('Регистрация полетела на api/registration');
     await axios.post('/api/registration', { email, password });
     setPassword('');
     setEmail('');
   };
 
   const toggleShowPassword = () => {
-    setShowPassword(prev => !prev);
+    setShowPassword((prev) => !prev);
   };
 
-  return(
+  return (
     <div className={styles.container}>
       <div className={styles.loginContainer}>
         <div className={styles.loginHeader}>Login</div>
         <Input
-          className ={styles.loginInput}
+          className={styles.loginInput}
           placeholder={'Введите email'}
           value={email}
           onChange={(e) => setEmail(e.target.value)}
@@ -46,21 +45,19 @@ export const  LoginPage = () => {
           <input
             className={styles.passwordInput}
             type={showPassword ? 'text' : 'password'}
-            placeholder="Введите пароль"
+            placeholder='Введите пароль'
             value={password}
             onChange={(e) => setPassword(e.target.value)}
           />
-          <button
-            className={styles.toggleButton}
-            onClick={toggleShowPassword}
-            type="button"
-          >
-            <img className={styles.imageIcon}
-                 src={showPassword ? hideIcon : showIcon}
-                 alt="toggle password visibility" />
+          <button className={styles.toggleButton} onClick={toggleShowPassword} type='button'>
+            <img
+              className={styles.imageIcon}
+              src={showPassword ? hideIcon : showIcon}
+              alt='toggle password visibility'
+            />
           </button>
         </div>
-        <div className = {styles.buttonsContainer}>
+        <div className={styles.buttonsContainer}>
           <Button
             className={styles.loginButton}
             onClick={() => {
@@ -70,7 +67,7 @@ export const  LoginPage = () => {
             Login
           </Button>
           <Button
-            className = {styles.signUpButton}
+            className={styles.signUpButton}
             onClick={() => {
               registration();
             }}
@@ -78,8 +75,7 @@ export const  LoginPage = () => {
             Sign up
           </Button>
         </div>
-
-    </div>
+      </div>
     </div>
   );
 };
