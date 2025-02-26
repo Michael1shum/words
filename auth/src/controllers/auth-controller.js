@@ -8,7 +8,8 @@ class AuthController {
   async registration(req, res, next) {
     try {
       const errors = validationResult(req); //сбор ошибок при валидации?
-      if (!errors.isEmpty()) { //Проверка на ошибки
+      if (!errors.isEmpty()) {
+        //Проверка на ошибки
         return next(ApiError.BadRequest('Ошибки при валидации', errors.array()));
       }
       const { email, password } = req.body;

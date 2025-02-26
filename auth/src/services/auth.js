@@ -9,10 +9,8 @@ const ApiError = require('../exceptions/api-error');
 //TODO добавить возможность добавить роль пользователю через админку
 
 class AuthService {
-
   async registration(email, password) {
     const candidate = await UserModel.findOne({ email });
-
     if (candidate) {
       throw ApiError.BadRequest(`Пользователь с адресом ${email} уже существует!`);
     }
@@ -27,12 +25,13 @@ class AuthService {
       activationLink,
       role: 'user',
     });
-    await MailService.sendActivationMail(email, `${appUrl}/auth/activate/${activationLink}`);
+    // await MailService.sendActivationMail(email, `${appUrl}/auth/activate/${activationLink}`);
 
     const userDto = new UserDTO(user);
-    const tokens = TokenService.generateToken({ ...userDto });
-    await TokenService.saveTokens(userDto.id, tokens.refreshToken, tokens.accessToken);
 
+    const tokens = TokenService.generateToken({ ...userDto });
+
+    await TokenService.saveTokens(userDto.id, tokens.refreshToken, tokens.accessToken);
     return { ...tokens, user: userDto };
   }
 

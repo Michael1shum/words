@@ -2,8 +2,9 @@ import React, { useState } from 'react';
 import { Outlet, Link, useNavigate } from 'react-router-dom';
 import { Layout as AntLayout, Button, Menu, Dropdown, MenuProps } from 'antd';
 import styles from './Layout.module.scss';
+import { Header } from '@components/Header';
 
-const { Header, Sider, Content, Footer } = AntLayout;
+const { Sider, Content, Footer } = AntLayout;
 type MenuItem = Required<MenuProps>['items'][number];
 
 export const Layout = () => {
@@ -13,12 +14,7 @@ export const Layout = () => {
 
   return (
     <AntLayout>
-      {/* Header */}
-      <Header className={styles.header}>
-        <Link to='/login' className={styles.headerButton}>
-          Login
-        </Link>
-      </Header>
+      <Header />
 
       <AntLayout>
         {/* Sidebar */}
