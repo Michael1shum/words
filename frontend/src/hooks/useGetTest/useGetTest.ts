@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react';
 import { useParams } from 'react-router-dom';
-import { Test } from '../../routes/types';
+import { Test } from '@/routes/types';
 
 interface useGetTestReturnValue {
   testData?: Test;

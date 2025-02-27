@@ -1,5 +1,5 @@
 import React from 'react';
-import { useGetTest } from '../../hooks';
+import { useGetTest } from '@/hooks';
 import { Button, Checkbox, Form, Input, Radio, Select, Typography } from 'antd';
 import { Question } from '../types';
 
@@ -10,7 +10,7 @@ const getFormItem = (question: Question) => {
         <>
           <Typography.Title level={4}>{question.description}</Typography.Title>
           <>
-            {question.options.map((option) => (
+            {question?.options.map((option) => (
               <Form.Item key={option} name={[option]}>
                 <Checkbox>{option}</Checkbox>
               </Form.Item>
@@ -21,7 +21,7 @@ const getFormItem = (question: Question) => {
     case 'select':
       return (
         <Select
-          options={question.options.map((item) => {
+          options={ question?.options.map((item) => {
             return { name: item, value: item };
           })}
         />
