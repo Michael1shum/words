@@ -7,23 +7,23 @@ import axios from 'axios';
 export const TestsPage = () => {
   const navigate = useNavigate();
   const [tests, setTests] = useState([]);
-  const getTests = useCallback(
-    () => async () => {
-      try {
-        const response = await axios.get('/api/tests');
-        if (response.status === 200) {
-          setTests(response.data);
-        }
-      } catch (error) {
-        console.error('Error fetching tests:', error);
+
+  const getTests = useCallback(async () => {
+    try {
+      const response = await axios.get('/api/tests');
+      console.log('response', response);
+      if (response.status === 200) {
+        setTests(response.data);
       }
-    },
-    []
-  );
+    } catch (error) {
+      console.error('Error fetching tests:', error);
+    }
+  }, []);
 
   useEffect(() => {
     getTests();
   }, []);
+  console.log('tests', tests);
 
   return (
     <div className={styles.container}>
