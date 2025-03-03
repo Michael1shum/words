@@ -14,13 +14,12 @@ import {
 import { DeleteOutlined, PlusOutlined } from '@ant-design/icons';
 import axios from 'axios';
 import { Test } from '@/routes/types';
-import { getCheckBoxField } from '@/routes/Tests/AddTestPage/utils';
+import { getCheckBoxOrRadioField } from '@/routes/Tests/AddTestPage/utils';
 
 export const AddTestPage = () => {
   const [form] = Form.useForm();
 
   const onFinish = (values: { name: string; description: string; questions: any[] }) => {
-    console.log('Received values of form: ', values);
     const formattedValues = {
       name: values.name,
       description: values.description,
@@ -32,8 +31,10 @@ export const AddTestPage = () => {
         answer: question.answers,
       })),
     };
+    console.log('Received values of form: ', values);
+    console.log('formattedValues: ', formattedValues);
 
-    axios
+    /*  axios
       .post('api/tests/add', formattedValues, {
         headers: {
           'Content-Type': 'application/json',
@@ -47,7 +48,7 @@ export const AddTestPage = () => {
         console.error('Ошибка при отправке запроса:', error);
         alert('Произошла ошибка при добавлении теста. Проверьте консоль для подробностей.');
       })
-      .finally(() => form.resetFields());
+      .finally(() => form.resetFields());*/
   };
 
   return (
@@ -125,8 +126,9 @@ export const AddTestPage = () => {
                                 ]);
                                 switch (controlType) {
                                   case 'checkbox':
-                                    return getCheckBoxField(form, field);
-                                    break;
+                                    return getCheckBoxOrRadioField(form, field);
+                                  case 'radio':
+                                    return getCheckBoxOrRadioField(form, field, true);
                                   default:
                                     return null;
                                 }
