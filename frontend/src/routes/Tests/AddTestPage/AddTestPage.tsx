@@ -28,7 +28,7 @@ export const AddTestPage = () => {
         question: question.question,
         description: question.description,
         options: question.options,
-        answer: question.answers,
+        answer: question.controlType === 'input' ? [question.answer] : question.answers,
       })),
     };
     console.log('Received values of form: ', values);
@@ -130,7 +130,19 @@ export const AddTestPage = () => {
                                   case 'radio':
                                     return getCheckBoxOrRadioField(form, field, true);
                                   default:
-                                    return null;
+                                    return (
+                                      <Form.Item
+                                        name={[field.name, 'answer']}
+                                        noStyle
+                                        required={true}
+                                        label={'Ответ'}
+                                      >
+                                        <Input
+                                          placeholder={'Введите правильный ответ'}
+                                          width={'100%'}
+                                        />
+                                      </Form.Item>
+                                    );
                                 }
                               }}
                             </Form.Item>
