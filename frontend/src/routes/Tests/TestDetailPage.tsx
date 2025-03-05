@@ -1,58 +1,66 @@
 import React from 'react';
 import { useGetTest } from '@/hooks';
-import { Button, Checkbox, Form, Input, Radio, Select, Typography } from 'antd';
+import { Button, Checkbox, Col, Form, Input, Radio, Row, Typography } from 'antd';
 import { Question } from '../types';
 
-const getFormItem = (question: Question) => {
+const getQuestion = (question: Question) => {
   switch (question.controlType) {
     case 'checkbox':
       return (
-        <>
-          <Typography.Title level={4}>{question.description}</Typography.Title>
-          <>
-            {question?.options.map((option) => (
-              <Form.Item key={option} name={[option]}>
-                <Checkbox>{option}</Checkbox>
-              </Form.Item>
-            ))}
-          </>
-        </>
-      );
-    case 'select':
-      return (
-        <Select
-          options={ question?.options.map((item) => {
-            return { name: item, value: item };
-          })}
-        />
+        <Form.Item name={question.question} label={question.question}>
+          <Checkbox.Group>
+            <Row gutter={[12, 12]}>
+              {question.options.map((option) => (
+                <Col key={option}>
+                  <Checkbox value={option}>{option}</Checkbox>
+                </Col>
+              ))}
+            </Row>
+          </Checkbox.Group>
+        </Form.Item>
       );
     case 'input':
-      return <Input />;
-    case 'radio':
-      return question.options.map((option) => (
-        <Form.Item name={option}>
-          <Radio />
+      return (
+        <Form.Item name={question.question} label={question.question}>
+          <Input />
         </Form.Item>
-      ));
+      );
+    case 'radio':
+      return (
+        <Form.Item name={question.question} label={question.question}>
+          <Radio.Group>
+            <Row gutter={[12, 12]}>
+              {question.options.map((option) => (
+                <Col key={option}>
+                  <Radio value={option}>{option}</Radio>
+                </Col>
+              ))}
+            </Row>
+          </Radio.Group>
+        </Form.Item>
+      );
+    default:
+      return null;
   }
 };
 
 export const TestDetailPage = () => {
   const { testData, isLoading } = useGetTest();
   const [form] = Form.useForm();
-  console.log('testData', testData);
 
   if (isLoading) {
-    return <div>Loading...</div>; // Показываем загрузку
+    return <div>Loading...</div>;
   }
 
   return (
     <>
       <Typography.Title level={1}>{testData?.name}</Typography.Title>
-      <Form form={form} onFinish={(values) => console.log(values)}>
-        {testData?.questions.map((question: Question) => getFormItem(question))}
-        <Button type={'primary'} onClick={() => form.submit()}>
-          Submit
+      <Form form={form} onFinish={(values) => console.log('answers', values)} layout={'vertical'}>
+        {testData?.questions.map((question: Question) => (
+          <div key={question.question}>{getQuestion(question)}</div>
+        ))}
+        <Button type='primary' onClick={() => form.submit()}>
+          ответить
         </Button>
       </Form>
     </>
