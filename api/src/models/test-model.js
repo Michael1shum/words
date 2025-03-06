@@ -1,6 +1,7 @@
 const { Schema, model } = require('mongoose');
 
 const QuestionSchema = new Schema({
+  _id : {type: String},
   controlType: { type: String },
   question: { type: String },
   options: { type: [String] },

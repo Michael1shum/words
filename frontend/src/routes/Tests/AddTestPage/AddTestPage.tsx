@@ -34,7 +34,7 @@ export const AddTestPage = () => {
     console.log('Received values of form: ', values);
     console.log('formattedValues: ', formattedValues);
 
-    /*  axios
+      axios
       .post('api/tests/add', formattedValues, {
         headers: {
           'Content-Type': 'application/json',
@@ -48,7 +48,7 @@ export const AddTestPage = () => {
         console.error('Ошибка при отправке запроса:', error);
         alert('Произошла ошибка при добавлении теста. Проверьте консоль для подробностей.');
       })
-      .finally(() => form.resetFields());*/
+      .finally(() => form.resetFields());
   };
 
   return (
