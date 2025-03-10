@@ -34,7 +34,7 @@ export const AddTestPage = () => {
     console.log('Received values of form: ', values);
     console.log('formattedValues: ', formattedValues);
 
-    axios
+      axios
       .post('api/tests/add', formattedValues, {
         headers: {
           'Content-Type': 'application/json',

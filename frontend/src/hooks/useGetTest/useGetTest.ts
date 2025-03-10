@@ -16,8 +16,8 @@ export const useGetTest = (): useGetTestReturnValue => {
     try {
       setIsLoading(true);
       const response = await fetch(`/api/tests/${id}`); // Получаем тест по ID
-
       const data = await response.json();
+      console.log('data',data)
       setData(data);
     } catch (error) {
       console.error('Error fetching test:', error);

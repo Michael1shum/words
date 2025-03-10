@@ -1,4 +1,5 @@
 export interface Question {
+  _id: string;
   controlType: 'checkbox' | 'input' | 'radio' | 'select';
   options: string[];
   description: string;

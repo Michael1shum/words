@@ -10,6 +10,7 @@ module.exports = class TestDTO {
       question: questionNumber.question,
       options: questionNumber.options,
       description: questionNumber.description,
+      _id: questionNumber._id,
     }));
   }
 };

@@ -63,7 +63,8 @@ class TestController {
     try {
       const testId = req.params.testId;
       const userId = req.headers['x-id'];
-      const testResult = await TestService.getComparison(testId, userId, req.body);
+      // console.log("testAnswer: ",testId,' userId', typeof(userId))
+      const testResult = await TestService.saveUserTestResult(testId, userId, req.body);
       res.json(testResult);
     } catch (e) {
       next(e);
