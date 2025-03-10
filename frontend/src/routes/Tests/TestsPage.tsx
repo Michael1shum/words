@@ -1,12 +1,14 @@
-import React, { useCallback, useEffect, useState } from 'react';
+import React, { useCallback, useContext, useEffect, useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom'; // Импортируем Link для создания ссылок
 import styles from './TestPage.module.scss';
 import { Button } from 'antd';
 import axios from 'axios';
+import { AuthContext } from '@/App';
 
 export const TestsPage = () => {
   const navigate = useNavigate();
   const [tests, setTests] = useState([]);
+  const { role } = useContext(AuthContext);
 
   const getTests = useCallback(async () => {
     try {
@@ -21,8 +23,12 @@ export const TestsPage = () => {
   }, []);
 
   useEffect(() => {
-    getTests();
-  }, []);
+    if (role) {
+      getTests();
+    } else {
+      setTests([]);
+    }
+  }, [role]);
   console.log('tests', tests);
 
   return (

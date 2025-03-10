@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { RouterProvider } from 'react-router-dom';
-import { router } from '../routes';
+import { useGetRoutes } from '../routes';
 import '../assets/global.scss';
 
 export const AuthContext = React.createContext({
@@ -12,7 +12,7 @@ export const AuthContext = React.createContext({
 
 export const App = () => {
   const [role, setRole] = useState<undefined | string>(undefined);
-
+  const { router } = useGetRoutes(role);
   const updateRole = (newRole: string) => {
     setRole(newRole);
   };

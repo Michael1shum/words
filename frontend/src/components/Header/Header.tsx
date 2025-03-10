@@ -2,7 +2,7 @@ import styles from '@components/Layout/Layout.module.scss';
 import { Link } from 'react-router-dom';
 import { Button, Form, Input, Layout, Modal } from 'antd';
 const { Header: AntHeader } = Layout;
-import React, { useContext, useState } from 'react';
+import React, { useContext, useEffect, useState } from 'react';
 import Cookies from 'js-cookie';
 import axios from 'axios';
 import { AuthContext } from '@/App';
@@ -12,7 +12,7 @@ export const Header = () => {
   const [fromMode, setFormMode] = useState<'login' | 'registration'>('login');
   const { role, updateRole } = useContext(AuthContext);
   const [form] = Form.useForm();
-
+  const roleFromCookie = Cookies.get('role');
   const resetForm = () => {
     form.resetFields();
     setIsModalVisible(false);
@@ -50,6 +50,14 @@ export const Header = () => {
       handleRegistration(values.email, values.password);
     }
   };
+
+  useEffect(() => {
+    if (roleFromCookie) {
+      updateRole(roleFromCookie);
+    } else {
+      setIsModalVisible(true);
+    }
+  }, [roleFromCookie]);
 
   return (
     <AntHeader className={styles.header}>
