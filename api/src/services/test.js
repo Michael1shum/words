@@ -29,11 +29,14 @@ class TestService {
   async getTestById(testId) {
     // console.log('testId',testId, typeof(testId))
     const test = await TestModel.findById(testId);
+    // console.log("TESTTESTTEST", test)
     if (!test) {
       throw ApiError.NotFound(`Такого теста не существует!`);
     }
     const testDTO = new TestDTO(test);
-    // console.log('testDTO', testDTO)
+    // console.log("DTOTEST", test)
+
+    console.log('testDTO', testDTO)
     if (!testDTO.questions) {
       throw ApiError.NotFound(`У теста нет вопросов!`);
     }

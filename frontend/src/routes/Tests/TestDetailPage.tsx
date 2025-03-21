@@ -3,14 +3,14 @@ import { useGetTest } from '@/hooks';
 import { Button, Checkbox, Form, Input, Radio, Select, Typography } from 'antd';
 import axios from 'axios';
 
-/*interface Question {
+interface Question {
   _id: string;
   controlType: string;
   question: string;
   options: string[];
   answer: string[];
   description?: string;
-}*/
+}
 
 interface UserTestAnswers {
   userId: string;
@@ -31,6 +31,7 @@ export const TestDetailPage = () => {
   if (isLoading) {
     return <div>Loading...</div>;
   }
+  console.log('data', testData)
 
   const questions = testData?.questions || [];
   console.log('questions', questions)

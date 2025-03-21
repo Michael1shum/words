@@ -1,6 +1,6 @@
 import { FC } from 'react';
 import { Image } from 'antd';
-import logo from '../../assets/logo.webp';
+// import logo from '../../assets/logo.webp';
 
 export const Login: FC = () => {
   return (
@@ -13,7 +13,7 @@ export const Login: FC = () => {
         alignItems: 'center',
       }}
     >
-      <Image src={logo} />
+      {/*<Image src={logo} />*/}
     </div>
   );
 };
