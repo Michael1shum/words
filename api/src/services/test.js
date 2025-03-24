@@ -53,17 +53,18 @@ class TestService {
     return requestedTestScore;
   }
 
-  async saveUserTestResult(testId, userId, answers) {
-    // Логируем answers для проверки
-    console.log("Ответы на сервере:", answers);
+  async saveUserTestResult(testId, userId, timeTaken, payload) {
+    // Логируем payload для проверки
+    console.log("Ответы на сервере:", payload);
 
-    // Проверка, что answers является массивом
-/*    if (!Array.isArray(answers)) {
-      console.error("Ответы не являются массивом:", answers);
+    // Проверка, что payload является массивом
+    if (!Array.isArray(payload.answers)) {
+      console.error("Ответы не являются массивом:", payload.answers);
       throw new Error("'answers' должны быть массивом.");
-    }*/
+    }
 
-    const processedAnswers = answers.answers.map((answer) => {
+    // Обрабатываем ответы
+    const processedAnswers = payload.answers.map((answer) => {
       console.log("Обрабатываем ответ:", answer);
 
       if (!mongoose.Types.ObjectId.isValid(answer.questionId)) {
@@ -93,12 +94,14 @@ class TestService {
       return { ...answer, isCorrect };
     });
 
+    // Создаём запись о результате теста
     const userTestResult = new UserTestResult({
       userId,
       testId,
       answers: finalAnswers,
       score,
       totalQuestions,
+      timeTaken, // Добавляем timeTaken
     });
 
     await userTestResult.save();
@@ -106,57 +109,8 @@ class TestService {
   }
 
 
-
-
-  /*async saveUserTestResult(testId, userId, answers) {
-    const test = await TestModel.findById(testId);
-    if (!test) throw ApiError.NotFound("Тест не найден");
-
-    let score = 0;
-    const totalQuestions = test.questions.length;
-
-
-
-    const processedAnswers = Object.entries(answers).map(([questionId, givenAnswer]) => {
-      const question = test.questions.find(q => q._id.toString() === questionId);
-
-      if (!question || !question.answer) {
-        return {
-          questionId: new mongoose.Types.ObjectId(questionId),
-          givenAnswer: givenAnswer.map(ans => String(ans)),
-          isCorrect: false
-        };
-      }
-
-      const isCorrect = JSON.stringify(question.answer.sort()) === JSON.stringify(givenAnswer.sort());
-      if (isCorrect) score++;
-
-      return {
-
-        questionId: new mongoose.Types.ObjectId(questionId),
-        givenAnswer: givenAnswer.map(ans => String(ans)),
-        isCorrect
-      };
-    });
-
-
-    const userTestResult = new UserTestResult({
-
-      userId: new mongoose.Types.ObjectId(userId),
-      testId: new mongoose.Types.ObjectId(testId),
-      answers: processedAnswers,
-      score,
-      totalQuestions,
-    });
-
-    await userTestResult.save();
-
-    return new UserTestResultDTO(userTestResult); // Применяем DTO перед возвратом
-  }*/
-
-
-
   async addTest(testData) {
+    console.log('testData',testData)
     const newTest = await TestModel.create({ ...testData });
     const testDTO = new TestDTO(newTest);  // Преобразуем модель в DTO
     return testDTO;

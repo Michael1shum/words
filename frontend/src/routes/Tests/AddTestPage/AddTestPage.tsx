@@ -9,7 +9,7 @@ import {
   Checkbox,
   Select,
   FormInstance,
-  FormListFieldData,
+  FormListFieldData, InputNumber,
 } from 'antd';
 import { DeleteOutlined, PlusOutlined } from '@ant-design/icons';
 import axios from 'axios';
@@ -19,10 +19,11 @@ import { getCheckBoxOrRadioField } from '@/routes/Tests/AddTestPage/utils';
 export const AddTestPage = () => {
   const [form] = Form.useForm();
 
-  const onFinish = (values: { name: string; description: string; questions: any[] }) => {
+  const onFinish = (values: { name: string; description: string; timeLimit: number; questions: any[] }) => {
     const formattedValues = {
       name: values.name,
       description: values.description,
+      timeLimit: values.timeLimit, // Добавляем время
       questions: values.questions.map((question) => ({
         controlType: question.controlType,
         question: question.question,
@@ -65,6 +66,12 @@ export const AddTestPage = () => {
             <Col span={12}>
               <Form.Item name='description' label='Описание теста'>
                 <Input />
+              </Form.Item>
+            </Col>
+            {/* Добавление поля для времени на тест */}
+            <Col span={12}>
+              <Form.Item name='timeLimit' label='Время на тест (в минутах)' initialValue={0}>
+                <InputNumber min={0} />
               </Form.Item>
             </Col>
             <Form.List

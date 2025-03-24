@@ -7,8 +7,21 @@ export interface Question {
   answer: string[];
 }
 
+
 export interface Test {
+  timeLimit: number; // Add timeLimit field here
   _id: string;
+  description: string;
   name: string;
   questions: Question[];
+}
+
+
+
+export interface UserTestAnswers {
+  userId: string;
+  answers: {
+    questionId: string;
+    givenAnswer: string[];
+  }[];
 }

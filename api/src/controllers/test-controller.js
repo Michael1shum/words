@@ -15,13 +15,13 @@ class TestController {
 
   async addTest(req, res, next) {
     try {
-      const { name, questions } = req.body;  // Извлекаем данные из тела запроса
+      const { name, questions, timeLimit } = req.body;  // Извлекаем данные из тела запроса
       if (!name || !questions) {
         throw ApiError.BadRequest('Не все данные для теста предоставлены');
       }
 
       // Создаем новый тест с полученными данными
-      const newTest = await TestService.addTest({ name, questions });
+      const newTest = await TestService.addTest({ name, questions, timeLimit });
       res.status(201).json(newTest);
     } catch (e) {
       next(e);
@@ -63,8 +63,10 @@ class TestController {
     try {
       const testId = req.params.testId;
       const userId = req.headers['x-id'];
+      const { timeTaken, payload } = req.body;
+
       // console.log("testAnswer: ",testId,' userId', typeof(userId))
-      const testResult = await TestService.saveUserTestResult(testId, userId, req.body);
+      const testResult = await TestService.saveUserTestResult(testId, userId, timeTaken, payload);
       res.json(testResult);
     } catch (e) {
       next(e);
@@ -82,70 +84,5 @@ class TestController {
   }
 }
 
-// const testsArray = [ //Массив тестов
-//     {
-//         name: "Test3",
-//         // id: getID(),
-//         id: "id1",
-//         questions: [
-//             {
-//                 // questionID: getID(),
-//                 questionID: "q1",
-//                 question: "Как работает чета там?",
-//                 description: " Выберите несколько вариантов",
-//                 type: "checkbox",
-//                 options: ["ответ 1", "ответ 2", "ответ 3"],
-//                 answer: "ответ 1",
-//             },
-//             {
-//                 // questionID: getID(),
-//                 questionID: "q2",
-//                 question: "Как работает чета там?",
-//                 description: " Выберите один вариант",
-//                 type: "radio",
-//                 options: ["ответ 1", "ответ 2", "ответ 3"],
-//                 answer: "ответ 3",
-//             },
-//             {
-//                 // questionID: getID(),
-//                 questionID: "q3",
-//                 question: "Как работает чета там?",
-//                 description: "Введите значение",
-//                 type: "input",
-//                 answer: "правда",
-//             },
-//         ],
-//     },
-//     {
-//         name: "Test 1",
-//         id: "id2",
-//         questions:[
-//             {questionID: "q1",
-//                 question: "Как работает чета там?",
-//                 description: " Выберите несколько вариантов",
-//                 type: "checkbox",
-//                 options: ["ответ 1", "ответ 2", "ответ 3"],
-//                 answer: "ответ 1",}
-//         ]
-//     }
-// ];
-//
-//
-//
-// let users = [ // Массив пользователей
-//     {
-//         userId: "5",
-//         userName: "Vasya",
-//         passedTests: [
-//             { testId: "id1", answers: [] },
-//             { testId: "id2", answers: [] },
-//         ],
-//     },
-//     {
-//         userId: "1",
-//         userName: "Alesha",
-//         passedTests: [{ testId: "id1", answers: [] }],
-//     },
-// ];
 
 module.exports = new TestController();
