@@ -1,7 +1,10 @@
 import React, { useEffect, useState } from 'react';
 import axios from 'axios';
 import { Table, Button, InputNumber } from 'antd';
-import { PhotonEvent, ExperimentParams } from '@/App/types';
+import { PhotonEvent, ExperimentParams } from '@/routes/types';
+import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer } from 'recharts';
+import { SpadAnimation } from './SpadAnimation';  // Импортируем анимацию
+
 
 export const Lab1 = () => {
   const [events, setEvents] = useState<PhotonEvent[]>([]);
@@ -92,6 +95,32 @@ export const Lab1 = () => {
     { title: 'Photon Detected', dataIndex: 'detected', key: 'detected', render: (val: boolean) => (val ? 'Yes' : 'No') }
   ];
 
+/*  // Данные для графика попадания фотонов
+  const chartData = events.map(event => ({
+    time: new Date(event.timestamp).toLocaleTimeString(), // Время события
+    detected: event.detected ? 1 : 0,  // 1 для детектированного фотона
+  }));*/
+
+  // Функция, моделирующая вероятность детектирования фотона от температуры (SNSPD)
+  const generateSNSPDData = () => {
+    const data = [];
+    for (let T = 0.1; T <= 5; T += 0.1) {
+      const detectionProbability = T < 3 ? 1 - Math.exp(-(3 - T) * 2) : 0;
+      data.push({ temperature: T.toFixed(1), probability: detectionProbability });
+    }
+    return data;
+  };
+
+  const snsdpData = generateSNSPDData();
+
+  const graphData = events.map((event) => ({
+    timestamp: new Date(event.timestamp).toLocaleString(),
+    voltage: event.voltage,
+    efficiency: event.efficiency,
+    noise: event.noise ? 1 : 0,  // Для графика можно использовать бинарное значение
+    detected: event.detected ? 1 : 0  // Тоже бинарное значение для отображения
+  }));
+
   return (
     <div>
       <h1>Лабораторные работы</h1>
@@ -153,6 +182,46 @@ export const Lab1 = () => {
         <Button onClick={handleDeleteAllEvents} style={{ marginLeft: '10px' }} danger>
           Удалить все испытания
         </Button>
+      </div>
+
+      {/* График попадания фотонов */}
+      {/*<LineChart width={600} height={300} data={chartData}>*/}
+      {/*  <XAxis dataKey="time" />*/}
+      {/*  <YAxis />*/}
+      {/*  <Tooltip />*/}
+      {/*  <CartesianGrid strokeDasharray="3 3" />*/}
+      {/*  <Line type="monotone" dataKey="detected" stroke="#8884d8" />*/}
+      {/*</LineChart>*/}
+
+      {/* Анимация лавинного пробоя */}
+      {/*<SpadAnimation />*/}
+
+      {/* График результатов эксперимента */}
+      <h2>График: Эффективность и Шум</h2>
+      <ResponsiveContainer width="100%" height={300}>
+        <LineChart data={graphData}>
+          <CartesianGrid strokeDasharray="3 3" />
+          <XAxis dataKey="timestamp" />
+          <YAxis />
+          <Tooltip />
+          <Legend />
+          <Line type="monotone" dataKey="efficiency" stroke="#8884d8" />
+          <Line type="monotone" dataKey="noise" stroke="#82ca9d" />
+          <Line type="monotone" dataKey="detected" stroke="#ff7300" />
+        </LineChart>
+      </ResponsiveContainer>
+
+      <div>
+        <h2>Зависимость детекции от температуры (SNSPD)</h2>
+        <ResponsiveContainer width="100%" height={300}>
+          <LineChart data={snsdpData}>
+            <CartesianGrid strokeDasharray="3 3" />
+            <XAxis dataKey="temperature" label={{ value: 'Температура (K)', position: 'insideBottomRight', offset: -5 }} />
+            <YAxis label={{ value: 'Вероятность детектирования', angle: -90, position: 'insideLeft' }} domain={[0, 1]} />
+            <Tooltip />
+            <Line type="monotone" dataKey="probability" stroke="#8884d8" strokeWidth={2} />
+          </LineChart>
+        </ResponsiveContainer>
       </div>
       <Table dataSource={events} columns={columns} rowKey='_id' />
     </div>

@@ -15,7 +15,7 @@ class LabService {
     const distanceEffect = Math.pow(1 / distance, 2);  // Уменьшение интенсивности с увеличением расстояния
 
     // Реальный шанс детекции с учетом всех факторов
-    const isPhotonDetected = Math.random() < (efficiency * mediumEffect * temperatureEffect * efficiencyFluctuation * distanceEffect);
+      const isPhotonDetected = Math.random() < (efficiency * mediumEffect * temperatureEffect * efficiencyFluctuation * distanceEffect);
 
     const detectionChance = efficiency * mediumEffect * temperatureEffect * efficiencyFluctuation * distanceEffect;
     console.log('Calculated detection chance:', detectionChance, "voltage", voltage, " efficiency ",efficiency," noiseLevel ",noiseLevel," distance ",distance," mediumAttenuationFactor ",mediumAttenuationFactor," temperature ",temperature," temperatureSensitivity ",temperatureSensitivity," detectorNoiseLevel ",detectorNoiseLevel, " failureRate ",failureRate);
