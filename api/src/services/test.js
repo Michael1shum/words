@@ -1,6 +1,6 @@
 const TestModel = require('../models/test-model');
 const UserTestResult = require('../models/UserTestResult');
-const UserTestResultDTO = require("../dto/UserTestResultDTO");
+const UserTestResultDTO = require('../dto/UserTestResultDTO');
 // const UserModel = require('../../../auth/src/models/user-model');
 const mongoose = require('mongoose');
 const { usersUrl } = require('../configuration/index');
@@ -36,13 +36,12 @@ class TestService {
     const testDTO = new TestDTO(test);
     // console.log("DTOTEST", test)
 
-    console.log('testDTO', testDTO)
+    console.log('testDTO', testDTO);
     if (!testDTO.questions) {
       throw ApiError.NotFound(`У теста нет вопросов!`);
     }
     return testDTO;
   }
-
 
   async testResultById(testId, userId) {
     const currentUser = await axios.get(`${usersUrl}/user/${userId}`);
@@ -55,17 +54,17 @@ class TestService {
 
   async saveUserTestResult(testId, userId, timeTaken, payload) {
     // Логируем payload для проверки
-    console.log("Ответы на сервере:", payload);
+    console.log('Ответы на сервере:', payload);
 
     // Проверка, что payload является массивом
     if (!Array.isArray(payload.answers)) {
-      console.error("Ответы не являются массивом:", payload.answers);
+      console.error('Ответы не являются массивом:', payload.answers);
       throw new Error("'answers' должны быть массивом.");
     }
 
     // Обрабатываем ответы
     const processedAnswers = payload.answers.map((answer) => {
-      console.log("Обрабатываем ответ:", answer);
+      console.log('Обрабатываем ответ:', answer);
 
       if (!mongoose.Types.ObjectId.isValid(answer.questionId)) {
         console.error(`Некорректный questionId: ${answer.questionId}`);
@@ -81,14 +80,18 @@ class TestService {
 
     // Дальше код сохранения и обработки
     const test = await TestModel.findById(testId);
-    if (!test) throw ApiError.NotFound("Тест не найден");
+    if (!test) throw ApiError.NotFound('Тест не найден');
 
     let score = 0;
     const totalQuestions = test.questions.length;
 
     const finalAnswers = processedAnswers.map((answer) => {
-      const question = test.questions.find((q) => q._id.toString() === answer.questionId.toString());
-      const isCorrect = question && JSON.stringify(question.answer.sort()) === JSON.stringify(answer.givenAnswer.sort());
+      const question = test.questions.find(
+        (q) => q._id.toString() === answer.questionId.toString()
+      );
+      const isCorrect =
+        question &&
+        JSON.stringify(question.answer.sort()) === JSON.stringify(answer.givenAnswer.sort());
       if (isCorrect) score++;
 
       return { ...answer, isCorrect };
@@ -108,11 +111,51 @@ class TestService {
     return new UserTestResultDTO(userTestResult);
   }
 
+  async getUserTestsResults(userId) {
+    try {
+      const results = await UserTestResult.find({ userId })
+        .populate('testId', 'name questions')
+        .lean();
+
+      if (!results.length) {
+        return [];
+      }
+
+      const formattedResults = results.map((result) => {
+        const test = result.testId;
+
+        const questionsWithAnswers = result.answers.map((userAnswer) => {
+          const question = test.questions.find(
+            (q) => q._id.toString() === userAnswer.questionId.toString()
+          );
+
+          return {
+            questionId: userAnswer.questionId,
+            questionText: question?.question || 'Вопрос не найден',
+            givenAnswer: userAnswer.givenAnswer,
+            isCorrect: userAnswer.isCorrect,
+          };
+        });
+
+        return {
+          testId: result.testId._id,
+          testName: test.name,
+          totalQuestions: result.totalQuestions,
+          questions: questionsWithAnswers,
+        };
+      });
+
+      return formattedResults;
+    } catch (e) {
+      console.error('Error in getUserTestsResults:', e);
+      throw e; // Пробрасываем ошибку для обработки в контроллере
+    }
+  }
 
   async addTest(testData) {
-    console.log('testData',testData)
+    console.log('testData', testData);
     const newTest = await TestModel.create({ ...testData });
-    const testDTO = new TestDTO(newTest);  // Преобразуем модель в DTO
+    const testDTO = new TestDTO(newTest); // Преобразуем модель в DTO
     return testDTO;
   }
 

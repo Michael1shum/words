@@ -17,7 +17,8 @@ export const Layout = () => {
   if (role !== undefined) {
     items.push(
       { key: '1', label: 'Тесты', onClick: () => navigate('/tests') },
-      { key: '2', label: 'Лабораторные', onClick: () => navigate('/labs') }
+      { key: '2', label: 'Результаты тестов', onClick: () => navigate('/tests/results') },
+      { key: '3', label: 'Лабораторные', onClick: () => navigate('/labs') }
     );
   }
 

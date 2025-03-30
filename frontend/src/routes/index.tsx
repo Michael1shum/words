@@ -5,7 +5,8 @@ import { TestDetailPage } from './Tests/TestDetailPage';
 import { AddTestPage } from './Tests/AddTestPage/AddTestPage';
 import { Login } from '@/routes/Login/Login';
 import { LabsPage } from './Labs/LabsPage';
-import { Lab1 } from './Labs/Lab1/Lab1';  // Страница лабораторной работы 1
+import { Lab1 } from './Labs/Lab1/Lab1';
+import { TestsResultsPage } from '@/routes/Tests/TestsResults/TestsResultsPage'; // Страница лабораторной работы 1
 
 export const useGetRoutes = (role: string | undefined) => {
   const isAuthenticated = role !== undefined;
@@ -29,11 +30,15 @@ export const useGetRoutes = (role: string | undefined) => {
           element: isAuthenticated ? <AddTestPage /> : <Navigate to='/login' replace />,
         },
         {
-          path: 'labs',  // Новый путь для лабораторий
+          path: 'labs', // Новый путь для лабораторий
           element: isAuthenticated ? <LabsPage /> : <Navigate to='/login' replace />,
         },
         {
-          path: 'labs/1',  // Страница лабораторной работы 1
+          path: 'tests/results',
+          element: isAuthenticated ? <TestsResultsPage /> : <Navigate to='/login' replace />,
+        },
+        {
+          path: 'labs/1', // Страница лабораторной работы 1
           element: isAuthenticated ? <Lab1 /> : <Navigate to='/login' replace />,
         },
         { path: 'login', element: <Login /> },

@@ -46,7 +46,9 @@ export const TestsPage = () => {
       </div>
 
       {/* Добавляем кнопку для перехода на страницу добавления теста */}
-      <Button style={{width:"10%"}} onClick={() => navigate('/add-test')}>Add New Test</Button>
+      <Button style={{ width: '10%' }} onClick={() => navigate('/add-test')}>
+        Add New Test
+      </Button>
     </div>
   );
 };

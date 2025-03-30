@@ -5,7 +5,7 @@ const ApiError = require('../exceptions/api-error');
 class TestController {
   async getTests(req, res, next) {
     try {
-      console.log('Сработал контроллер')
+      console.log('Сработал контроллер');
       const tests = await TestService.getAllTests();
       return res.json(tests);
     } catch (e) {
@@ -15,7 +15,7 @@ class TestController {
 
   async addTest(req, res, next) {
     try {
-      const { name, questions, timeLimit } = req.body;  // Извлекаем данные из тела запроса
+      const { name, questions, timeLimit } = req.body; // Извлекаем данные из тела запроса
       if (!name || !questions) {
         throw ApiError.BadRequest('Не все данные для теста предоставлены');
       }
@@ -27,7 +27,7 @@ class TestController {
       next(e);
     }
   }
-/*  async addTest(req, res, next) {
+  /*  async addTest(req, res, next) {
     try {
       const testData = req.body;
       const newTest = await TestService.addTest(testData);
@@ -36,7 +36,6 @@ class TestController {
       next(e);
     }
   }*/
-
 
   async testById(req, res, next) {
     try {
@@ -59,6 +58,16 @@ class TestController {
     }
   }
 
+  async getTestResultsByUser(req, res, next) {
+    try {
+      const userId = req.headers['x-id'];
+      const testResults = await TestService.getUserTestsResults(userId);
+      res.json(testResults);
+    } catch (e) {
+      next(e);
+    }
+  }
+
   async testAnswer(req, res, next) {
     try {
       const testId = req.params.testId;
@@ -66,6 +75,18 @@ class TestController {
       const { timeTaken, payload } = req.body;
 
       // console.log("testAnswer: ",testId,' userId', typeof(userId))
+      const testResult = await TestService.saveUserTestResult(testId, userId, timeTaken, payload);
+      res.json(testResult);
+    } catch (e) {
+      next(e);
+    }
+  }
+
+  async getUserAnswers(req, res, next) {
+    try {
+      const userId = req.headers['x-id'];
+      const { timeTaken, payload } = req.body;
+
       const testResult = await TestService.saveUserTestResult(testId, userId, timeTaken, payload);
       res.json(testResult);
     } catch (e) {
@@ -83,6 +104,5 @@ class TestController {
     }
   }
 }
-
 
 module.exports = new TestController();
