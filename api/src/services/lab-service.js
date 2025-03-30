@@ -1,58 +1,95 @@
 const PhotonEvent = require('../models/photon-model');
 
 class LabService {
-  static async runExperiment({ voltage, efficiency, noiseLevel, distance, mediumAttenuationFactor, temperature, temperatureSensitivity, detectorNoiseLevel, failureRate }) {
-    // Моделируем влияние среды
-    const mediumEffect = mediumAttenuationFactor;  // Коэффициент ослабления среды
+  static async runExperiment({
+                               detectorType,
+                               voltage,
+                               efficiency,
+                               noiseLevel,
+                               distance,
+                               mediumAttenuationFactor,
+                               temperature,
+                               temperatureSensitivity,
+                               detectorNoiseLevel,
+                               failureRate
+                             }) {
+    // 1. Расчет эффекта температуры (нормализованный от 0 до 1)
+    const optimalTemp = detectorType === 'SNSPD' ? 2 : -50;
+    const tempDiff = Math.abs(temperature - optimalTemp);
+    const tempEffect = Math.exp(-tempDiff / (temperatureSensitivity * 10)); // Увеличиваем чувствительность
 
-    // Моделируем влияние температуры
-    const temperatureEffect = 1 - (temperature - 25) / temperatureSensitivity;  // 25°C - оптимальная температура
+    // 2. Эффект расстояния (используем обратный квадрат, но нормализуем)
+    const normDistance = Math.min(distance, 100) / 100; // Нормализуем расстояние до 100 км
+    const distanceEffect = 1 / (1 + normDistance * 2); // Мягкое уменьшение с расстоянием
 
-    // Моделируем колебания эффективности
-    const efficiencyFluctuation = 1 + (Math.random() - 0.5) * 0.2;  // Колебания в пределах ±20%
+    // 3. Эффект среды (ослабление)
+    const mediumEffect = mediumAttenuationFactor; // Уже в диапазоне 0-1
 
-    // Моделируем влияние расстояния (закон обратных квадратов)
-    const distanceEffect = Math.pow(1 / distance, 2);  // Уменьшение интенсивности с увеличением расстояния
+    // 4. Флуктуации эффективности (±10%)
+    const efficiencyFluctuation = 0.9 + Math.random() * 0.2;
 
-    // Реальный шанс детекции с учетом всех факторов
-      const isPhotonDetected = Math.random() < (efficiency * mediumEffect * temperatureEffect * efficiencyFluctuation * distanceEffect);
+    // Итоговая вероятность детекции
+    const baseProbability = efficiency * tempEffect * distanceEffect * mediumEffect * efficiencyFluctuation;
+    const detectionProbability = Math.min(baseProbability, 0.95); // Ограничиваем максимум 95%
 
-    const detectionChance = efficiency * mediumEffect * temperatureEffect * efficiencyFluctuation * distanceEffect;
-    console.log('Calculated detection chance:', detectionChance, "voltage", voltage, " efficiency ",efficiency," noiseLevel ",noiseLevel," distance ",distance," mediumAttenuationFactor ",mediumAttenuationFactor," temperature ",temperature," temperatureSensitivity ",temperatureSensitivity," detectorNoiseLevel ",detectorNoiseLevel, " failureRate ",failureRate);
+    // Логирование для отладки
+    console.log('Detection factors:', {
+      efficiency,
+      tempEffect,
+      distanceEffect,
+      mediumEffect,
+      efficiencyFluctuation,
+      finalProbability: detectionProbability
+    });
 
+    // Детекция фотона
+    const isPhotonDetected = Math.random() < detectionProbability;
 
-    // Моделируем фоновый шум и шум детектора
-    const backgroundNoise = Math.random() < noiseLevel;
-    const detectorNoise = Math.random() < detectorNoiseLevel;
-    const isNoise = backgroundNoise || detectorNoise;
+    // Шумы
+    const isNoise = Math.random() < (noiseLevel + detectorNoiseLevel) / 2;
 
-    // Моделируем вероятность сбоя системы
+    // Сбой системы
     const systemFailure = Math.random() < failureRate;
     if (systemFailure) {
-      return { detected: false, noise: true, error: "System failure" };  // Если сбой, фотон не детектируется
+      return {
+        detected: false,
+        noise: true,
+        error: "System failure",
+        detectorType
+      };
     }
 
+    // Сохранение события
     const event = new PhotonEvent({
       timestamp: new Date(),
+      detectorType,
       voltage,
       efficiency,
-      noise: isNoise && !isPhotonDetected,  // Шум записывается, если его есть и если фотон не был обнаружен
-      detected: isPhotonDetected
+      noise: isNoise && !isPhotonDetected,
+      detected: isPhotonDetected,
+      temperature,
+      distance,
+      mediumAttenuationFactor,
+      probability: detectionProbability // Сохраняем расчетную вероятность
     });
 
     await event.save();
-    return { detected: isPhotonDetected, noise: isNoise };
+
+    return {
+      detected: isPhotonDetected,
+      noise: isNoise,
+      detectorType,
+      probability: detectionProbability
+    };
   }
 
   static async getEvents() {
-    return await PhotonEvent.find();
+    return await PhotonEvent.find().sort({ timestamp: -1 });
   }
 
-  // Метод для удаления всех событий
   static async deleteAllEvents() {
     await PhotonEvent.deleteMany({});
   }
 }
-
 
 module.exports = LabService;

@@ -1,229 +1,374 @@
 import React, { useEffect, useState } from 'react';
 import axios from 'axios';
-import { Table, Button, InputNumber } from 'antd';
-import { PhotonEvent, ExperimentParams } from '@/routes/types';
-import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer } from 'recharts';
-import { SpadAnimation } from './SpadAnimation';  // Импортируем анимацию
+import { Table, Button, InputNumber, Radio, Card, Typography } from 'antd';
+import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer, ReferenceLine } from 'recharts';
+import { DetectorType, DETECTOR_PRESETS, PhotonEvent, ExperimentParams, ExperimentResult } from '@/routes/types';
 
+const { Title, Text } = Typography;
 
 export const Lab1 = () => {
   const [events, setEvents] = useState<PhotonEvent[]>([]);
+  const [detectorType, setDetectorType] = useState<DetectorType>('SNSPD');
   const [experimentParams, setExperimentParams] = useState<ExperimentParams>({
-    voltage: 5,
-    efficiency: 0.8,
-    noiseLevel: 0.1,
-    distance: 10,
-    mediumAttenuationFactor: 0.9,
-    temperature: 25,
-    temperatureSensitivity: 10,
-    detectorNoiseLevel: 0.05,
-    failureRate: 0.01,
+    detectorType: 'SNSPD',
+    temperature: DETECTOR_PRESETS.SNSPD.optimalTemperature,
+    distance: 50,
+    mediumAttenuationFactor: DETECTOR_PRESETS.SNSPD.mediumAttenuationFactor,
   });
+  const [result, setResult] = useState<ExperimentResult | null>(null);
+
+  const currentPreset = DETECTOR_PRESETS[detectorType];
+
+  const calculateEfficiency = () => {
+    const tempDiff = Math.abs(experimentParams.temperature - currentPreset.optimalTemperature);
+    const tempEffect = Math.exp(-tempDiff / currentPreset.temperatureSensitivity);
+    return currentPreset.efficiency * tempEffect;
+  };
+
+  const efficiency = calculateEfficiency();
 
   useEffect(() => {
     fetchEvents();
   }, []);
 
   const fetchEvents = async () => {
-    const response = await axios.get<PhotonEvent[]>('/api/labs/events');
-    // Сортируем события, чтобы новые эксперименты были первыми
-    const sortedEvents = response.data.sort(
-      (a, b) => new Date(b.timestamp).getTime() - new Date(a.timestamp).getTime()
-    );
-    setEvents(sortedEvents);
+    try {
+      const response = await axios.get<PhotonEvent[]>('/api/labs/events');
+      const sortedEvents = response.data.sort(
+        (a, b) => new Date(b.timestamp).getTime() - new Date(a.timestamp).getTime()
+      );
+      setEvents(sortedEvents);
+    } catch (error) {
+      console.error('Ошибка при загрузке данных:', error);
+    }
   };
 
   const runExperiment = async () => {
-    await axios.post('/api/labs/simulate', experimentParams);
-    fetchEvents();
+    try {
+      const params = {
+        ...experimentParams,
+        efficiency,
+        noiseLevel: currentPreset.noiseLevel,
+        voltage: currentPreset.voltage,
+        temperatureSensitivity: currentPreset.temperatureSensitivity,
+        detectorNoiseLevel: currentPreset.detectorNoiseLevel,
+        failureRate: currentPreset.failureRate,
+      };
+      const response = await axios.post<ExperimentResult>('/api/labs/simulate', params);
+      setResult(response.data);
+      await fetchEvents();
+    } catch (error) {
+      console.error('Ошибка при проведении эксперимента:', error);
+    }
   };
 
   const handleDeleteAllEvents = async () => {
     try {
-      const response = await axios.delete('/api/labs/events');
-      if (response.status === 200) {
-        alert('Все испытания удалены');
-        fetchEvents(); // Перезагружаем список событий
-      }
+      await axios.delete('/api/labs/events');
+      await fetchEvents();
+      setResult(null);
     } catch (error) {
-      console.error('Ошибка при удалении всех испытаний:', error);
+      console.error('Ошибка при удалении результатов:', error);
     }
   };
 
-  // Функции для изменения значений параметров
-  const handleVoltageChange = (value: number | string) => {
-    setExperimentParams((prevParams) => ({ ...prevParams, voltage: value as number }));
+  const handleDetectorTypeChange = (e: any) => {
+    const newType = e.target.value as DetectorType;
+    setDetectorType(newType);
+    setExperimentParams({
+      detectorType: newType,
+      temperature: DETECTOR_PRESETS[newType].optimalTemperature,
+      distance: 50,
+      mediumAttenuationFactor: DETECTOR_PRESETS[newType].mediumAttenuationFactor,
+    });
   };
 
-  const handleEfficiencyChange = (value: number | string) => {
-    setExperimentParams((prevParams) => ({ ...prevParams, efficiency: value as number }));
+  const handleTemperatureChange = (value: number | null) => {
+    if (value !== null) {
+      const range = currentPreset.temperatureRange;
+      const clampedValue = Math.max(range[0], Math.min(range[1], value));
+      setExperimentParams({ ...experimentParams, temperature: clampedValue });
+    }
   };
 
-  const handleNoiseLevelChange = (value: number | string) => {
-    setExperimentParams((prevParams) => ({ ...prevParams, noiseLevel: value as number }));
+  const handleDistanceChange = (value: number | null) => {
+    if (value !== null) {
+      const range = currentPreset.distanceRange;
+      const clampedValue = Math.max(range[0], Math.min(range[1], value));
+      setExperimentParams({ ...experimentParams, distance: clampedValue });
+    }
   };
 
-  const handleDistanceChange = (value: number | string) => {
-    setExperimentParams((prevParams) => ({ ...prevParams, distance: value as number }));
-  };
-
-  const handleMediumAttenuationFactorChange = (value: number | string) => {
-    setExperimentParams((prevParams) => ({ ...prevParams, mediumAttenuationFactor: value as number }));
-  };
-
-  const handleTemperatureChange = (value: number | string) => {
-    setExperimentParams((prevParams) => ({ ...prevParams, temperature: value as number }));
-  };
-
-  const handleTemperatureSensitivityChange = (value: number | string) => {
-    setExperimentParams((prevParams) => ({ ...prevParams, temperatureSensitivity: value as number }));
-  };
-
-  const handleDetectorNoiseLevelChange = (value: number | string) => {
-    setExperimentParams((prevParams) => ({ ...prevParams, detectorNoiseLevel: value as number }));
-  };
-
-  const handleFailureRateChange = (value: number | string) => {
-    setExperimentParams((prevParams) => ({ ...prevParams, failureRate: value as number }));
+  const handleAttenuationChange = (value: number | null) => {
+    if (value !== null) {
+      const clampedValue = Math.max(0.1, Math.min(1, value));
+      setExperimentParams({ ...experimentParams, mediumAttenuationFactor: clampedValue });
+    }
   };
 
   const columns = [
-    { title: 'Timestamp', dataIndex: 'timestamp', key: 'timestamp' },
-    { title: 'Voltage', dataIndex: 'voltage', key: 'voltage' },
-    { title: 'Efficiency', dataIndex: 'efficiency', key: 'efficiency' },
-    { title: 'Noise', dataIndex: 'noise', key: 'noise', render: (val: boolean) => (val ? 'Yes' : 'No') },
-    { title: 'Photon Detected', dataIndex: 'detected', key: 'detected', render: (val: boolean) => (val ? 'Yes' : 'No') }
+    { title: 'Время', dataIndex: 'timestamp', key: 'timestamp', render: (t: string) => new Date(t).toLocaleString() },
+    { title: 'Тип детектора', dataIndex: 'detectorType', key: 'detectorType' },
+    { title: 'Вероятность', dataIndex: 'probability', key: 'probability', render: (val: number) => `${(val * 100).toFixed(1)}%` },
+    { title: 'Температура (K)', dataIndex: 'temperature', key: 'temperature' },
+    { title: 'Расстояние (км)', dataIndex: 'distance', key: 'distance' },
+    { title: 'Детектировано', dataIndex: 'detected', key: 'detected', render: (val: boolean) => val ? 'Да' : 'Нет' },
+    { title: 'Шум', dataIndex: 'noise', key: 'noise', render: (val: boolean) => val ? 'Да' : 'Нет' },
   ];
 
-/*  // Данные для графика попадания фотонов
-  const chartData = events.map(event => ({
-    time: new Date(event.timestamp).toLocaleTimeString(), // Время события
-    detected: event.detected ? 1 : 0,  // 1 для детектированного фотона
-  }));*/
-
-  // Функция, моделирующая вероятность детектирования фотона от температуры (SNSPD)
-  const generateSNSPDData = () => {
+  const generateTemperatureData = () => {
     const data = [];
-    for (let T = 0.1; T <= 5; T += 0.1) {
-      const detectionProbability = T < 3 ? 1 - Math.exp(-(3 - T) * 2) : 0;
-      data.push({ temperature: T.toFixed(1), probability: detectionProbability });
+    const range = currentPreset.temperatureRange;
+    const step = (range[1] - range[0]) / 20;
+
+    for (let temp = range[0]; temp <= range[1]; temp += step) {
+      const tempDiff = Math.abs(temp - currentPreset.optimalTemperature);
+      const tempEffect = Math.exp(-tempDiff / currentPreset.temperatureSensitivity);
+      data.push({
+        temperature: temp.toFixed(1),
+        efficiency: currentPreset.efficiency * tempEffect,
+      });
     }
     return data;
   };
 
-  const snsdpData = generateSNSPDData();
+  const temperatureData = generateTemperatureData();
 
-  const graphData = events.map((event) => ({
-    timestamp: new Date(event.timestamp).toLocaleString(),
-    voltage: event.voltage,
-    efficiency: event.efficiency,
-    noise: event.noise ? 1 : 0,  // Для графика можно использовать бинарное значение
-    detected: event.detected ? 1 : 0  // Тоже бинарное значение для отображения
-  }));
+  const prepareDetectionStats = () => {
+    const statsData: {
+      timestamp: string;
+      SNSPD_detected: number;
+      SNSPD_noise: number;
+      SPAD_detected: number;
+      SPAD_noise: number
+    }[] = [];
+
+    // Группируем события по временным меткам
+    const timeGroups: Record<string, {
+      SNSPD: { detected: number; noise: number };
+      SPAD: { detected: number; noise: number }
+    }> = {};
+
+    events.forEach(event => {
+      const timeKey = new Date(event.timestamp).toLocaleString();
+      if (!timeGroups[timeKey]) {
+        timeGroups[timeKey] = {
+          SNSPD: { detected: 0, noise: 0 },
+          SPAD: { detected: 0, noise: 0 }
+        };
+      }
+
+      if (event.detectorType === 'SNSPD') {
+        timeGroups[timeKey].SNSPD.detected += event.detected ? 1 : 0;
+        timeGroups[timeKey].SNSPD.noise += event.noise ? 1 : 0;
+      } else {
+        timeGroups[timeKey].SPAD.detected += event.detected ? 1 : 0;
+        timeGroups[timeKey].SPAD.noise += event.noise ? 1 : 0;
+      }
+    });
+
+    // Преобразуем в массив для графика
+    Object.entries(timeGroups).forEach(([timestamp, stats]) => {
+      statsData.push({
+        timestamp,
+        SNSPD_detected: stats.SNSPD.detected,
+        SNSPD_noise: stats.SNSPD.noise,
+        SPAD_detected: stats.SPAD.detected,
+        SPAD_noise: stats.SPAD.noise
+      });
+    });
+
+    return statsData.sort((a, b) => new Date(a.timestamp).getTime() - new Date(b.timestamp).getTime());
+  };
+
+  const detectionStats = prepareDetectionStats();
 
   return (
-    <div>
-      <h1>Лабораторные работы</h1>
-      <div>
-        <InputNumber
-          value={experimentParams.voltage}
-          onChange={handleVoltageChange}
-          style={{ marginRight: '10px' }}
-        /> Вольтаж
-        <InputNumber
-          value={experimentParams.efficiency}
-          onChange={handleEfficiencyChange}
-          step={0.1}
-          max={1}
-          min={0}
-          style={{ marginRight: '10px' }}
-        /> Эффективность
-        <InputNumber
-          value={experimentParams.noiseLevel}
-          onChange={handleNoiseLevelChange}
-          step={0.05}
-          max={1}
-          min={0}
-          style={{ marginRight: '10px' }}
-        /> Уровень шума
-        <InputNumber
-          value={experimentParams.distance}
-          onChange={handleDistanceChange}
-          style={{ marginRight: '10px' }}
-        /> Расстояние
-        <InputNumber
-          value={experimentParams.mediumAttenuationFactor}
-          onChange={handleMediumAttenuationFactorChange}
-          style={{ marginRight: '10px' }}
-        /> Коэффициент ослабления среды
-        <InputNumber
-          value={experimentParams.temperature}
-          onChange={handleTemperatureChange}
-          style={{ marginRight: '10px' }}
-        /> Температура
-        <InputNumber
-          value={experimentParams.temperatureSensitivity}
-          onChange={handleTemperatureSensitivityChange}
-          style={{ marginRight: '10px' }}
-        /> Чувствительность к температуре
-        <InputNumber
-          value={experimentParams.detectorNoiseLevel}
-          onChange={handleDetectorNoiseLevelChange}
-          style={{ marginRight: '10px' }}
-        /> Уровень шума детектора
-        <InputNumber
-          value={experimentParams.failureRate}
-          onChange={handleFailureRateChange}
-          style={{ marginRight: '10px' }}
-        /> Вероятность сбоя системы
-        <Button onClick={runExperiment} style={{ marginLeft: '10px' }}>
-          Запустить эксперимент
-        </Button>
-        <Button onClick={handleDeleteAllEvents} style={{ marginLeft: '10px' }} danger>
-          Удалить все испытания
-        </Button>
-      </div>
+    <div style={{ padding: '20px', maxWidth: '1200px', margin: '0 auto' }}>
+      <Title level={2} style={{ marginBottom: '24px' }}>Лабораторная работа: Детекторы одиночных фотонов</Title>
 
-      {/* График попадания фотонов */}
-      {/*<LineChart width={600} height={300} data={chartData}>*/}
-      {/*  <XAxis dataKey="time" />*/}
-      {/*  <YAxis />*/}
-      {/*  <Tooltip />*/}
-      {/*  <CartesianGrid strokeDasharray="3 3" />*/}
-      {/*  <Line type="monotone" dataKey="detected" stroke="#8884d8" />*/}
-      {/*</LineChart>*/}
+      <Card title="Конфигурация эксперимента" style={{ marginBottom: '24px' }} bordered={false}>
+        <div style={{ marginBottom: '16px' }}>
+          <Text strong style={{ display: 'block', marginBottom: '8px' }}>Тип детектора:</Text>
+          <Radio.Group
+            onChange={handleDetectorTypeChange}
+            value={detectorType}
+            optionType="button"
+            buttonStyle="solid"
+          >
+            <Radio.Button value="SNSPD">SNSPD</Radio.Button>
+            <Radio.Button value="SPAD">SPAD</Radio.Button>
+          </Radio.Group>
+          <Text type="secondary" style={{ display: 'block', marginTop: '8px' }}>
+            {currentPreset.description}
+          </Text>
+        </div>
 
-      {/* Анимация лавинного пробоя */}
-      {/*<SpadAnimation />*/}
+        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(300px, 1fr))', gap: '16px' }}>
+          <div>
+            <Text strong style={{ display: 'block', marginBottom: '8px' }}>
+              Температура ({currentPreset.temperatureRange.join('-')} K)
+            </Text>
+            <InputNumber
+              value={experimentParams.temperature}
+              onChange={handleTemperatureChange}
+              min={currentPreset.temperatureRange[0]}
+              max={currentPreset.temperatureRange[1]}
+              step={detectorType === 'SNSPD' ? 0.1 : 1}
+              style={{ width: '100%' }}
+              addonAfter="K"
+            />
+          </div>
 
-      {/* График результатов эксперимента */}
-      <h2>График: Эффективность и Шум</h2>
-      <ResponsiveContainer width="100%" height={300}>
-        <LineChart data={graphData}>
-          <CartesianGrid strokeDasharray="3 3" />
-          <XAxis dataKey="timestamp" />
-          <YAxis />
-          <Tooltip />
-          <Legend />
-          <Line type="monotone" dataKey="efficiency" stroke="#8884d8" />
-          <Line type="monotone" dataKey="noise" stroke="#82ca9d" />
-          <Line type="monotone" dataKey="detected" stroke="#ff7300" />
-        </LineChart>
-      </ResponsiveContainer>
+          <div>
+            <Text strong style={{ display: 'block', marginBottom: '8px' }}>
+              Расстояние ({currentPreset.distanceRange.join('-')} км)
+            </Text>
+            <InputNumber
+              value={experimentParams.distance}
+              onChange={handleDistanceChange}
+              min={currentPreset.distanceRange[0]}
+              max={currentPreset.distanceRange[1]}
+              style={{ width: '100%' }}
+              addonAfter="км"
+            />
+          </div>
 
-      <div>
-        <h2>Зависимость детекции от температуры (SNSPD)</h2>
+          <div>
+            <Text strong style={{ display: 'block', marginBottom: '8px' }}>
+              Ослабление среды (0.1-1)
+            </Text>
+            <InputNumber
+              value={experimentParams.mediumAttenuationFactor}
+              onChange={handleAttenuationChange}
+              min={0.1}
+              max={1}
+              step={0.01}
+              style={{ width: '100%' }}
+            />
+          </div>
+        </div>
+
+        <div style={{ marginTop: '16px', padding: '12px', background: '#f6f6f6', borderRadius: '4px' }}>
+          <Text strong>Текущая эффективность: </Text>
+          <Text style={{ fontSize: '1.2em', fontWeight: 'bold' }}>
+            {(efficiency * 100).toFixed(1)}%
+          </Text>
+          {efficiency < currentPreset.efficiency * 0.9 && (
+            <Text type="warning" style={{ display: 'block', marginTop: '4px' }}>
+              Эффективность снижена из-за неоптимальной температуры
+            </Text>
+          )}
+        </div>
+
+        <div style={{ marginTop: '24px', display: 'flex', gap: '12px' }}>
+          <Button
+            type="primary"
+            onClick={runExperiment}
+            size="large"
+            style={{ minWidth: '200px' }}
+          >
+            Запустить эксперимент
+          </Button>
+          <Button
+            danger
+            onClick={handleDeleteAllEvents}
+            size="large"
+          >
+            Очистить результаты
+          </Button>
+        </div>
+      </Card>
+      <Card title="Зависимость эффективности от температуры" style={{ marginBottom: '24px' }}>
         <ResponsiveContainer width="100%" height={300}>
-          <LineChart data={snsdpData}>
+          <LineChart data={temperatureData}>
             <CartesianGrid strokeDasharray="3 3" />
-            <XAxis dataKey="temperature" label={{ value: 'Температура (K)', position: 'insideBottomRight', offset: -5 }} />
-            <YAxis label={{ value: 'Вероятность детектирования', angle: -90, position: 'insideLeft' }} domain={[0, 1]} />
-            <Tooltip />
-            <Line type="monotone" dataKey="probability" stroke="#8884d8" strokeWidth={2} />
+            <XAxis
+              dataKey="temperature"
+              label={{ value: 'Температура (K)', position: 'insideBottomRight', offset: -5 }}
+            />
+            <YAxis
+              label={{ value: 'Эффективность', angle: -90, position: 'insideLeft' }}
+              domain={[0, 1]}
+            />
+            <Tooltip
+              formatter={(value) => [`${(Number(value) * 100).toFixed(1)}%`, 'Эффективность']}
+              labelFormatter={(label) => `Температура: ${label} K`}
+            />
+            <Line
+              type="monotone"
+              dataKey="efficiency"
+              stroke="#1890ff"
+              strokeWidth={2}
+              dot={false}
+            />
+            {experimentParams.temperature && (
+              <ReferenceLine
+                x={experimentParams.temperature.toFixed(1)}
+                stroke="red"
+                label={{ value: 'Текущая', position: 'top' }}
+              />
+            )}
           </LineChart>
         </ResponsiveContainer>
-      </div>
-      <Table dataSource={events} columns={columns} rowKey='_id' />
+      </Card>
+
+      <Card title="Статистика срабатываний детекторов" style={{ marginBottom: '24px' }}>
+        <ResponsiveContainer width="100%" height={400}>
+          <LineChart data={detectionStats}>
+            <CartesianGrid strokeDasharray="3 3" />
+            <XAxis dataKey="timestamp" />
+            <YAxis />
+            <Tooltip />
+            <Legend />
+            <Line
+              type="monotone"
+              dataKey="SNSPD_detected"
+              name="SNSPD: Детектирования"
+              stroke="#8884d8"
+              strokeWidth={2}
+            />
+            <Line
+              type="monotone"
+              dataKey="SNSPD_noise"
+              name="SNSPD: Шумы"
+              stroke="#82ca9d"
+              strokeWidth={2}
+            />
+            <Line
+              type="monotone"
+              dataKey="SPAD_detected"
+              name="SPAD: Детектирования"
+              stroke="#ff7300"
+              strokeWidth={2}
+            />
+            <Line
+              type="monotone"
+              dataKey="SPAD_noise"
+              name="SPAD: Шумы"
+              stroke="#ff0000"
+              strokeWidth={2}
+            />
+          </LineChart>
+        </ResponsiveContainer>
+      </Card>
+
+      <Card title="История экспериментов">
+        <Table
+          dataSource={events}
+          columns={columns}
+          rowKey="_id"
+          pagination={{ pageSize: 5 }}
+          scroll={{ x: true }}
+        />
+        <Button
+          onClick={handleDeleteAllEvents}
+          danger
+          style={{ marginTop: '16px' }}
+        >
+          Очистить историю
+        </Button>
+      </Card>
     </div>
   );
 };

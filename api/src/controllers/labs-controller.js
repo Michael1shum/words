@@ -4,15 +4,28 @@ const ApiError = require('../exceptions/api-error');
 class LabsController {
   static async simulateExperiment(req, res, next) {
     try {
-      const { voltage, efficiency, noiseLevel, distance, mediumAttenuationFactor, temperature, temperatureSensitivity, detectorNoiseLevel, failureRate } = req.body;
+      const {
+        detectorType,
+        voltage,
+        efficiency,
+        noiseLevel,
+        distance,
+        mediumAttenuationFactor,
+        temperature,
+        temperatureSensitivity,
+        detectorNoiseLevel,
+        failureRate
+      } = req.body;
 
       // Проверка на наличие обязательных параметров
-      if (voltage === undefined || efficiency === undefined || noiseLevel === undefined || distance === undefined || mediumAttenuationFactor === undefined || temperature === undefined || temperatureSensitivity === undefined || detectorNoiseLevel === undefined || failureRate === undefined) {
+      if (!voltage || !efficiency || !noiseLevel || !distance ||
+        !mediumAttenuationFactor || !temperature || !temperatureSensitivity ||
+        !detectorNoiseLevel || !failureRate) {
         throw ApiError.BadRequest('Не все данные для эксперимента предоставлены');
       }
 
-      // Запуск эксперимента с новыми параметрами
       const result = await LabService.runExperiment({
+        detectorType,
         voltage,
         efficiency,
         noiseLevel,
@@ -24,7 +37,6 @@ class LabsController {
         failureRate
       });
 
-      // Отправка результата
       res.json(result);
     } catch (e) {
       next(e);

@@ -1,17 +1,16 @@
 const mongoose = require('mongoose');
 
-const photonSchema = new mongoose.Schema({
-  timestamp: Date,
-  voltage: Number,
-  efficiency: Number,
-  noise: Boolean,
-  detected: Boolean,
-  distance: Number,
-  mediumAttenuationFactor: Number,
-  temperature: Number,
-  temperatureSensitivity: Number,
-  detectorNoiseLevel: Number,
-  failureRate: Number,
+const PhotonEventSchema = new mongoose.Schema({
+  timestamp: { type: Date, default: Date.now },
+  detectorType: { type: String, required: true },
+  voltage: { type: Number, required: true },
+  efficiency: { type: Number, required: true },
+  noise: { type: Boolean, required: true },
+  detected: { type: Boolean, required: true },
+  temperature: { type: Number, required: true },
+  distance: { type: Number, required: true },
+  mediumAttenuationFactor: { type: Number, required: true },
+  probability: { type: Number, required: true } // Добавленное поле
 });
 
-module.exports = mongoose.model('PhotonEvent', photonSchema);
+module.exports = mongoose.model('PhotonEvent', PhotonEventSchema);
