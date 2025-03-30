@@ -12,6 +12,7 @@ const UserTestResultSchema = new Schema({
   ],
   score: { type: Number, required: true }, // Количество правильных ответов
   totalQuestions: { type: Number, required: true }, // Всего вопросов в тесте
+  timeTaken: { type: Number, required: true },// Время прохождения теста (в минутах)
   createdAt: { type: Date, default: Date.now } // Дата прохождения теста
 });
 

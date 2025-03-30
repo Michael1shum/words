@@ -33,7 +33,7 @@ export const TestsPage = () => {
 
   return (
     <div className={styles.container}>
-      <h1>Tests Page</h1>
+      <h1>Страница тестов</h1>
       <div className={styles.tests}>
         {tests?.length > 0
           ? tests.map((test, index) => (
@@ -46,7 +46,7 @@ export const TestsPage = () => {
       </div>
 
       {/* Добавляем кнопку для перехода на страницу добавления теста */}
-      <Button onClick={() => navigate('/add-test')}>Add New Test</Button>
+      <Button style={{width:"10%"}} onClick={() => navigate('/add-test')}>Add New Test</Button>
     </div>
   );
 };
