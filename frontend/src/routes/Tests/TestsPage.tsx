@@ -1,5 +1,5 @@
 import React, { useCallback, useContext, useEffect, useState } from 'react';
-import { Link, useNavigate } from 'react-router-dom'; // Импортируем Link для создания ссылок
+import { Link, useNavigate } from 'react-router-dom';
 import styles from './TestPage.module.scss';
 import { Button } from 'antd';
 import axios from 'axios';
@@ -45,10 +45,7 @@ export const TestsPage = () => {
           : 'No tests found'}
       </div>
 
-      {/* Добавляем кнопку для перехода на страницу добавления теста */}
-      <Button style={{ width: '10%' }} onClick={() => navigate('/add-test')}>
-        Add New Test
-      </Button>
+      <Button style={{width:"10%"}} onClick={() => navigate('/add-test')}>Add New Test</Button>
     </div>
   );
 };

@@ -1,5 +1,5 @@
 import React from 'react';
-import { Link } from 'react-router-dom'; // Для создания ссылок
+import { Link } from 'react-router-dom';
 import { Button } from 'antd';
 
 export const LabsPage = () => {
@@ -7,7 +7,6 @@ export const LabsPage = () => {
     { _id: '1', name: 'Лабораторная работа 1' },
     { _id: '2', name: 'Лабораторная работа 2' },
     { _id: '3', name: 'Лабораторная работа 3' },
-    // Добавь сюда другие лабораторные работы, если нужно
   ];
 
   return (
@@ -17,7 +16,6 @@ export const LabsPage = () => {
         {labs.length > 0 ? (
           labs.map((lab) => (
             <div key={lab._id}>
-              {/* Ссылка на страницу с лабораторной работой */}
               <Link to={`/labs/${lab._id}`}>{lab.name}</Link>
             </div>
           ))
@@ -25,7 +23,7 @@ export const LabsPage = () => {
           'Лабораторные работы не найдены'
         )}
       </div>
-      <Button>Добавить лабораторную работу</Button> {/* Можно добавить кнопку для создания лабораторной */}
+      <Button>Добавить лабораторную работу</Button>
     </div>
   );
 };

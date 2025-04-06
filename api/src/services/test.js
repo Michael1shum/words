@@ -36,7 +36,7 @@ class TestService {
     const testDTO = new TestDTO(test);
     // console.log("DTOTEST", test)
 
-    console.log('testDTO', testDTO);
+    // console.log('testDTO', testDTO);
     if (!testDTO.questions) {
       throw ApiError.NotFound(`У теста нет вопросов!`);
     }
@@ -116,6 +116,7 @@ class TestService {
       const results = await UserTestResult.find({ userId })
         .populate('testId', 'name questions')
         .lean();
+        // .sort({ createdAt: -1 });
 
       if (!results.length) {
         return [];
@@ -137,11 +138,19 @@ class TestService {
           };
         });
 
+        const correctAnswers = result.answers.filter((userAnswer) => userAnswer.isCorrect).length;
+        const totalAnswers = result.answers.length;
+        const correctPercentage = (correctAnswers / totalAnswers) * 100;
+
         return {
+          answerId: result._id,
           testId: result.testId._id,
           testName: test.name,
           totalQuestions: result.totalQuestions,
           questions: questionsWithAnswers,
+          createdAt: result.createdAt,
+          timeTaken: result.timeTaken,
+          correctPercentage: correctPercentage.toFixed(2),
         };
       });
 

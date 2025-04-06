@@ -17,7 +17,6 @@ class LabsController {
         failureRate
       } = req.body;
 
-      // Проверка на наличие обязательных параметров
       if (!voltage || !efficiency || !noiseLevel || !distance ||
         !mediumAttenuationFactor || !temperature || !temperatureSensitivity ||
         !detectorNoiseLevel || !failureRate) {

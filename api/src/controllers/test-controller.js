@@ -74,6 +74,8 @@ class TestController {
       const userId = req.headers['x-id'];
       const { timeTaken, payload } = req.body;
 
+      console.log("req.body", req.body)
+
       // console.log("testAnswer: ",testId,' userId', typeof(userId))
       const testResult = await TestService.saveUserTestResult(testId, userId, timeTaken, payload);
       res.json(testResult);

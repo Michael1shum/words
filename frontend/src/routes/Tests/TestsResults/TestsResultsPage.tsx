@@ -6,7 +6,9 @@ export const TestsResultsPage: FC = () => {
   const { fetchTestsResults, data } = useGetTestsResults();
   useEffect(() => {
     fetchTestsResults();
+    console.log(data.map(i => i._id))
   }, []);
+
   return (
     <div style={{ padding: 24 }}>
       {data && (

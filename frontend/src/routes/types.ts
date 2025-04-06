@@ -9,7 +9,7 @@ export interface Question {
 
 
 export interface Test {
-  timeLimit: number; // Add timeLimit field here
+  timeLimit: number;
   _id: string;
   description: string;
   name: string;
@@ -19,7 +19,7 @@ export interface Test {
 
 
 export interface UserTestAnswers {
-  userId: string;
+  // userId: string;
   answers: {
     questionId: string;
     givenAnswer: string[];
@@ -60,16 +60,16 @@ export type DetectorType = 'SNSPD' | 'SPAD';
 
 export interface DetectorPreset {
   voltage: number;
-  efficiency: number;  // Изменили baseEfficiency на efficiency
-  noiseLevel: number;  // Изменили baseNoiseLevel на noiseLevel
+  efficiency: number;
+  noiseLevel: number;
   temperatureRange: [number, number];
   optimalTemperature: number;
   distanceRange: [number, number];
-  mediumAttenuationFactor: number;  // Убрали mediumAttenuationRange
+  mediumAttenuationFactor: number;
   temperatureSensitivity: number;
   detectorNoiseLevel: number;
   failureRate: number;
-  description: string;  // Добавили description
+  description: string;
 }
 
 

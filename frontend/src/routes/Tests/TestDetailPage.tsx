@@ -1,59 +1,128 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { useGetTest } from '@/hooks';
-import { Button, Checkbox, Form, Input, Radio, Select, Typography, Modal, Progress } from 'antd';
+import { Button, Checkbox, Form, Input, Radio, Select, Typography, Modal, Progress, message } from 'antd';
 import { ClockCircleOutlined } from '@ant-design/icons';
 import axios from 'axios';
 import { UserTestAnswers } from '@/routes/types';
+import { useNavigate, useParams } from 'react-router-dom';
 
 export const TestDetailPage = () => {
+  const { id: testId } = useParams();
   const { testData, isLoading } = useGetTest();
   const [form] = Form.useForm();
   const [currentIndex, setCurrentIndex] = useState(0);
   const [allAnswers, setAllAnswers] = useState<Record<string, string[]>>({});
   const [isTestStarted, setIsTestStarted] = useState(false);
-  const [timeLeft, setTimeLeft] = useState(testData?.timeLimit * 60 || 0);  // Время в секундах
+  const [timeLeft, setTimeLeft] = useState(0);
   const [isTestFinished, setIsTestFinished] = useState(false);
+  const timerRef = useRef<NodeJS.Timeout>();
+  const navigate = useNavigate();
+
+  // Инициализация времени при загрузке теста
+  useEffect(() => {
+    if (testData?.timeLimit) {
+      setTimeLeft(testData.timeLimit * 60);
+    }
+  }, [testData]);
 
   // Таймер
   useEffect(() => {
-    if (isTestStarted && timeLeft > 0) {
-      const timer = setInterval(() => {
-        setTimeLeft((prevTime) => prevTime - 1);
-      }, 1000);
-
-      return () => clearInterval(timer);  // Очистка интервала при размонтировании
+    if (!isTestStarted || isTestFinished) {
+      return;
     }
 
-    if (timeLeft <= 0 && !isTestFinished) {
-      setIsTestFinished(true);
-      handleSubmit();  // Отправка данных, когда тест завершен
-    }
-  }, [timeLeft, isTestStarted, isTestFinished]);
+    timerRef.current = setInterval(() => {
+      setTimeLeft((prevTime) => {
+        if (prevTime <= 1) {
+          handleTimeExpired();
+          return 0;
+        }
+        return prevTime - 1;
+      });
+    }, 1000);
+
+    return () => {
+      if (timerRef.current) {
+        clearInterval(timerRef.current);
+      }
+    };
+  }, [isTestStarted, isTestFinished]);
 
   const handleStartTest = () => {
     setIsTestStarted(true);
   };
 
-  const handleSubmit = async () => {
+  const handleTimeExpired = async () => {
+    clearInterval(timerRef.current);
+    setIsTestFinished(true);
+    await submitAnswers();
+  };
+
+  const submitAnswers = async () => {
     if (!testData?._id) {
       console.error("Test data is not available");
-      return;  // Ранний выход, если данные теста не доступны
+      return;
     }
 
-    const finalAnswers = { ...allAnswers, ...form.getFieldsValue().answers };
-    const timeTaken = testData?.timeLimit * 60 - timeLeft;  // Расчет времени, потраченного на тест
+    // Собираем все ответы, включая текущий вопрос
+    const currentValues = form.getFieldsValue().answers || {};
+    const finalAnswers = { ...allAnswers, ...currentValues };
+    const timeTaken = testData?.timeLimit * 60 - timeLeft;
 
     const payload: UserTestAnswers = {
-      userId: '677fffee99e361c4c0db38ee',
       answers: Object.entries(finalAnswers).map(([questionId, givenAnswer]) => ({
         questionId,
         givenAnswer: Array.isArray(givenAnswer) ? givenAnswer : [givenAnswer],
       })),
     };
+    console.log('payload', payload)
+    try {
+      await axios.post(`/api/tests/${testData._id}/answer`, {
+        timeTaken,
+        payload
+      });
+      message.success('Тест успешно завершен!');
+      navigate(`/tests/`);
+    } catch (error) {
+      console.error('Ошибка при отправке теста:', error);
+      message.error('Произошла ошибка при отправке теста');
+    }
+  };
 
-    // Отправка данных на сервер
-    await axios.post(`api/tests/${testData._id}/answer`, { timeTaken, payload });
-    alert('Тест завершён');
+  const handleNext = async () => {
+    try {
+      const values = await form.validateFields();
+      setAllAnswers((prev) => ({
+        ...prev,
+        ...values.answers,
+      }));
+
+      if (currentIndex < questions.length - 1) {
+        setCurrentIndex((prev) => prev + 1);
+        form.resetFields();
+      }
+    } catch (error) {
+      console.log('Validation failed:', error);
+    }
+  };
+
+  const handlePrevious = () => {
+    setCurrentIndex((prev) => prev - 1);
+    form.resetFields();
+  };
+
+  const handleFinishTest = async () => {
+    try {
+      const values = await form.validateFields();
+      setAllAnswers((prev) => ({
+        ...prev,
+        ...values.answers,
+      }));
+      setIsTestFinished(true);
+      await submitAnswers();
+    } catch (error) {
+      console.log('Validation failed:', error);
+    }
   };
 
   if (isLoading) {
@@ -66,32 +135,27 @@ export const TestDetailPage = () => {
 
   const questions = testData?.questions || [];
   const isLastQuestion = currentIndex === questions.length - 1;
-
-  const handleNext = () => {
-    form.validateFields().then((values) => {
-      setAllAnswers((prev) => ({
-        ...prev,
-        ...values.answers, // Сохраняем текущий ответ
-      }));
-      setCurrentIndex((prev) => prev + 1);
-      form.resetFields(); // Очищаем форму для следующего вопроса
-    });
-  };
-
   const question = questions[currentIndex];
+
+  const formatTime = (seconds: number) => {
+    const mins = Math.floor(seconds / 60);
+    const secs = seconds % 60;
+    return `${mins.toString().padStart(2, '0')}:${secs.toString().padStart(2, '0')}`;
+  };
 
   return (
     <>
       {!isTestStarted && (
         <Modal
           title="Начало теста"
-          open={!isTestStarted}  // Используем open вместо visible
+          open={!isTestStarted}
           footer={null}
-          onCancel={() => setIsTestStarted(true)} // Закрытие модалки и запуск теста
+          closable={false}
         >
           <Typography.Title level={4}>{testData?.name}</Typography.Title>
           <p>{testData?.description}</p>
           <p>Время на тест: {testData?.timeLimit} минут</p>
+          <p>Количество вопросов: {questions.length}</p>
           <Button
             type="primary"
             icon={<ClockCircleOutlined />}
@@ -102,75 +166,100 @@ export const TestDetailPage = () => {
         </Modal>
       )}
 
-      <Typography.Title level={1}>{testData?.name}</Typography.Title>
+      {isTestStarted && !isTestFinished && (
+        <>
+          <Typography.Title level={1}>{testData?.name}</Typography.Title>
 
-      {/* Таймер */}
-      <div>
-        {isTestStarted && !isTestFinished && (
-          <Progress
-            percent={(timeLeft / (testData?.timeLimit * 60)) * 100}
-            size="small"
-            status="active"
-            strokeColor="green"
-          />
-        )}
-        <p>{`Оставшееся время: ${Math.floor(timeLeft / 60)}:${timeLeft % 60}`}</p>
-      </div>
+          <div style={{ marginBottom: 20 }}>
+            <Progress
+              percent={((testData.timeLimit * 60 - timeLeft) / (testData.timeLimit * 60) * 100)}
+              size="small"
+              status="active"
+              strokeColor="green"
+              format={() => formatTime(timeLeft)}
+            />
+          </div>
 
-      <Form form={form} onFinish={handleSubmit}>
-        <Typography.Title level={4}>{question?.question}</Typography.Title>
+          <Form form={form} initialValues={{ answers: allAnswers }}>
+            <Typography.Title level={4}>
+              Вопрос {currentIndex + 1} из {questions.length}
+            </Typography.Title>
+            <Typography.Paragraph strong>{question?.question}</Typography.Paragraph>
 
-        {question?.controlType === 'checkbox' && (
-          <Form.Item key={question._id} name={['answers', question._id]} valuePropName="checked">
-            <Checkbox.Group>
-              {question.options.map((option) => (
-                <Checkbox key={option} value={option}>
-                  {option}
-                </Checkbox>
-              ))}
-            </Checkbox.Group>
-          </Form.Item>
-        )}
+            {question?.controlType === 'checkbox' && (
+              <Form.Item
+                key={question._id}
+                name={['answers', question._id]}
+                rules={[{ required: true, message: 'Пожалуйста, выберите хотя бы один вариант' }]}
+              >
+                <Checkbox.Group>
+                  {question.options.map((option) => (
+                    <Checkbox key={option} value={option}>
+                      {option}
+                    </Checkbox>
+                  ))}
+                </Checkbox.Group>
+              </Form.Item>
+            )}
 
-        {question?.controlType === 'select' && (
-          <Form.Item name={['answers', question._id]}>
-            <Select options={question.options.map((item) => ({ label: item, value: item }))} />
-          </Form.Item>
-        )}
+            {question?.controlType === 'select' && (
+              <Form.Item
+                name={['answers', question._id]}
+                rules={[{ required: true, message: 'Пожалуйста, выберите вариант' }]}
+              >
+                <Select options={question.options.map((item) => ({ label: item, value: item }))} />
+              </Form.Item>
+            )}
 
-        {question?.controlType === 'input' && (
-          <Form.Item name={['answers', question._id]}>
-            <Input />
-          </Form.Item>
-        )}
+            {question?.controlType === 'input' && (
+              <Form.Item
+                name={['answers', question._id]}
+                rules={[{ required: true, message: 'Пожалуйста, введите ответ' }]}
+              >
+                <Input />
+              </Form.Item>
+            )}
 
-        {question?.controlType === 'radio' && (
-          <Form.Item name={['answers', question._id]}>
-            <Radio.Group>
-              {question.options.map((option) => (
-                <Radio key={option} value={option}>
-                  {option}
-                </Radio>
-              ))}
-            </Radio.Group>
-          </Form.Item>
-        )}
+            {question?.controlType === 'radio' && (
+              <Form.Item
+                name={['answers', question._id]}
+                rules={[{ required: true, message: 'Пожалуйста, выберите вариант' }]}
+              >
+                <Radio.Group>
+                  {question.options.map((option) => (
+                    <Radio key={option} value={option}>
+                      {option}
+                    </Radio>
+                  ))}
+                </Radio.Group>
+              </Form.Item>
+            )}
 
-        <div style={{ marginTop: 20 }}>
-          {currentIndex > 0 && (
-            <Button onClick={() => setCurrentIndex((prev) => prev - 1)}>Назад</Button>
-          )}
-          {isLastQuestion ? (
-            <Button type="primary" htmlType="submit" style={{ marginLeft: 10 }}>
-              Завершить
-            </Button>
-          ) : (
-            <Button type="primary" onClick={handleNext} style={{ marginLeft: 10 }}>
-              Далее
-            </Button>
-          )}
-        </div>
-      </Form>
+            <div style={{ marginTop: 20 }}>
+              {currentIndex > 0 && (
+                <Button onClick={handlePrevious}>Назад</Button>
+              )}
+              {isLastQuestion ? (
+                <Button
+                  type="primary"
+                  onClick={handleFinishTest}
+                  style={{ marginLeft: 10 }}
+                >
+                  Завершить тест
+                </Button>
+              ) : (
+                <Button
+                  type="primary"
+                  onClick={handleNext}
+                  style={{ marginLeft: 10 }}
+                >
+                  Следующий вопрос
+                </Button>
+              )}
+            </div>
+          </Form>
+        </>
+      )}
     </>
   );
 };
