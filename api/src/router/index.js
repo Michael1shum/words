@@ -2,6 +2,7 @@ const Router = require('express').Router;
 const TestController = require('../controllers/test-controller');
 const router = new Router();
 const labsRouter = require('./labs-router');
+const theoryRouter = require('./theory-router');
 
 router.get('/tests', TestController.getTests);
 router.get('/tests/results', TestController.getTestResultsByUser);
@@ -11,6 +12,9 @@ router.post('/tests/add', TestController.addTest);
 router.post('/tests/:testId/answer', TestController.testAnswer);
 router.delete('/tests/:testId', TestController.testDelete);
 
+
 router.use('/labs', labsRouter);
+
+router.use('/theory', theoryRouter);
 
 module.exports = router;

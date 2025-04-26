@@ -6,6 +6,8 @@ import { AddTestPage } from './Tests/AddTestPage/AddTestPage';
 import { Login } from '@/routes/Login/Login';
 import { LabsPage } from './Labs/LabsPage';
 import { Lab1 } from './Labs/Lab1/Lab1';
+import { TheoryPage } from './Theory/TheoryPage';
+import { TheoryListPage } from './Theory/TheoryListPage';
 import { TestsResultsPage } from '@/routes/Tests/TestsResults/TestsResultsPage'; // Страница лабораторной работы 1
 
 export const useGetRoutes = (role: string | undefined) => {
@@ -17,6 +19,14 @@ export const useGetRoutes = (role: string | undefined) => {
       path: '/',
       element: <Layout />,
       children: [
+        {
+          path: '/theory-list',
+          element: isAuthenticated ? <TheoryListPage /> : <Navigate to='/login' replace />,
+        },
+        {
+          path: '/theory/:id',
+          element: isAuthenticated ? <TheoryPage /> : <Navigate to='/login' replace />,
+        },
         {
           path: 'tests',
           element: isAuthenticated ? <TestsPage /> : <Navigate to='/login' replace />,

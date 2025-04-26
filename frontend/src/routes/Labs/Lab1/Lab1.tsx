@@ -14,6 +14,12 @@ export const Lab1 = () => {
     temperature: DETECTOR_PRESETS.SNSPD.optimalTemperature,
     distance: 50,
     mediumAttenuationFactor: DETECTOR_PRESETS.SNSPD.mediumAttenuationFactor,
+    voltage: DETECTOR_PRESETS.SNSPD.voltage,
+    efficiency: DETECTOR_PRESETS.SNSPD.efficiency,
+    noiseLevel: DETECTOR_PRESETS.SNSPD.noiseLevel,
+    temperatureSensitivity: DETECTOR_PRESETS.SNSPD.temperatureSensitivity,
+    detectorNoiseLevel: DETECTOR_PRESETS.SNSPD.detectorNoiseLevel,
+    failureRate: DETECTOR_PRESETS.SNSPD.failureRate,
   });
   const [result, setResult] = useState<ExperimentResult | null>(null);
 
@@ -46,13 +52,8 @@ export const Lab1 = () => {
   const runExperiment = async () => {
     try {
       const params = {
-        ...experimentParams,
-        efficiency,
-        noiseLevel: currentPreset.noiseLevel,
-        voltage: currentPreset.voltage,
-        temperatureSensitivity: currentPreset.temperatureSensitivity,
-        detectorNoiseLevel: currentPreset.detectorNoiseLevel,
-        failureRate: currentPreset.failureRate,
+        ...experimentParams, // Теперь передаем все параметры напрямую
+        efficiency: calculateEfficiency(), // Но эффективность рассчитываем
       };
       const response = await axios.post<ExperimentResult>('/api/labs/simulate', params);
       setResult(response.data);
@@ -74,13 +75,51 @@ export const Lab1 = () => {
 
   const handleDetectorTypeChange = (e: any) => {
     const newType = e.target.value as DetectorType;
+    const newPreset = DETECTOR_PRESETS[newType];
+
     setDetectorType(newType);
     setExperimentParams({
+      ...newPreset,
       detectorType: newType,
-      temperature: DETECTOR_PRESETS[newType].optimalTemperature,
-      distance: 50,
-      mediumAttenuationFactor: DETECTOR_PRESETS[newType].mediumAttenuationFactor,
+      temperature: newPreset.optimalTemperature, // Устанавливаем оптимальную температуру для нового детектора
+      distance: 50 // Сбрасываем расстояние к среднему значению
     });
+  };
+
+  const handleVoltageChange = (value: number | null) => {
+    if (value !== null) {
+      setExperimentParams({ ...experimentParams, voltage: value });
+    }
+  };
+
+  const handleEfficiencyChange = (value: number | null) => {
+    if (value !== null) {
+      setExperimentParams({ ...experimentParams, efficiency: value });
+    }
+  };
+
+  const handleNoiseLevelChange = (value: number | null) => {
+    if (value !== null) {
+      setExperimentParams({ ...experimentParams, noiseLevel: value });
+    }
+  };
+
+  const handleTempSensitivityChange = (value: number | null) => {
+    if (value !== null) {
+      setExperimentParams({ ...experimentParams, temperatureSensitivity: value });
+    }
+  };
+
+  const handleDetectorNoiseChange = (value: number | null) => {
+    if (value !== null) {
+      setExperimentParams({ ...experimentParams, detectorNoiseLevel: value });
+    }
+  };
+
+  const handleFailureRateChange = (value: number | null) => {
+    if (value !== null) {
+      setExperimentParams({ ...experimentParams, failureRate: value });
+    }
   };
 
   const handleTemperatureChange = (value: number | null) => {
@@ -244,6 +283,80 @@ export const Lab1 = () => {
               min={0.1}
               max={1}
               step={0.01}
+              style={{ width: '100%' }}
+            />
+          </div>
+          <div>
+            <Text strong style={{ display: 'block', marginBottom: '8px' }}>Напряжение (V)</Text>
+            <InputNumber
+              value={experimentParams.voltage}
+              onChange={handleVoltageChange}
+              min={0.1}
+              max={detectorType === 'SNSPD' ? 10 : 100}
+              step={0.1}
+              style={{ width: '100%' }}
+              addonAfter="V"
+            />
+          </div>
+
+          <div>
+            <Text strong style={{ display: 'block', marginBottom: '8px' }}>Эффективность</Text>
+            <InputNumber
+              value={experimentParams.efficiency}
+              onChange={handleEfficiencyChange}
+              min={0.01}
+              max={1}
+              step={0.01}
+              style={{ width: '100%' }}
+              formatter={(value) => `${(Number(value) * 100).toFixed(0)}%`}
+              parser={(value) => Number(value?.replace('%', '')) / 100}
+            />
+          </div>
+
+          <div>
+            <Text strong style={{ display: 'block', marginBottom: '8px' }}>Уровень шума</Text>
+            <InputNumber
+              value={experimentParams.noiseLevel}
+              onChange={handleNoiseLevelChange}
+              min={0}
+              max={1}
+              step={0.001}
+              style={{ width: '100%' }}
+            />
+          </div>
+
+          <div>
+            <Text strong style={{ display: 'block', marginBottom: '8px' }}>Чувствительность к температуре</Text>
+            <InputNumber
+              value={experimentParams.temperatureSensitivity}
+              onChange={handleTempSensitivityChange}
+              min={0.1}
+              max={detectorType === 'SNSPD' ? 2 : 100}
+              step={0.1}
+              style={{ width: '100%' }}
+            />
+          </div>
+
+          <div>
+            <Text strong style={{ display: 'block', marginBottom: '8px' }}>Шум детектора</Text>
+            <InputNumber
+              value={experimentParams.detectorNoiseLevel}
+              onChange={handleDetectorNoiseChange}
+              min={0}
+              max={1}
+              step={0.001}
+              style={{ width: '100%' }}
+            />
+          </div>
+
+          <div>
+            <Text strong style={{ display: 'block', marginBottom: '8px' }}>Частота отказов</Text>
+            <InputNumber
+              value={experimentParams.failureRate}
+              onChange={handleFailureRateChange}
+              min={0}
+              max={1}
+              step={0.001}
               style={{ width: '100%' }}
             />
           </div>

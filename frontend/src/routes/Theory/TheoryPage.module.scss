@@ -1,0 +1,57 @@
+.container {
+  max-width: 900px;
+  margin: 0 auto;
+  padding: 24px;
+}
+
+.spin {
+  display: flex;
+  justify-content: center;
+  margin-top: 100px;
+}
+
+.notFound {
+  text-align: center;
+  font-size: 18px;
+  margin-top: 50px;
+  color: #ff4d4f;
+}
+
+.content {
+  background: #fff;
+  padding: 24px;
+  border-radius: 8px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+  margin-bottom: 24px;
+
+  h2, h3 {
+    color: #1890ff;
+    margin-top: 24px;
+  }
+
+  ul, ol {
+    padding-left: 24px;
+  }
+
+  li {
+    margin-bottom: 8px;
+  }
+}
+
+.footer {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 16px 0;
+}
+
+.markButton {
+  background-color: #52c41a;
+  border-color: #52c41a;
+}
+
+.readBadge {
+  color: #52c41a;
+  font-weight: 500;
+  font-size: 16px;
+}

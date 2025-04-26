@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { RouterProvider } from 'react-router-dom';
-import { useGetRoutes } from '../routes';
+import { useGetRoutes } from '@/routes';
 import '../assets/global.scss';
 
 export const AuthContext = React.createContext({

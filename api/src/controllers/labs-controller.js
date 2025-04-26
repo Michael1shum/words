@@ -17,11 +17,11 @@ class LabsController {
         failureRate
       } = req.body;
 
-      if (!voltage || !efficiency || !noiseLevel || !distance ||
-        !mediumAttenuationFactor || !temperature || !temperatureSensitivity ||
-        !detectorNoiseLevel || !failureRate) {
-        throw ApiError.BadRequest('Не все данные для эксперимента предоставлены');
-      }
+      // if (!voltage || !efficiency || !noiseLevel || !distance ||
+      //   !mediumAttenuationFactor || !temperature || !temperatureSensitivity ||
+      //   !detectorNoiseLevel || !failureRate) {
+      //   throw ApiError.BadRequest('Не все данные для эксперимента предоставлены');
+      // }
 
       const result = await LabService.runExperiment({
         detectorType,

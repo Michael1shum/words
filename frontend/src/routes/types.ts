@@ -26,6 +26,15 @@ export interface UserTestAnswers {
   }[];
 }
 
+export interface TheoryData {
+  _id: string;
+  title: string;
+  content: string;
+  category: string;
+  createdAt: string;
+  description: string;
+}
+
 export interface PhotonEvent {
   _id: string;
   timestamp: string;
@@ -41,10 +50,16 @@ export interface PhotonEvent {
 }
 
 export interface ExperimentParams {
-  detectorType: DetectorType; // 'SNSPD' или 'SPAD'
-  temperature: number;    // Текущая температура (K или °C)
-  distance: number;       // Расстояние до источника (км)
-  mediumAttenuationFactor: number; // Коэффициент ослабления среды (0.1-1)
+  detectorType: DetectorType;
+  temperature: number;
+  distance: number;
+  mediumAttenuationFactor: number;
+  voltage: number;
+  efficiency: number;
+  noiseLevel: number;
+  temperatureSensitivity: number;
+  detectorNoiseLevel: number;
+  failureRate: number;
 }
 
 export interface ExperimentResult {
@@ -80,21 +95,21 @@ export const DETECTOR_PRESETS: Record<DetectorType, DetectorPreset> = {
     noiseLevel: 0.001,       // Вероятность ложных срабатываний (0.1%)
     temperatureRange: [0.1, 4],  // Рабочий температурный диапазон (Кельвины)
     optimalTemperature: 2,   // Оптимальная температура работы (Кельвины)
-    distanceRange: [1, 500], // Эффективный диапазон расстояний (км)
-    mediumAttenuationFactor: 0.9, // Коэффициент ослабления среды (0.9 = 10% потерь)
+    distanceRange: [0, 100], // Эффективный диапазон расстояний (км)
+    mediumAttenuationFactor: 0.2, // Коэффициент ослабления среды (0.9 = 10% потерь)
     temperatureSensitivity: 0.5, // Чувствительность к изменению температуры
     detectorNoiseLevel: 0.001,   // Уровень собственных шумов детектора
     failureRate: 0.001,      // Вероятность аппаратного сбоя
-    description: 'Сверхпроводящий нанопроволочный детектор. Работает при криогенных температурах (0.1-4K). Высокая эффективность (до 95%) и низкий уровень шума.'
+    description: 'Сверхпроводящий нанопроволочный детектор. Работает при 0.1-4K. Оптимальная эффективность 95% при 2K. Использует волокно с затуханием 0.2 дБ/км (1550 нм).'
   },
   SPAD: {
     voltage: 30,             // Высокое напряжение для лавинного пробоя (В)
-    efficiency: 0.3,         // Квантовая эффективность (30%)
+    efficiency: 0.2,         // Квантовая эффективность (30%)
     noiseLevel: 0.1,         // Вероятность ложных срабатываний (10%)
-    temperatureRange: [-80, 25], // Рабочий диапазон (°C)
-    optimalTemperature: -50, // Оптимальная температура (°C)
-    distanceRange: [1, 100], // Эффективный диапазон расстояний (км)
-    mediumAttenuationFactor: 0.8, // Коэффициент ослабления среды (0.8 = 20% потерь)
+    temperatureRange: [200, 400], // Рабочий диапазон (K)
+    optimalTemperature: 300, // Оптимальная температура (K)
+    distanceRange: [0, 100], // Эффективный диапазон расстояний (км)
+    mediumAttenuationFactor: 0.35, // Коэффициент ослабления среды
     temperatureSensitivity: 50,   // Менее чувствителен к температуре
     detectorNoiseLevel: 0.1, // Более высокий уровень шумов
     failureRate: 0.01,       // Более высокая вероятность сбоев
