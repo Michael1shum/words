@@ -13,7 +13,6 @@ class LabService {
                                detectorNoiseLevel,
                                failureRate
                              }) {
-
     // 1. Температурные эффекты
     const optimalTemp = detectorType === 'SNSPD' ? 2 : 300;
     const tempDiff = Math.abs(temperature - optimalTemp);
@@ -54,7 +53,20 @@ class LabService {
 
     // Детекция фотона и шумов
     const isPhotonDetected = !isDetectorFailed && (Math.random() < detectionProbability);
-    const isNoise = !isDetectorFailed && (Math.random() < (noiseLevel + detectorNoiseLevel) / 2);
+    const isNoise = !isDetectorFailed && (Math.random() < noiseLevel);
+
+    console.log(
+      "detectorType =",detectorType,
+      "; voltage =", voltage,
+      "; efficiency =", efficiency,
+      "; noiseLevel =", noiseLevel,
+      "; distance =",  distance,
+      "; mediumAttenuationFactor =", mediumAttenuationFactor,
+      ";  temperature =", temperature,
+      ";  temperatureSensitivity =",  temperatureSensitivity,
+      ";  detectorNoiseLevel =", detectorNoiseLevel,
+      ";  failureRate =", failureRate
+    )
 
     // Сохранение результатов
     const event = new PhotonEvent({
@@ -74,16 +86,7 @@ class LabService {
     });
 
     await event.save();
-    console.log("detectorType ", detectorType,
-      "voltage ",voltage,
-      "efficiency ",efficiency,
-      "noiseLevel ",noiseLevel,
-      "distance ",distance,
-      "mediumAttenuationFactor ",mediumAttenuationFactor,
-      "temperature ",temperature,
-      "temperatureSensitivity ",temperatureSensitivity,
-      "detectorNoiseLevel ",detectorNoiseLevel,
-      "failureRate ", failureRate);
+
     return {
       detected: isPhotonDetected,
       noise: isNoise,
@@ -91,7 +94,6 @@ class LabService {
       probability: detectionProbability,
       isDetectorFailed
     };
-
   }
 
   static async getEvents() {

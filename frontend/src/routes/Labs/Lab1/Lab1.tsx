@@ -1,14 +1,19 @@
 import React, { useEffect, useState } from 'react';
 import axios from 'axios';
-import { Table, Button, InputNumber, Radio, Card, Typography } from 'antd';
-import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer, ReferenceLine } from 'recharts';
+import { Table, Button, InputNumber, Radio, Card, Typography, Row, Col } from 'antd';
+import {
+  LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer,
+  BarChart, Bar, ScatterChart, Scatter, ReferenceLine, LabelList
+} from 'recharts';
 import { DetectorType, DETECTOR_PRESETS, PhotonEvent, ExperimentParams, ExperimentResult } from '@/routes/types';
 
 const { Title, Text } = Typography;
 
 export const Lab1 = () => {
+  const [numTrials, setNumTrials] = useState(100);
   const [events, setEvents] = useState<PhotonEvent[]>([]);
   const [detectorType, setDetectorType] = useState<DetectorType>('SNSPD');
+  const [isRunning, setIsRunning] = useState(false);
   const [experimentParams, setExperimentParams] = useState<ExperimentParams>({
     detectorType: 'SNSPD',
     temperature: DETECTOR_PRESETS.SNSPD.optimalTemperature,
@@ -21,7 +26,13 @@ export const Lab1 = () => {
     detectorNoiseLevel: DETECTOR_PRESETS.SNSPD.detectorNoiseLevel,
     failureRate: DETECTOR_PRESETS.SNSPD.failureRate,
   });
-  const [result, setResult] = useState<ExperimentResult | null>(null);
+  const [results, setResults] = useState<ExperimentResult[]>([]);
+  const [stats, setStats] = useState({
+    successCount: 0,
+    failureCount: 0,
+    noiseCount: 0,
+    successRate: 0,
+  });
 
   const currentPreset = DETECTOR_PRESETS[detectorType];
 
@@ -37,29 +48,46 @@ export const Lab1 = () => {
     fetchEvents();
   }, []);
 
+  useEffect(() => {
+    if (results.length > 0) {
+      const successCount = results.filter(r => r.detected).length;
+      const noiseCount = results.filter(r => r.noise).length;
+      const failureCount = results.length - successCount;
+
+      setStats({
+        successCount,
+        failureCount,
+        noiseCount,
+        successRate: successCount / results.length,
+      });
+    }
+  }, [results]);
+
   const fetchEvents = async () => {
     try {
       const response = await axios.get<PhotonEvent[]>('/api/labs/events');
-      const sortedEvents = response.data.sort(
-        (a, b) => new Date(b.timestamp).getTime() - new Date(a.timestamp).getTime()
-      );
-      setEvents(sortedEvents);
+      setEvents(response.data);
     } catch (error) {
       console.error('Ошибка при загрузке данных:', error);
     }
   };
 
   const runExperiment = async () => {
+    setIsRunning(true);
+    setResults([]);
+
     try {
-      const params = {
-        ...experimentParams, // Теперь передаем все параметры напрямую
-        efficiency: calculateEfficiency(), // Но эффективность рассчитываем
-      };
-      const response = await axios.post<ExperimentResult>('/api/labs/simulate', params);
-      setResult(response.data);
+      const response = await axios.post<ExperimentResult[]>('/api/labs/simulate', {
+        ...experimentParams,
+        numTrials,
+      });
+
+      setResults(response.data);
       await fetchEvents();
     } catch (error) {
       console.error('Ошибка при проведении эксперимента:', error);
+    } finally {
+      setIsRunning(false);
     }
   };
 
@@ -67,7 +95,7 @@ export const Lab1 = () => {
     try {
       await axios.delete('/api/labs/events');
       await fetchEvents();
-      setResult(null);
+      setResults([]);
     } catch (error) {
       console.error('Ошибка при удалении результатов:', error);
     }
@@ -81,68 +109,40 @@ export const Lab1 = () => {
     setExperimentParams({
       ...newPreset,
       detectorType: newType,
-      temperature: newPreset.optimalTemperature, // Устанавливаем оптимальную температуру для нового детектора
-      distance: 50 // Сбрасываем расстояние к среднему значению
+      temperature: newPreset.optimalTemperature,
+      distance: 50
     });
   };
 
-  const handleVoltageChange = (value: number | null) => {
-    if (value !== null) {
-      setExperimentParams({ ...experimentParams, voltage: value });
-    }
+  const prepareChartData = () => {
+    return results.map((result, index) => ({
+      trial: index + 1,
+      detected: result.detected ? 1 : 0,
+      noise: result.noise ? 1 : 0,
+    }));
   };
 
-  const handleEfficiencyChange = (value: number | null) => {
-    if (value !== null) {
-      setExperimentParams({ ...experimentParams, efficiency: value });
+  const prepareCumulativeData = () => {
+    const data = [];
+    let successCount = 0;
+
+    for (let i = 0; i < results.length; i++) {
+      if (results[i].detected) successCount++;
+      data.push({
+        trial: i + 1,
+        cumulativeRate: successCount / (i + 1),
+      });
     }
+
+    return data;
   };
 
-  const handleNoiseLevelChange = (value: number | null) => {
-    if (value !== null) {
-      setExperimentParams({ ...experimentParams, noiseLevel: value });
-    }
-  };
-
-  const handleTempSensitivityChange = (value: number | null) => {
-    if (value !== null) {
-      setExperimentParams({ ...experimentParams, temperatureSensitivity: value });
-    }
-  };
-
-  const handleDetectorNoiseChange = (value: number | null) => {
-    if (value !== null) {
-      setExperimentParams({ ...experimentParams, detectorNoiseLevel: value });
-    }
-  };
-
-  const handleFailureRateChange = (value: number | null) => {
-    if (value !== null) {
-      setExperimentParams({ ...experimentParams, failureRate: value });
-    }
-  };
-
-  const handleTemperatureChange = (value: number | null) => {
-    if (value !== null) {
-      const range = currentPreset.temperatureRange;
-      const clampedValue = Math.max(range[0], Math.min(range[1], value));
-      setExperimentParams({ ...experimentParams, temperature: clampedValue });
-    }
-  };
-
-  const handleDistanceChange = (value: number | null) => {
-    if (value !== null) {
-      const range = currentPreset.distanceRange;
-      const clampedValue = Math.max(range[0], Math.min(range[1], value));
-      setExperimentParams({ ...experimentParams, distance: clampedValue });
-    }
-  };
-
-  const handleAttenuationChange = (value: number | null) => {
-    if (value !== null) {
-      const clampedValue = Math.max(0.1, Math.min(1, value));
-      setExperimentParams({ ...experimentParams, mediumAttenuationFactor: clampedValue });
-    }
+  const prepareHistogramData = () => {
+    return [
+      { name: 'Успешные', value: stats.successCount, fill: '#4CAF50' },
+      { name: 'Неуспешные', value: stats.failureCount, fill: '#F44336' },
+      { name: 'Шумы', value: stats.noiseCount, fill: '#FFC107' },
+    ];
   };
 
   const columns = [
@@ -173,55 +173,6 @@ export const Lab1 = () => {
 
   const temperatureData = generateTemperatureData();
 
-  const prepareDetectionStats = () => {
-    const statsData: {
-      timestamp: string;
-      SNSPD_detected: number;
-      SNSPD_noise: number;
-      SPAD_detected: number;
-      SPAD_noise: number
-    }[] = [];
-
-    // Группируем события по временным меткам
-    const timeGroups: Record<string, {
-      SNSPD: { detected: number; noise: number };
-      SPAD: { detected: number; noise: number }
-    }> = {};
-
-    events.forEach(event => {
-      const timeKey = new Date(event.timestamp).toLocaleString();
-      if (!timeGroups[timeKey]) {
-        timeGroups[timeKey] = {
-          SNSPD: { detected: 0, noise: 0 },
-          SPAD: { detected: 0, noise: 0 }
-        };
-      }
-
-      if (event.detectorType === 'SNSPD') {
-        timeGroups[timeKey].SNSPD.detected += event.detected ? 1 : 0;
-        timeGroups[timeKey].SNSPD.noise += event.noise ? 1 : 0;
-      } else {
-        timeGroups[timeKey].SPAD.detected += event.detected ? 1 : 0;
-        timeGroups[timeKey].SPAD.noise += event.noise ? 1 : 0;
-      }
-    });
-
-    // Преобразуем в массив для графика
-    Object.entries(timeGroups).forEach(([timestamp, stats]) => {
-      statsData.push({
-        timestamp,
-        SNSPD_detected: stats.SNSPD.detected,
-        SNSPD_noise: stats.SNSPD.noise,
-        SPAD_detected: stats.SPAD.detected,
-        SPAD_noise: stats.SPAD.noise
-      });
-    });
-
-    return statsData.sort((a, b) => new Date(a.timestamp).getTime() - new Date(b.timestamp).getTime());
-  };
-
-  const detectionStats = prepareDetectionStats();
-
   return (
     <div style={{ padding: '20px', maxWidth: '1200px', margin: '0 auto' }}>
       <Title level={2} style={{ marginBottom: '24px' }}>Лабораторная работа: Детекторы одиночных фотонов</Title>
@@ -250,7 +201,7 @@ export const Lab1 = () => {
             </Text>
             <InputNumber
               value={experimentParams.temperature}
-              onChange={handleTemperatureChange}
+              onChange={(value) => setExperimentParams({...experimentParams, temperature: value || 0})}
               min={currentPreset.temperatureRange[0]}
               max={currentPreset.temperatureRange[1]}
               step={detectorType === 'SNSPD' ? 0.1 : 1}
@@ -265,7 +216,7 @@ export const Lab1 = () => {
             </Text>
             <InputNumber
               value={experimentParams.distance}
-              onChange={handleDistanceChange}
+              onChange={(value) => setExperimentParams({...experimentParams, distance: value || 0})}
               min={currentPreset.distanceRange[0]}
               max={currentPreset.distanceRange[1]}
               style={{ width: '100%' }}
@@ -279,18 +230,19 @@ export const Lab1 = () => {
             </Text>
             <InputNumber
               value={experimentParams.mediumAttenuationFactor}
-              onChange={handleAttenuationChange}
+              onChange={(value) => setExperimentParams({...experimentParams, mediumAttenuationFactor: value || 0})}
               min={0.1}
               max={1}
               step={0.01}
               style={{ width: '100%' }}
             />
           </div>
+
           <div>
             <Text strong style={{ display: 'block', marginBottom: '8px' }}>Напряжение (V)</Text>
             <InputNumber
               value={experimentParams.voltage}
-              onChange={handleVoltageChange}
+              onChange={(value) => setExperimentParams({...experimentParams, voltage: value || 0})}
               min={0.1}
               max={detectorType === 'SNSPD' ? 10 : 100}
               step={0.1}
@@ -303,7 +255,7 @@ export const Lab1 = () => {
             <Text strong style={{ display: 'block', marginBottom: '8px' }}>Эффективность</Text>
             <InputNumber
               value={experimentParams.efficiency}
-              onChange={handleEfficiencyChange}
+              onChange={(value) => setExperimentParams({...experimentParams, efficiency: value || 0})}
               min={0.01}
               max={1}
               step={0.01}
@@ -317,43 +269,7 @@ export const Lab1 = () => {
             <Text strong style={{ display: 'block', marginBottom: '8px' }}>Уровень шума</Text>
             <InputNumber
               value={experimentParams.noiseLevel}
-              onChange={handleNoiseLevelChange}
-              min={0}
-              max={1}
-              step={0.001}
-              style={{ width: '100%' }}
-            />
-          </div>
-
-          <div>
-            <Text strong style={{ display: 'block', marginBottom: '8px' }}>Чувствительность к температуре</Text>
-            <InputNumber
-              value={experimentParams.temperatureSensitivity}
-              onChange={handleTempSensitivityChange}
-              min={0.1}
-              max={detectorType === 'SNSPD' ? 2 : 100}
-              step={0.1}
-              style={{ width: '100%' }}
-            />
-          </div>
-
-          <div>
-            <Text strong style={{ display: 'block', marginBottom: '8px' }}>Шум детектора</Text>
-            <InputNumber
-              value={experimentParams.detectorNoiseLevel}
-              onChange={handleDetectorNoiseChange}
-              min={0}
-              max={1}
-              step={0.001}
-              style={{ width: '100%' }}
-            />
-          </div>
-
-          <div>
-            <Text strong style={{ display: 'block', marginBottom: '8px' }}>Частота отказов</Text>
-            <InputNumber
-              value={experimentParams.failureRate}
-              onChange={handleFailureRateChange}
+              onChange={(value) => setExperimentParams({...experimentParams, noiseLevel: value || 0})}
               min={0}
               max={1}
               step={0.001}
@@ -374,14 +290,23 @@ export const Lab1 = () => {
           )}
         </div>
 
-        <div style={{ marginTop: '24px', display: 'flex', gap: '12px' }}>
+        <div style={{ marginTop: '24px', display: 'flex', gap: '12px', alignItems: 'center' }}>
+          <Text strong>Количество испытаний:</Text>
+          <InputNumber
+            min={1}
+            max={1000}
+            value={numTrials}
+            onChange={(value) => setNumTrials(value || 1)}
+            style={{ width: '100px' }}
+          />
           <Button
             type="primary"
             onClick={runExperiment}
             size="large"
             style={{ minWidth: '200px' }}
+            loading={isRunning}
           >
-            Запустить эксперимент
+            {isRunning ? 'Выполняется...' : 'Запустить эксперимент'}
           </Button>
           <Button
             danger
@@ -392,6 +317,95 @@ export const Lab1 = () => {
           </Button>
         </div>
       </Card>
+
+      {results.length > 0 && (
+        <>
+          <Row gutter={[16, 16]} style={{ marginBottom: '24px' }}>
+            <Col span={24}>
+              <Card title="Результаты эксперимента">
+                <div style={{ display: 'flex', justifyContent: 'space-around', textAlign: 'center' }}>
+                  <div>
+                    <Text strong style={{ display: 'block' }}>Успешные детектирования</Text>
+                    <Text style={{ fontSize: '24px', fontWeight: 'bold', color: '#4CAF50' }}>
+                      {stats.successCount}
+                    </Text>
+                  </div>
+                  <div>
+                    <Text strong style={{ display: 'block' }}>Неуспешные</Text>
+                    <Text style={{ fontSize: '24px', fontWeight: 'bold', color: '#F44336' }}>
+                      {stats.failureCount}
+                    </Text>
+                  </div>
+                  <div>
+                    <Text strong style={{ display: 'block' }}>Шумы</Text>
+                    <Text style={{ fontSize: '24px', fontWeight: 'bold', color: '#FFC107' }}>
+                      {stats.noiseCount}
+                    </Text>
+                  </div>
+                  <div>
+                    <Text strong style={{ display: 'block' }}>Успешность</Text>
+                    <Text style={{ fontSize: '24px', fontWeight: 'bold' }}>
+                      {(stats.successRate * 100).toFixed(1)}%
+                    </Text>
+                  </div>
+                </div>
+              </Card>
+            </Col>
+          </Row>
+
+          <Row gutter={[16, 16]} style={{ marginBottom: '24px' }}>
+            <Col span={12}>
+              <Card title="Гистограмма результатов">
+                <ResponsiveContainer width="100%" height={300}>
+                  <BarChart data={prepareHistogramData()}>
+                    <CartesianGrid strokeDasharray="3 3" />
+                    <XAxis dataKey="name" />
+                    <YAxis />
+                    <Tooltip />
+                    <Bar dataKey="value">
+                      <LabelList dataKey="value" position="top" />
+                    </Bar>
+                  </BarChart>
+                </ResponsiveContainer>
+              </Card>
+            </Col>
+            <Col span={12}>
+              <Card title="Точечный график детектирования">
+                <ResponsiveContainer width="100%" height={300}>
+                  <ScatterChart
+                    margin={{ top: 20, right: 20, bottom: 20, left: 20 }}
+                  >
+                    <CartesianGrid strokeDasharray="3 3" />
+                    <XAxis dataKey="trial" name="Попытка" />
+                    <YAxis dataKey="detected" name="Детектировано" domain={[-0.1, 1.1]} />
+                    <Tooltip cursor={{ strokeDasharray: '3 3' }} />
+                    <Scatter name="Результаты" data={prepareChartData()} fill="#8884d8" />
+                    <ReferenceLine y={0.5} stroke="#000" strokeDasharray="3 3" />
+                  </ScatterChart>
+                </ResponsiveContainer>
+              </Card>
+            </Col>
+          </Row>
+
+          <Row gutter={[16, 16]} style={{ marginBottom: '24px' }}>
+            <Col span={24}>
+              <Card title="Кумулятивная вероятность успеха">
+                <ResponsiveContainer width="100%" height={300}>
+                  <LineChart data={prepareCumulativeData()}>
+                    <CartesianGrid strokeDasharray="3 3" />
+                    <XAxis dataKey="trial" />
+                    <YAxis domain={[0, 1]} />
+                    <Tooltip formatter={(value) => [`${(Number(value) * 100).toFixed(1)}%`, 'Вероятность']} />
+                    <Line type="monotone" dataKey="cumulativeRate" stroke="#8884d8" strokeWidth={2} dot={false} />
+                    <ReferenceLine y={experimentParams.efficiency} stroke="red" label="Ожидаемая" />
+                  </LineChart>
+                </ResponsiveContainer>
+              </Card>
+            </Col>
+          </Row>
+        </>
+      )}
+
       <Card title="Зависимость эффективности от температуры" style={{ marginBottom: '24px' }}>
         <ResponsiveContainer width="100%" height={300}>
           <LineChart data={temperatureData}>
@@ -422,46 +436,6 @@ export const Lab1 = () => {
                 label={{ value: 'Текущая', position: 'top' }}
               />
             )}
-          </LineChart>
-        </ResponsiveContainer>
-      </Card>
-
-      <Card title="Статистика срабатываний детекторов" style={{ marginBottom: '24px' }}>
-        <ResponsiveContainer width="100%" height={400}>
-          <LineChart data={detectionStats}>
-            <CartesianGrid strokeDasharray="3 3" />
-            <XAxis dataKey="timestamp" />
-            <YAxis />
-            <Tooltip />
-            <Legend />
-            <Line
-              type="monotone"
-              dataKey="SNSPD_detected"
-              name="SNSPD: Детектирования"
-              stroke="#8884d8"
-              strokeWidth={2}
-            />
-            <Line
-              type="monotone"
-              dataKey="SNSPD_noise"
-              name="SNSPD: Шумы"
-              stroke="#82ca9d"
-              strokeWidth={2}
-            />
-            <Line
-              type="monotone"
-              dataKey="SPAD_detected"
-              name="SPAD: Детектирования"
-              stroke="#ff7300"
-              strokeWidth={2}
-            />
-            <Line
-              type="monotone"
-              dataKey="SPAD_noise"
-              name="SPAD: Шумы"
-              stroke="#ff0000"
-              strokeWidth={2}
-            />
           </LineChart>
         </ResponsiveContainer>
       </Card>
