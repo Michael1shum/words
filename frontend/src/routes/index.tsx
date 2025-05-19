@@ -6,6 +6,7 @@ import { AddTestPage } from './Tests/AddTestPage/AddTestPage';
 import { Login } from '@/routes/Login/Login';
 import { LabsPage } from './Labs/LabsPage';
 import { Lab1 } from './Labs/Lab1/Lab1';
+import { Lab2 } from './Labs/Lab2/Lab2';
 import { TheoryPage } from './Theory/TheoryPage';
 import { TheoryListPage } from './Theory/TheoryListPage';
 import { TestsResultsPage } from '@/routes/Tests/TestsResults/TestsResultsPage'; // Страница лабораторной работы 1
@@ -50,6 +51,10 @@ export const useGetRoutes = (role: string | undefined) => {
         {
           path: 'labs/1', // Страница лабораторной работы 1
           element: isAuthenticated ? <Lab1 /> : <Navigate to='/login' replace />,
+        },
+        {
+          path: 'labs/2', // Страница лабораторной работы 1
+          element: isAuthenticated ? <Lab2 /> : <Navigate to='/login' replace />,
         },
         { path: 'login', element: <Login /> },
       ],

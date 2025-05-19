@@ -278,7 +278,7 @@ export const Lab1 = () => {
           </div>
         </div>
 
-        <div style={{ marginTop: '16px', padding: '12px', background: '#f6f6f6', borderRadius: '4px' }}>
+{/*        <div style={{ marginTop: '16px', padding: '12px', background: '#f6f6f6', borderRadius: '4px' }}>
           <Text strong>Текущая эффективность: </Text>
           <Text style={{ fontSize: '1.2em', fontWeight: 'bold' }}>
             {(efficiency * 100).toFixed(1)}%
@@ -288,7 +288,7 @@ export const Lab1 = () => {
               Эффективность снижена из-за неоптимальной температуры
             </Text>
           )}
-        </div>
+        </div>*/}
 
         <div style={{ marginTop: '24px', display: 'flex', gap: '12px', alignItems: 'center' }}>
           <Text strong>Количество испытаний:</Text>
@@ -354,7 +354,7 @@ export const Lab1 = () => {
           </Row>
 
           <Row gutter={[16, 16]} style={{ marginBottom: '24px' }}>
-            <Col span={12}>
+            <Col span={24}>
               <Card title="Гистограмма результатов">
                 <ResponsiveContainer width="100%" height={300}>
                   <BarChart data={prepareHistogramData()}>
@@ -366,39 +366,6 @@ export const Lab1 = () => {
                       <LabelList dataKey="value" position="top" />
                     </Bar>
                   </BarChart>
-                </ResponsiveContainer>
-              </Card>
-            </Col>
-            <Col span={12}>
-              <Card title="Точечный график детектирования">
-                <ResponsiveContainer width="100%" height={300}>
-                  <ScatterChart
-                    margin={{ top: 20, right: 20, bottom: 20, left: 20 }}
-                  >
-                    <CartesianGrid strokeDasharray="3 3" />
-                    <XAxis dataKey="trial" name="Попытка" />
-                    <YAxis dataKey="detected" name="Детектировано" domain={[-0.1, 1.1]} />
-                    <Tooltip cursor={{ strokeDasharray: '3 3' }} />
-                    <Scatter name="Результаты" data={prepareChartData()} fill="#8884d8" />
-                    <ReferenceLine y={0.5} stroke="#000" strokeDasharray="3 3" />
-                  </ScatterChart>
-                </ResponsiveContainer>
-              </Card>
-            </Col>
-          </Row>
-
-          <Row gutter={[16, 16]} style={{ marginBottom: '24px' }}>
-            <Col span={24}>
-              <Card title="Кумулятивная вероятность успеха">
-                <ResponsiveContainer width="100%" height={300}>
-                  <LineChart data={prepareCumulativeData()}>
-                    <CartesianGrid strokeDasharray="3 3" />
-                    <XAxis dataKey="trial" />
-                    <YAxis domain={[0, 1]} />
-                    <Tooltip formatter={(value) => [`${(Number(value) * 100).toFixed(1)}%`, 'Вероятность']} />
-                    <Line type="monotone" dataKey="cumulativeRate" stroke="#8884d8" strokeWidth={2} dot={false} />
-                    <ReferenceLine y={experimentParams.efficiency} stroke="red" label="Ожидаемая" />
-                  </LineChart>
                 </ResponsiveContainer>
               </Card>
             </Col>

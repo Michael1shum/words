@@ -13,36 +13,30 @@ class LabService {
                                detectorNoiseLevel,
                                failureRate
                              }) {
-    // 1. Температурные эффекты
     const optimalTemp = detectorType === 'SNSPD' ? 2 : 300;
     const tempDiff = Math.abs(temperature - optimalTemp);
-    let tempEffect;
 
+    let tempEffect;
     if (detectorType === 'SNSPD') {
       tempEffect = temperature >= 0.1 && temperature <= 4
         ? Math.exp(-tempDiff / temperatureSensitivity)
         : 0;
-    } else { // SPAD
+    } else {
       tempEffect = temperature >= 200 && temperature <= 400
         ? 1 - (tempDiff / (500 * (1 / temperatureSensitivity)))
         : 0;
     }
 
-    // 2. Затухание в волокне
     const fiberLoss = mediumAttenuationFactor * distance;
     const transmissionProbability = Math.pow(10, -fiberLoss / 10);
 
-    // 3. Учитываем вероятность отказа детектора
     const isDetectorFailed = Math.random() < failureRate;
 
-    // 4. Итоговая вероятность
     let detectionProbability = 0;
-
     if (!isDetectorFailed) {
       const voltageEffect = detectorType === 'SNSPD'
         ? Math.min(voltage / 5, 1)
         : Math.min(voltage / 30, 1);
-
       const efficiencyFluctuation = 0.9 + Math.random() * 0.2;
 
       detectionProbability = Math.min(
@@ -51,30 +45,30 @@ class LabService {
       );
     }
 
-    // Детекция фотона и шумов
-    const isPhotonDetected = !isDetectorFailed && (Math.random() < detectionProbability);
-    const isNoise = !isDetectorFailed && (Math.random() < noiseLevel);
+    // === Новый подход: только одно событие ===
+    let isPhotonDetected = false;
+    let isNoise = false;
 
-    console.log(
-      "detectorType =",detectorType,
-      "; voltage =", voltage,
-      "; efficiency =", efficiency,
-      "; noiseLevel =", noiseLevel,
-      "; distance =",  distance,
-      "; mediumAttenuationFactor =", mediumAttenuationFactor,
-      ";  temperature =", temperature,
-      ";  temperatureSensitivity =",  temperatureSensitivity,
-      ";  detectorNoiseLevel =", detectorNoiseLevel,
-      ";  failureRate =", failureRate
-    )
+    if (!isDetectorFailed) {
+      const noiseThreshold = noiseLevel;
+      const photonThreshold = detectionProbability;
 
-    // Сохранение результатов
+      const random = Math.random();
+
+      if (random < noiseThreshold) {
+        isNoise = true;
+      } else if (random < noiseThreshold + photonThreshold) {
+        isPhotonDetected = true;
+      }
+      // иначе — ни шума, ни фотона
+    }
+
     const event = new PhotonEvent({
       timestamp: new Date(),
       detectorType,
       voltage,
       efficiency,
-      noise: isNoise && !isPhotonDetected,
+      noise: isNoise,
       detected: isPhotonDetected,
       temperature,
       distance,
