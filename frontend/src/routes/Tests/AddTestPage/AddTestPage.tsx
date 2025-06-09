@@ -19,7 +19,8 @@ import { getCheckBoxOrRadioField } from '@/routes/Tests/AddTestPage/utils';
 export const AddTestPage = () => {
   const [form] = Form.useForm();
 
-  const onFinish = (values: { name: string; description: string; timeLimit: number; questions: any[] }) => {
+  const onFinish = (values: { name: string; description: string;
+    timeLimit: number; questions: any[] }) => {
     const formattedValues = {
       name: values.name,
       description: values.description,
@@ -29,7 +30,8 @@ export const AddTestPage = () => {
         question: question.question,
         description: question.description,
         options: question.options,
-        answer: question.controlType === 'input' ? [question.answer] : question.answers,
+        answer: question.controlType === 'input' ?
+          [question.answer] : question.answers,
       })),
     };
     console.log('Received values of form: ', values);
@@ -47,7 +49,8 @@ export const AddTestPage = () => {
       })
       .catch((error) => {
         console.error('Ошибка при отправке запроса:', error);
-        alert('Произошла ошибка при добавлении теста. Проверьте консоль для подробностей.');
+        alert('Произошла ошибка при добавлении теста.' +
+          ' Проверьте консоль для подробностей.');
       })
       .finally(() => form.resetFields());
   };
@@ -70,14 +73,16 @@ export const AddTestPage = () => {
             </Col>
             {/* Добавление поля для времени на тест */}
             <Col span={12}>
-              <Form.Item name='timeLimit' label='Время на тест (в минутах)' initialValue={0}>
+              <Form.Item name='timeLimit'
+                         label='Время на тест (в минутах)' initialValue={0}>
                 <InputNumber min={0} />
               </Form.Item>
             </Col>
             <Form.List
               name='questions'
               initialValue={[
-                { controlType: 'input', question: '', description: '', options: [], answers: [] },
+                { controlType: 'input', question: '',
+                  description: '', options: [], answers: [] },
               ]}
             >
               {(fields, { add, remove }) => (
@@ -88,12 +93,14 @@ export const AddTestPage = () => {
                         <Row justify={'space-between'}>
                           <Typography.Text>{`Вопрос ${index + 1}`}</Typography.Text>
                           {fields.length > 1 ? (
-                            <Button onClick={() => remove(field.name)} icon={<DeleteOutlined />} />
+                            <Button onClick={() =>
+                              remove(field.name)} icon={<DeleteOutlined />} />
                           ) : null}
                         </Row>
                       </Col>
                       <Col span={24}>
-                        <Form.Item name={[field.name, 'question']} noStyle required={true}>
+                        <Form.Item name={[field.name, 'question']}
+                                   noStyle required={true}>
                           <Input placeholder='Вопрос' />
                         </Form.Item>
                       </Col>
@@ -109,7 +116,8 @@ export const AddTestPage = () => {
                               <Select
                                 placeholder='Тип вопроса'
                                 options={[
-                                  { value: 'checkbox', label: 'Множественный выбор ответов' },
+                                  { value: 'checkbox',
+                                    label: 'Множественный выбор ответов' },
                                   { value: 'radio', label: 'Единичный выбор' },
                                   { value: 'input', label: 'Ввод значения' },
                                 ]}
@@ -118,7 +126,8 @@ export const AddTestPage = () => {
                           </Col>
                           <Col span={24}>
                             <Form.Item
-                              shouldUpdate={(prevValues, currentValues) => {
+                              shouldUpdate=
+                                {(prevValues, currentValues) => {
                                 return (
                                   prevValues.questions?.[field.name]?.controlType !==
                                   currentValues.questions?.[field.name]?.controlType
@@ -145,7 +154,10 @@ export const AddTestPage = () => {
                                         label={'Ответ'}
                                       >
                                         <Input
-                                          placeholder={'Введите правильный ответ'}
+                                          placeholder=
+                                            {'Введите ' +
+                                              'правильный ' +
+                                              'ответ'}
                                           width={'100%'}
                                         />
                                       </Form.Item>

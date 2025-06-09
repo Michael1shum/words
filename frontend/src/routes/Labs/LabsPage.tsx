@@ -6,6 +6,7 @@ export const LabsPage = () => {
   const labs = [
     { _id: '1', name: 'Лабораторная работа 1' },
     { _id: '2', name: 'Лабораторная работа 2' },
+    { _id: '3', name: 'Лабораторная работа 3' },
   ];
 
   return (

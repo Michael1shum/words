@@ -25,7 +25,6 @@ class AuthService {
       activationLink,
       role: 'user',
     });
-    // await MailService.sendActivationMail(email, `${appUrl}/auth/activate/${activationLink}`);
 
     const userDto = new UserDTO(user);
 

@@ -1,7 +1,6 @@
 const TestModel = require('../models/test-model');
 const UserTestResult = require('../models/UserTestResult');
 const UserTestResultDTO = require('../dto/UserTestResultDTO');
-// const UserModel = require('../../../auth/src/models/user-model');
 const mongoose = require('mongoose');
 const { usersUrl } = require('../configuration/index');
 const uuid = require('uuid');
@@ -18,7 +17,6 @@ class TestService {
       let testDTO = new TestDTO(test);
       emptyTests.push(testDTO);
     }
-    // console.log("Сработало")
     if (emptyTests.length === 0) {
       return 'Список тестов пуст!';
     } else {
@@ -27,35 +25,20 @@ class TestService {
   }
 
   async getTestById(testId) {
-    // console.log('testId',testId, typeof(testId))
     const test = await TestModel.findById(testId);
-    // console.log("TESTTESTTEST", test)
     if (!test) {
       throw ApiError.NotFound(`Такого теста не существует!`);
     }
     const testDTO = new TestDTO(test);
-    // console.log("DTOTEST", test)
 
-    // console.log('testDTO', testDTO);
     if (!testDTO.questions) {
       throw ApiError.NotFound(`У теста нет вопросов!`);
     }
     return testDTO;
   }
 
-  async testResultById(testId, userId) {
-    const currentUser = await axios.get(`${usersUrl}/user/${userId}`);
-    const requestedTestScore = currentUser.data.testsAnswers[testId];
-    if (!requestedTestScore) {
-      throw ApiError.NotFound('Данные запрошенного теста не найдены.');
-    }
-    return requestedTestScore;
-  }
 
   async saveUserTestResult(testId, userId, timeTaken, payload) {
-    // Логируем payload для проверки
-    console.log('Ответы на сервере:', payload);
-
     // Проверка, что payload является массивом
     if (!Array.isArray(payload.answers)) {
       console.error('Ответы не являются массивом:', payload.answers);
@@ -64,13 +47,10 @@ class TestService {
 
     // Обрабатываем ответы
     const processedAnswers = payload.answers.map((answer) => {
-      console.log('Обрабатываем ответ:', answer);
-
       if (!mongoose.Types.ObjectId.isValid(answer.questionId)) {
         console.error(`Некорректный questionId: ${answer.questionId}`);
         throw new Error(`Некорректный questionId: ${answer.questionId}`);
       }
-
       return {
         questionId: new mongoose.Types.ObjectId(answer.questionId),
         givenAnswer: answer.givenAnswer.map((ans) => String(ans)), // Преобразуем ответы в строки
@@ -173,10 +153,6 @@ class TestService {
     if (!test) {
       throw ApiError.NotFound(`Тест не был найден.`);
     } else {
-      // await axios.patch(`${usersUrl}/user/${userId}`, test)
-      //     .then( response => {
-      //
-      //     })
       return `Тест удалён.`;
     }
   }

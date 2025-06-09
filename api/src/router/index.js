@@ -6,7 +6,7 @@ const theoryRouter = require('./theory-router');
 
 router.get('/tests', TestController.getTests);
 router.get('/tests/results', TestController.getTestResultsByUser);
-router.get('/tests/results/:testId', TestController.testResultById);
+// router.get('/tests/results/:testId', TestController.testResultById);
 router.get('/tests/:testId', TestController.testById);
 router.post('/tests/add', TestController.addTest);
 router.post('/tests/:testId/answer', TestController.testAnswer);

@@ -30,4 +30,5 @@ const startServer = async () => {
   }
 };
 
-connectDb().on('error', console.log).on('disconnect', connectDb).once('open', startServer);
+connectDb().on('error', console.log).on('disconnect', connectDb).
+once('open', startServer);

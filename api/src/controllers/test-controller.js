@@ -5,7 +5,6 @@ const ApiError = require('../exceptions/api-error');
 class TestController {
   async getTests(req, res, next) {
     try {
-      console.log('Сработал контроллер');
       const tests = await TestService.getAllTests();
       return res.json(tests);
     } catch (e) {
@@ -27,15 +26,6 @@ class TestController {
       next(e);
     }
   }
-  /*  async addTest(req, res, next) {
-    try {
-      const testData = req.body;
-      const newTest = await TestService.addTest(testData);
-      res.json(newTest);
-    } catch (e) {
-      next(e);
-    }
-  }*/
 
   async testById(req, res, next) {
     try {
@@ -47,16 +37,6 @@ class TestController {
     }
   }
 
-  async testResultById(req, res, next) {
-    try {
-      const testId = req.params.testId;
-      const userId = req.headers['x-id'];
-      const testScore = await TestService.testResultById(testId, userId);
-      res.json(testScore);
-    } catch (e) {
-      next(e);
-    }
-  }
 
   async getTestResultsByUser(req, res, next) {
     try {
@@ -73,22 +53,6 @@ class TestController {
       const testId = req.params.testId;
       const userId = req.headers['x-id'];
       const { timeTaken, payload } = req.body;
-
-      console.log("req.body", req.body)
-
-      // console.log("testAnswer: ",testId,' userId', typeof(userId))
-      const testResult = await TestService.saveUserTestResult(testId, userId, timeTaken, payload);
-      res.json(testResult);
-    } catch (e) {
-      next(e);
-    }
-  }
-
-  async getUserAnswers(req, res, next) {
-    try {
-      const userId = req.headers['x-id'];
-      const { timeTaken, payload } = req.body;
-
       const testResult = await TestService.saveUserTestResult(testId, userId, timeTaken, payload);
       res.json(testResult);
     } catch (e) {

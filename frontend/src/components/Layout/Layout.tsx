@@ -28,12 +28,10 @@ export const Layout = () => {
       <Header />
 
       <AntLayout>
-        {/* Sidebar */}
         <Sider>
           <Menu mode='inline' theme='dark' items={items} />
         </Sider>
 
-        {/* Main content */}
         <AntLayout>
           <Content className={styles.content}>
             <Outlet />

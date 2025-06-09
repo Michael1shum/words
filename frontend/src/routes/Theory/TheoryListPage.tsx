@@ -32,7 +32,7 @@ export const TheoryListPage = () => {
   return (
     <div className={styles.container}>
       <Space direction="vertical" size="large" style={{ width: '100%' }}>
-        <Title level={2}>Theoretical Materials</Title>
+        <Title level={2}>Теория</Title>
 
         <List
           grid={{ gutter: 16, xs: 1, sm: 2, md: 3, lg: 3, xl: 4 }}
@@ -52,14 +52,6 @@ export const TheoryListPage = () => {
                 >
                   <Card.Meta
                     title={theory.title}
-                    // description={
-                    //   <>
-                    //     <Text type="secondary" ellipsis>
-                    //       {theory.description || 'No description'}
-                    //     </Text>
-                    //     {theory.category && <Text type="secondary">{theory.category}</Text>}
-                    //   </>
-                    // }
                   />
                 </Card>
               </Link>
@@ -73,7 +65,7 @@ export const TheoryListPage = () => {
           onClick={() => navigate('/add-theory')}
           style={{ width: '200px' }}
         >
-          Add New Material
+          Добавить
         </Button>
       </Space>
     </div>

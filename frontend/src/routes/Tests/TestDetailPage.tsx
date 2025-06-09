@@ -1,6 +1,7 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { useGetTest } from '@/hooks';
-import { Button, Checkbox, Form, Input, Radio, Select, Typography, Modal, Progress, message } from 'antd';
+import { Button, Checkbox, Form, Input, Radio,
+  Select, Typography, Modal, Progress, message } from 'antd';
 import { ClockCircleOutlined } from '@ant-design/icons';
 import axios from 'axios';
 import { UserTestAnswers } from '@/routes/types';
@@ -172,7 +173,8 @@ export const TestDetailPage = () => {
 
           <div style={{ marginBottom: 20 }}>
             <Progress
-              percent={((testData.timeLimit * 60 - timeLeft) / (testData.timeLimit * 60) * 100)}
+              percent={((testData.timeLimit * 60 - timeLeft)
+                / (testData.timeLimit * 60) * 100)}
               size="small"
               status="active"
               strokeColor="green"
@@ -190,7 +192,8 @@ export const TestDetailPage = () => {
               <Form.Item
                 key={question._id}
                 name={['answers', question._id]}
-                rules={[{ required: true, message: 'Пожалуйста, выберите хотя бы один вариант' }]}
+                rules={[{ required: true,
+                  message: 'Пожалуйста, выберите хотя бы один вариант' }]}
               >
                 <Checkbox.Group>
                   {question.options.map((option) => (
@@ -205,9 +208,11 @@ export const TestDetailPage = () => {
             {question?.controlType === 'select' && (
               <Form.Item
                 name={['answers', question._id]}
-                rules={[{ required: true, message: 'Пожалуйста, выберите вариант' }]}
+                rules={[{ required: true,
+                  message: 'Пожалуйста, выберите вариант' }]}
               >
-                <Select options={question.options.map((item) => ({ label: item, value: item }))} />
+                <Select options={question.options.map((item) =>
+                  ({ label: item, value: item }))} />
               </Form.Item>
             )}
 
