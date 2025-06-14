@@ -2,19 +2,30 @@ FROM node:18-alpine as builder
 
 WORKDIR /usr/src/app
 
-# 1. Копируем файлы зависимостей
+# 1. Копируем ТОЛЬКО файлы зависимостей (для кэширования)
 COPY package*.json ./
+COPY tsconfig.json ./
 
-# 3. Копируем исходный код
+# 2. Устанавливаем ВСЕ зависимости (включая devDependencies)
+RUN npm install --production=false
+
+# 3. Копируем остальные файлы проекта
 COPY . .
 
-# 4. Собираем проект
+# 4. Собираем проект (используются devDependencies)
 RUN npm run build
 
-# Устанавливаем serve для статики
+# 5. Финальный образ с сервером статики
+FROM node:18-alpine
+
+WORKDIR /usr/src/app
+
+# Копируем только собранные файлы и package.json
+COPY --from=builder /usr/src/app/build ./build
+COPY package.json .
+
+# Устанавливаем serve глобально
 RUN npm install -g serve
 
-# Запускаем сервер статики
+# Запускаем сервер
 CMD ["serve", "-s", "build", "-l", "3000"]
-
-
