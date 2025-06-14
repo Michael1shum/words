@@ -1,13 +1,20 @@
-FROM node:16.15.0-alpine
+FROM node:18-alpine as builder
 
 WORKDIR /usr/src/app
 
+# 1. Копируем файлы зависимостей
 COPY package*.json ./
 
-RUN npm install
-
+# 3. Копируем исходный код
 COPY . .
 
+# 4. Собираем проект
 RUN npm run build
 
+# Устанавливаем serve для статики
 RUN npm install -g serve
+
+# Запускаем сервер статики
+CMD ["serve", "-s", "build", "-l", "3000"]
+
+

@@ -1,7 +1,8 @@
 import path from "path";
+
+// Изменяем импорт с относительного на абсолютный (от корня проекта)
 import { Mode, PathsConfig } from './config/types';
 import { webpackCreateConf } from './config/webpackCreateConf';
-
 
 interface EnvVariables {
   mode?: Mode;

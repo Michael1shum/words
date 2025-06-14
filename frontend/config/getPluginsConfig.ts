@@ -11,7 +11,6 @@ export function getPluginsConfig(options: ConfigOptions): Configuration['plugins
     new HtmlWebpackPlugin({
       template: options.paths.html,
     }),
-    new webpack.EnvironmentPlugin(['MODE']),
   ];
 
   if (isProd) {
@@ -21,10 +20,6 @@ export function getPluginsConfig(options: ConfigOptions): Configuration['plugins
         chunkFilename: 'css/[name].[contenthash:8].css',
       })
     );
-  }
-
-  if (isDev) {
-    plugins.push(new webpack.EnvironmentPlugin(['MODE']));
   }
 
   return plugins;
