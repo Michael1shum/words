@@ -16,9 +16,10 @@ export const Layout = () => {
 
   if (role !== undefined) {
     items.push(
-      { key: '1', label: 'Тесты', onClick: () => navigate('/tests') },
-      { key: '2', label: 'Результаты тестов', onClick: () => navigate('/tests/results') },
-      { key: '3', label: 'Лабораторные', onClick: () => navigate('/labs') }
+      { key: '1', label: 'Теория', onClick: () => navigate('/theory-list') },
+      { key: '2', label: 'Тесты', onClick: () => navigate('/tests') },
+      { key: '3', label: 'Результаты тестов', onClick: () => navigate('/tests/results') },
+      { key: '4', label: 'Лабораторные', onClick: () => navigate('/labs') }
     );
   }
 
@@ -27,12 +28,10 @@ export const Layout = () => {
       <Header />
 
       <AntLayout>
-        {/* Sidebar */}
         <Sider>
           <Menu mode='inline' theme='dark' items={items} />
         </Sider>
 
-        {/* Main content */}
         <AntLayout>
           <Content className={styles.content}>
             <Outlet />

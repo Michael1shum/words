@@ -6,6 +6,10 @@ import { AddTestPage } from './Tests/AddTestPage/AddTestPage';
 import { Login } from '@/routes/Login/Login';
 import { LabsPage } from './Labs/LabsPage';
 import { Lab1 } from './Labs/Lab1/Lab1';
+import { Lab2 } from './Labs/Lab2/Lab2';
+import { Lab3 } from './Labs/Lab3/Lab3';
+import { TheoryPage } from './Theory/TheoryPage';
+import { TheoryListPage } from './Theory/TheoryListPage';
 import { TestsResultsPage } from '@/routes/Tests/TestsResults/TestsResultsPage'; // Страница лабораторной работы 1
 
 export const useGetRoutes = (role: string | undefined) => {
@@ -17,6 +21,14 @@ export const useGetRoutes = (role: string | undefined) => {
       path: '/',
       element: <Layout />,
       children: [
+        {
+          path: '/theory-list',
+          element: isAuthenticated ? <TheoryListPage /> : <Navigate to='/login' replace />,
+        },
+        {
+          path: '/theory/:id',
+          element: isAuthenticated ? <TheoryPage /> : <Navigate to='/login' replace />,
+        },
         {
           path: 'tests',
           element: isAuthenticated ? <TestsPage /> : <Navigate to='/login' replace />,
@@ -40,6 +52,13 @@ export const useGetRoutes = (role: string | undefined) => {
         {
           path: 'labs/1', // Страница лабораторной работы 1
           element: isAuthenticated ? <Lab1 /> : <Navigate to='/login' replace />,
+        },
+        {
+          path: 'labs/2', // Страница лабораторной работы 1
+          element: isAuthenticated ? <Lab2 /> : <Navigate to='/login' replace />,
+        },{
+          path: 'labs/3', // Страница лабораторной работы 1
+          element: isAuthenticated ? <Lab3 /> : <Navigate to='/login' replace />,
         },
         { path: 'login', element: <Login /> },
       ],

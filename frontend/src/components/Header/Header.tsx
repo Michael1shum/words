@@ -1,5 +1,4 @@
 import styles from '@components/Layout/Layout.module.scss';
-import { Link } from 'react-router-dom';
 import { Button, Form, Input, Layout, Modal } from 'antd';
 const { Header: AntHeader } = Layout;
 import React, { useContext, useEffect, useState } from 'react';
@@ -95,9 +94,7 @@ export const Header = () => {
       >
         <Form
           layout='vertical'
-          // onFinish={(values) => handleLogout()}
           onFinish={(values) => onFinish(values)}
-          // onFinish={(values) => handleRegistration(values.email, values.password)}
           form={form}
         >
           <Form.Item name={'email'}>

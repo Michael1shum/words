@@ -14,30 +14,29 @@ class LabsController {
         temperature,
         temperatureSensitivity,
         detectorNoiseLevel,
-        failureRate
+        failureRate,
+        numTrials = 1
       } = req.body;
 
-      // Проверка на наличие обязательных параметров
-      if (!voltage || !efficiency || !noiseLevel || !distance ||
-        !mediumAttenuationFactor || !temperature || !temperatureSensitivity ||
-        !detectorNoiseLevel || !failureRate) {
-        throw ApiError.BadRequest('Не все данные для эксперимента предоставлены');
+      const results = [];
+
+      for (let i = 0; i < numTrials; i++) {
+        const result = await LabService.runExperiment({
+          detectorType,
+          voltage,
+          efficiency,
+          noiseLevel,
+          distance,
+          mediumAttenuationFactor,
+          temperature,
+          temperatureSensitivity,
+          detectorNoiseLevel,
+          failureRate
+        });
+        results.push(result);
       }
 
-      const result = await LabService.runExperiment({
-        detectorType,
-        voltage,
-        efficiency,
-        noiseLevel,
-        distance,
-        mediumAttenuationFactor,
-        temperature,
-        temperatureSensitivity,
-        detectorNoiseLevel,
-        failureRate
-      });
-
-      res.json(result);
+      res.json(results);
     } catch (e) {
       next(e);
     }
@@ -51,7 +50,7 @@ class LabsController {
       next(e);
     }
   }
-  // Метод для удаления всех испытаний
+
   static async deleteAllEvents(req, res, next) {
     try {
       await LabService.deleteAllEvents();

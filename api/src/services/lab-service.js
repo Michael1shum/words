@@ -13,64 +13,70 @@ class LabService {
                                detectorNoiseLevel,
                                failureRate
                              }) {
-    // 1. Расчет эффекта температуры (нормализованный от 0 до 1)
-    const optimalTemp = detectorType === 'SNSPD' ? 2 : -50;
+    const optimalTemp = detectorType === 'SNSPD' ? 2 : 300;
     const tempDiff = Math.abs(temperature - optimalTemp);
-    const tempEffect = Math.exp(-tempDiff / (temperatureSensitivity * 10)); // Увеличиваем чувствительность
 
-    // 2. Эффект расстояния (используем обратный квадрат, но нормализуем)
-    const normDistance = Math.min(distance, 100) / 100; // Нормализуем расстояние до 100 км
-    const distanceEffect = 1 / (1 + normDistance * 2); // Мягкое уменьшение с расстоянием
-
-    // 3. Эффект среды (ослабление)
-    const mediumEffect = mediumAttenuationFactor; // Уже в диапазоне 0-1
-
-    // 4. Флуктуации эффективности (±10%)
-    const efficiencyFluctuation = 0.9 + Math.random() * 0.2;
-
-    // Итоговая вероятность детекции
-    const baseProbability = efficiency * tempEffect * distanceEffect * mediumEffect * efficiencyFluctuation;
-    const detectionProbability = Math.min(baseProbability, 0.95); // Ограничиваем максимум 95%
-
-    // Логирование для отладки
-    console.log('Detection factors:', {
-      efficiency,
-      tempEffect,
-      distanceEffect,
-      mediumEffect,
-      efficiencyFluctuation,
-      finalProbability: detectionProbability
-    });
-
-    // Детекция фотона
-    const isPhotonDetected = Math.random() < detectionProbability;
-
-    // Шумы
-    const isNoise = Math.random() < (noiseLevel + detectorNoiseLevel) / 2;
-
-    // Сбой системы
-    const systemFailure = Math.random() < failureRate;
-    if (systemFailure) {
-      return {
-        detected: false,
-        noise: true,
-        error: "System failure",
-        detectorType
-      };
+    let tempEffect;
+    if (detectorType === 'SNSPD') {
+      tempEffect = temperature >= 0.1 && temperature <= 4
+        ? Math.exp(-tempDiff / temperatureSensitivity)
+        : 0;
+    } else {
+      tempEffect = temperature >= 200 && temperature <= 400
+        ? 1 - (tempDiff / (500 * (1 / temperatureSensitivity)))
+        : 0;
     }
 
-    // Сохранение события
+    const fiberLoss = mediumAttenuationFactor * distance;
+    const transmissionProbability = Math.pow(10, -fiberLoss / 10);
+
+    const isDetectorFailed = Math.random() < failureRate;
+
+    let detectionProbability = 0;
+    if (!isDetectorFailed) {
+      const voltageEffect = detectorType === 'SNSPD'
+        ? Math.min(voltage / 5, 1)
+        : Math.min(voltage / 30, 1);
+      const efficiencyFluctuation = 0.9 + Math.random() * 0.2;
+
+      detectionProbability = Math.min(
+        efficiency * tempEffect * transmissionProbability * efficiencyFluctuation * voltageEffect,
+        0.95
+      );
+    }
+
+    // === Новый подход: только одно событие ===
+    let isPhotonDetected = false;
+    let isNoise = false;
+
+    if (!isDetectorFailed) {
+      const noiseThreshold = noiseLevel;
+      const photonThreshold = detectionProbability;
+
+      const random = Math.random();
+
+      if (random < noiseThreshold) {
+        isNoise = true;
+      } else if (random < noiseThreshold + photonThreshold) {
+        isPhotonDetected = true;
+      }
+      // иначе — ни шума, ни фотона
+    }
+
     const event = new PhotonEvent({
       timestamp: new Date(),
       detectorType,
       voltage,
       efficiency,
-      noise: isNoise && !isPhotonDetected,
+      noise: isNoise,
       detected: isPhotonDetected,
       temperature,
       distance,
       mediumAttenuationFactor,
-      probability: detectionProbability // Сохраняем расчетную вероятность
+      probability: detectionProbability,
+      temperatureSensitivity,
+      detectorNoiseLevel,
+      failureRate
     });
 
     await event.save();
@@ -79,7 +85,8 @@ class LabService {
       detected: isPhotonDetected,
       noise: isNoise,
       detectorType,
-      probability: detectionProbability
+      probability: detectionProbability,
+      isDetectorFailed
     };
   }
 
