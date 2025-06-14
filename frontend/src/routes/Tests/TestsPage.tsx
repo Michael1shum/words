@@ -77,8 +77,6 @@ export const TestsPage = () => {
             <Text type="secondary">No tests available</Text>
           </Card>
         )}
-
-        {role === 'admin' && (
           <Button
             type="primary"
             onClick={() => navigate('/add-test')}
@@ -86,7 +84,6 @@ export const TestsPage = () => {
           >
             Add New Test
           </Button>
-        )}
       </Space>
     </div>
   );

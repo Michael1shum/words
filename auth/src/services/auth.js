@@ -50,11 +50,11 @@ class AuthService {
     const isPassEquals = await bcrypt.compare(password, user?.password || '');
 
     if (!user) {
-      throw ApiError.BadRequest(`Пользователя с таким email не существует`);
+      throw ApiError.UnauthorizedError(`Пользователя с таким email не существует`);
     }
 
     if (user && !isPassEquals) {
-      throw ApiError.BadRequest(`Некорректный пароль`);
+      throw ApiError.UnauthorizedError(`Некорректный пароль`);
     }
 
     const userDto = new UserDTO(user);

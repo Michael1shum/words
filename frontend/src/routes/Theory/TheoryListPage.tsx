@@ -59,14 +59,6 @@ export const TheoryListPage = () => {
           )}
           locale={{ emptyText: 'No materials available' }}
         />
-
-        <Button
-          type="primary"
-          onClick={() => navigate('/add-theory')}
-          style={{ width: '200px' }}
-        >
-          Добавить
-        </Button>
       </Space>
     </div>
   );

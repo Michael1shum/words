@@ -1,10 +1,11 @@
 import styles from '@components/Layout/Layout.module.scss';
-import { Button, Form, Input, Layout, Modal } from 'antd';
+import { Button, Form, Input, Layout, Modal, notification } from 'antd';
 const { Header: AntHeader } = Layout;
 import React, { useContext, useEffect, useState } from 'react';
 import Cookies from 'js-cookie';
 import axios from 'axios';
 import { AuthContext } from '@/App';
+import { node } from 'webpack';
 
 export const Header = () => {
   const [isModalVisible, setIsModalVisible] = useState(false);
@@ -25,11 +26,21 @@ export const Header = () => {
   };
 
   const handleLogin = async (email: string, password: string) => {
-    const response = await axios.post('/api/login', { email, password });
-    if (response.status === 200) {
+    try {
+      const response = await axios.post('/api/login', { email, password });
       resetForm();
       const role = Cookies.get('role');
       updateRole(role);
+    } catch (error) {
+      if (axios.isAxiosError(error)) {
+        if (error.response?.status === 401) {
+          notification.error({ message: "Неверный email или пароль" });
+        } else {
+          notification.error({ message: "Ошибка сервера. Попробуйте позже" });
+        }
+      } else {
+        notification.error({ message: "Неизвестная ошибка" });
+      }
     }
   };
 
