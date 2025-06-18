@@ -5,12 +5,17 @@ const UserTheoryProgressService = require('../services/user-theory-progress-serv
 class TheoryController {
   static async create(req, res, next) {
     try {
-      const {title, content, category} = req.body;
+      const { title, content, category, isHtml = false } = req.body;
       if (!title || !content || !category) {
         throw ApiError.BadRequest('Не все обязательные поля заполнены');
       }
 
-      const theory = await TheoryService.createTheory({title, content, category});
+      const theory = await TheoryService.createTheory({
+        title,
+        content: isHtml ? content : content.replace(/\n/g, '<br>'),
+        category,
+        isHtml
+      });
       res.json(theory);
     } catch (e) {
       next(e);
