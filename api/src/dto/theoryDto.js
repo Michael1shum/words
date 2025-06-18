@@ -4,6 +4,7 @@ class TheoryDto {
     this.title = model.title;
     this.content = model.content;
     this.category = model.category;
+    this.isHtml = model.isHtml;
     this.createdAt = model.createdAt;
     this.updatedAt = model.updatedAt;
   }

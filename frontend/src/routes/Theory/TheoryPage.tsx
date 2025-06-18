@@ -60,7 +60,13 @@ export const TheoryPage = () => {
       </div>
 
       <div className={styles.content}>
-        <div dangerouslySetInnerHTML={{ __html: theory.content }} />
+        {theory.isHtml ? (
+          <div dangerouslySetInnerHTML={{ __html: theory.content }} />
+        ) : (
+          theory.content.split('\n').map((paragraph, i) => (
+            <p key={i}>{paragraph}</p>
+          ))
+        )}
       </div>
 
       <div className={styles.footer}>

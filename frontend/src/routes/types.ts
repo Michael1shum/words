@@ -30,6 +30,7 @@ export interface TheoryData {
   _id: string;
   title: string;
   content: string;
+  isHtml: boolean;
   category: string;
   createdAt: string;
   description: string;
