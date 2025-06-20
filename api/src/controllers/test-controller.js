@@ -14,13 +14,14 @@ class TestController {
 
   async addTest(req, res, next) {
     try {
-      const { name, questions, timeLimit } = req.body; // Извлекаем данные из тела запроса
+      console.log('req.body',req.body)
+      const { name, questions, description, timeLimit } = req.body;
       if (!name || !questions) {
         throw ApiError.BadRequest('Не все данные для теста предоставлены');
       }
 
       // Создаем новый тест с полученными данными
-      const newTest = await TestService.addTest({ name, questions, timeLimit });
+      const newTest = await TestService.addTest({ name, questions, description, timeLimit });
       res.status(201).json(newTest);
     } catch (e) {
       next(e);

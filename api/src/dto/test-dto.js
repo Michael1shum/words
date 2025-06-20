@@ -5,6 +5,7 @@ module.exports = class TestDTO {
   constructor(model) {
     this._id = model._id;
     this.name = model.name;
+    this.description = model.description;
     this.timeLimit=model.timeLimit;
     this.questions = model.questions.map((questionNumber) => ({
       controlType: questionNumber.controlType,

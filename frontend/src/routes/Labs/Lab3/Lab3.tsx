@@ -1,5 +1,5 @@
 import React, { useState, useMemo } from 'react';
-import './Lab3.scss';
+import styles from './Lab3.module.scss';
 import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, Legend } from 'recharts';
 
 const h = 6.626e-34;
@@ -90,10 +90,10 @@ export const Lab3 = () => {
   });
 
   return (
-    <div className="lab-qe">
-      <div className="card">
+    <div className={styles.labQe}>
+      <div className={styles.card}>
         <h2>Параметры эксперимента (вводимые пользователем)</h2>
-        <div className="inputs">
+        <div className={styles.inputs}>
           <label>
             Импульсов в трейне
             <select onChange={e => setNimp(e.target.value)} defaultValue={1}>
@@ -106,9 +106,9 @@ export const Lab3 = () => {
 
         </div>
       </div>
-      <div className="card">
+      <div className={styles.card}>
         <h2>Экспериментальные данные</h2>
-        <table className="results-table">
+        <table className={styles.resultsTable}>
           <thead>
           <tr>
             <th>μ</th>
@@ -126,7 +126,7 @@ export const Lab3 = () => {
             <tr key={i}>
               <td>{d.mu}</td>
               <td>{d.alpha.toFixed(2)}</td>
-              <td>{d.P0}</td>
+              <td>{d.P0.toExponential(2)  }</td>
               <td>{d.Nph.toFixed(2)}</td>
               <td>{d.C}</td>
               <td>{d.Cdc}</td>
@@ -138,7 +138,7 @@ export const Lab3 = () => {
         </table>
       </div>
 
-      <div className="card">
+      <div className={styles.card}>
         <h2>График зависимости QE от μ</h2>
         <LineChart width={600} height={300} data={dataSeries}>
           <CartesianGrid strokeDasharray="3 3" />
@@ -149,9 +149,10 @@ export const Lab3 = () => {
           <Line type="monotone" dataKey="QE" stroke="#8884d8"
                 name="QE, %" />
         </LineChart>
+
       </div>
 
-      <div className="card">
+      <div className={styles.card}>
         <h2>График числа зарегистрированных фотонов C от μ</h2>
         <LineChart width={600} height={300} data={dataSeries}>
           <CartesianGrid strokeDasharray="3 3" />

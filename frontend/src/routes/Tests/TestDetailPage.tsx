@@ -2,7 +2,7 @@ import React, { useState, useEffect, useRef } from 'react';
 import { useGetTest } from '@/hooks';
 import { Button, Checkbox, Form, Input, Radio,
   Select, Typography, Modal, Progress, message } from 'antd';
-import { ClockCircleOutlined } from '@ant-design/icons';
+import { ClockCircleOutlined, CloseOutlined  } from '@ant-design/icons';
 import axios from 'axios';
 import { UserTestAnswers } from '@/routes/types';
 import { useNavigate, useParams } from 'react-router-dom';
@@ -51,6 +51,16 @@ export const TestDetailPage = () => {
 
   const handleStartTest = () => {
     setIsTestStarted(true);
+  };
+
+  const handleCancelTest = () => {
+    Modal.confirm({
+      title: 'Отменить тест?',
+      content: 'Вы уверены, что хотите отменить тест? Весь прогресс будет потерян.',
+      okText: 'Да, отменить',
+      cancelText: 'Нет, продолжить',
+      onOk: () => navigate('/tests'),
+    });
   };
 
   const handleTimeExpired = async () => {
@@ -121,6 +131,7 @@ export const TestDetailPage = () => {
       }));
       setIsTestFinished(true);
       await submitAnswers();
+      navigate('/tests/')
     } catch (error) {
       console.log('Validation failed:', error);
     }
@@ -151,7 +162,9 @@ export const TestDetailPage = () => {
           title="Начало теста"
           open={!isTestStarted}
           footer={null}
-          closable={false}
+          closable={true}
+          closeIcon={<CloseOutlined />}
+          onCancel={handleCancelTest}
         >
           <Typography.Title level={4}>{testData?.name}</Typography.Title>
           <p>{testData?.description}</p>
@@ -161,6 +174,7 @@ export const TestDetailPage = () => {
             type="primary"
             icon={<ClockCircleOutlined />}
             onClick={handleStartTest}
+            style={{ marginTop: 16 }}
           >
             Начать тест
           </Button>
@@ -187,6 +201,7 @@ export const TestDetailPage = () => {
               Вопрос {currentIndex + 1} из {questions.length}
             </Typography.Title>
             <Typography.Paragraph strong>{question?.question}</Typography.Paragraph>
+            <Typography.Paragraph strong>{question?.description}</Typography.Paragraph>
 
             {question?.controlType === 'checkbox' && (
               <Form.Item
