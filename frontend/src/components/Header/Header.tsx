@@ -19,9 +19,15 @@ export const Header = () => {
     setFormMode('login');
   };
   const handleRegistration = async (email: string, password: string) => {
-    const response = await axios.post('/api/registration', { email, password });
-    if (response.status === 200) {
-      await handleLogin(email, password);
+    try {
+      const response = await axios.post('/api/registration', { email, password });
+      if (response.status === 200) {
+        await handleLogin(email, password);
+      }
+    }catch (error) {
+      if(axios.isAxiosError(error)){
+        notification.error({ message: error.response.data.message });
+      }
     }
   };
 

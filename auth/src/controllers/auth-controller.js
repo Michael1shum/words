@@ -9,8 +9,7 @@ class AuthController {
     try {
       const errors = validationResult(req); //сбор ошибок при валидации?
       if (!errors.isEmpty()) {
-        //Проверка на ошибки
-        return next(ApiError.BadRequest('Ошибки при валидации', errors.array()));
+        return next(ApiError.BadRequest('Заполните данные пользователя'));
       }
       const { email, password } = req.body;
       const userData = await authService.registration(email, password);
@@ -21,7 +20,7 @@ class AuthController {
       res.cookie('accessToken', userData.accessToken, { maxAge: 15 * 60 * 1000, httpOnly: true });
       return res.json(userData.user);
     } catch (e) {
-      next(e);
+      next(ApiError.Conflict('Данные пользователя уже существуют'));
     }
   }
 
