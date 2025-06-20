@@ -1,9 +1,10 @@
     import React, { useCallback, useContext, useEffect, useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import styles from './TestPage.module.scss';
-import { Button, Card, List, Typography, Space, message } from 'antd';
+import { Button, Card, List, Typography, Space, message, Popconfirm  } from 'antd';
 import axios from 'axios';
 import { AuthContext } from '@/App';
+import { CloseOutlined } from '@ant-design/icons';
 
 const { Title, Text } = Typography;
 
@@ -29,18 +30,29 @@ export const TestsPage = () => {
     }
   }, []);
 
+  const deleteTest = async (testId: string) => {
+    try {
+      await axios.delete(`/api/tests/${testId}`);
+      message.success('Test deleted successfully');
+      getTests(); // Refresh the list after deletion
+    } catch (error) {
+      console.error('Error deleting test:', error);
+      message.error('Failed to delete test');
+    }
+  };
+
   useEffect(() => {
     if (role) {
       getTests();
     } else {
       setTests([]);
     }
-  }, [role]);
+  }, [role, getTests]);
 
   return (
     <div className={styles.container}>
       <Space direction="vertical" size="large" style={{ width: '100%' }}>
-        <Title level={2}>Available Tests</Title>
+        <Title level={2}>Доступные тесты</Title>
 
         {tests?.length > 0 ? (
           <List
@@ -49,26 +61,38 @@ export const TestsPage = () => {
             loading={loading}
             renderItem={(test) => (
               <List.Item>
-                <Link to={`/test/${test._id}`}>
-                  <Card
-                    hoverable
-                    className={styles.testCard}
-                    cover={
-                      <div className={styles.cardCover}>
-                        <Text strong style={{ fontSize: '24px' }}>📝</Text>
-                      </div>
-                    }
-                  >
+                <Card
+                  hoverable
+                  className={styles.testCard}
+                  cover={
+                    <div className={styles.cardCover}>
+                      <Text strong style={{ fontSize: '24px' }}>📝</Text>
+                    </div>
+                  }
+                  actions={[
+                    <Popconfirm
+                      title="Удалить тест?"
+                      description="Вы уверены, что хотите удалить этот тест?"
+                      onConfirm={() => deleteTest(test._id)}
+                      okText="Да"
+                      cancelText="Нет"
+                      key="delete"
+                    >
+                      <CloseOutlined style={{ color: 'red' }} />
+                    </Popconfirm>
+                  ]}
+                >
+                  <Link to={`/test/${test._id}`}>
                     <Card.Meta
                       title={test.name}
                       description={
                         <Text type="secondary" ellipsis>
-                          {test.description || 'No description provided'}
+                          {test.description || 'Нет описания'}
                         </Text>
                       }
                     />
-                  </Card>
-                </Link>
+                  </Link>
+                </Card>
               </List.Item>
             )}
           />
@@ -82,7 +106,7 @@ export const TestsPage = () => {
             onClick={() => navigate('/add-test')}
             style={{ width: '200px' }}
           >
-            Add New Test
+            Добавить новый тест
           </Button>
       </Space>
     </div>

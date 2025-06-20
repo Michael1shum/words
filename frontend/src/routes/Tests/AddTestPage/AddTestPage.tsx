@@ -71,7 +71,6 @@ export const AddTestPage = () => {
                 <Input />
               </Form.Item>
             </Col>
-            {/* Добавление поля для времени на тест */}
             <Col span={12}>
               <Form.Item name='timeLimit'
                          label='Время на тест (в минутах)' initialValue={0}>
