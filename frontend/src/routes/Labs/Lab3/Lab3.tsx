@@ -1,6 +1,8 @@
 import React, { useState, useMemo } from 'react';
 import styles from './Lab3.module.scss';
 import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, Legend } from 'recharts';
+import { ColumnsType } from 'antd/es/table';
+import { Table } from 'antd';
 
 const h = 6.626e-34;
 const c = 3e8;
@@ -88,7 +90,16 @@ export const Lab3 = () => {
     return { mu: d.mu, QE: QE.toFixed(2), N: N,
       C:d.C, Cdc:d.Cdc, alpha: alpha, Nph: Nph, P0: P0 };
   });
-
+const columsConfig: ColumnsType<any> = [
+  {dataIndex: 'mu', title:'μ', key:'mu'},
+  {dataIndex: 'alpha', title:'Аттенюация (дБ)', key:'alpha', render: (value) => value.toFixed(2)},
+  {dataIndex: 'P0', title:'Мощность на входе ДОФ (дБ)', key:'P0', render: (value) => value.toExponential(2)},
+  {dataIndex: 'Nph', title:'Фотонов до аттенюации', key:'Nph', render: (value) => value.toFixed(2)},
+  {dataIndex: 'C', title:'Срабатывания C', key:'C'},
+  {dataIndex: 'Cdc', title:'Темновые C', key:'Cdc'},
+  {dataIndex: 'N', title:'N (пришедших фотонов)', key:'N', render: (value) => value.toFixed(2)},
+  {dataIndex: 'QE', title:'QE (%)', key:'QE'},
+]
   return (
     <div className={styles.labQe}>
       <div className={styles.card}>
@@ -108,34 +119,10 @@ export const Lab3 = () => {
       </div>
       <div className={styles.card}>
         <h2>Экспериментальные данные</h2>
-        <table className={styles.resultsTable}>
-          <thead>
-          <tr>
-            <th>μ</th>
-            <th>Аттенюация (дБ)</th>
-            <th>Мощность на входе ДОФ (дБ)</th>
-            <th>Фотонов до аттенюации</th>
-            <th>Срабатывания C</th>
-            <th>Темновые C<sub>dc</sub></th>
-            <th>N (пришедших фотонов)</th>
-            <th>QE (%)</th>
-          </tr>
-          </thead>
-          <tbody>
-          {dataSeries.map((d, i) => (
-            <tr key={i}>
-              <td>{d.mu}</td>
-              <td>{d.alpha.toFixed(2)}</td>
-              <td>{d.P0.toExponential(2)  }</td>
-              <td>{d.Nph.toFixed(2)}</td>
-              <td>{d.C}</td>
-              <td>{d.Cdc}</td>
-              <td>{d.N.toFixed(2)}</td>
-              <td>{d.QE}</td>
-            </tr>
-          ))}
-          </tbody>
-        </table>
+        <Table
+          scroll={{ x: 'max-content' }}
+          columns={columsConfig}
+          dataSource={dataSeries} />
       </div>
 
       <div className={styles.card}>

@@ -73,17 +73,20 @@ export const TestResultsTable: React.FC<TestResultsTableProps> = ({ data }) => {
     {
       title: 'Вопрос',
       dataIndex: 'questionText',
+      width: '60%',
       key: 'questionText',
     },
     {
       title: 'Данные ответы',
       dataIndex: 'givenAnswer',
+      width: '30%',
       key: 'givenAnswer',
       render: (answers: string[]) => answers.join(', '),
     },
     {
       title: 'Статус',
       dataIndex: 'isCorrect',
+      width: '10%',
       key: 'isCorrect',
       render: (isCorrect: boolean) => (
         <Tag color={isCorrect ? 'green' : 'red'}>
@@ -95,6 +98,7 @@ export const TestResultsTable: React.FC<TestResultsTableProps> = ({ data }) => {
 
   return (
     <Table
+      scroll={{ x: 'max-content' }}
       columns={mainColumns}
       dataSource={sortedData}  // Используем отсортированные данные
       rowKey="answerId"
