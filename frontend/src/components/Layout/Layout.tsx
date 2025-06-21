@@ -5,6 +5,7 @@ import { MenuProps } from 'antd/es/menu';
 import styles from './Layout.module.scss';
 import { Header } from '@components/Header';
 import { AuthContext } from '@/App';
+import { BarChartOutlined, BulbOutlined, HddOutlined, HourglassOutlined } from '@ant-design/icons';
 
 const { Sider, Content, Footer } = AntLayout;
 
@@ -16,10 +17,10 @@ export const Layout = () => {
 
   if (role !== undefined) {
     items.push(
-      { key: '1', label: 'Теория', onClick: () => navigate('/theory-list') },
-      { key: '2', label: 'Тесты', onClick: () => navigate('/tests') },
-      { key: '3', label: 'Результаты тестов', onClick: () => navigate('/tests/results') },
-      { key: '4', label: 'Лабораторные', onClick: () => navigate('/labs') }
+      { key: '1', label: 'Теория', onClick: () => navigate('/theory-list'), icon: <HddOutlined /> },
+      { key: '2', label: 'Тесты', onClick: () => navigate('/tests'), icon: <HourglassOutlined /> },
+      { key: '3', label: 'Результаты тестов', onClick: () => navigate('/tests/results'), icon: <BarChartOutlined /> },
+      { key: '4', label: 'Лабораторные', onClick: () => navigate('/labs'), icon: <BulbOutlined /> }
     );
   }
 
@@ -28,7 +29,7 @@ export const Layout = () => {
       <Header />
 
       <AntLayout>
-        <Sider>
+        <Sider collapsible>
           <Menu mode='inline' theme='dark' items={items} />
         </Sider>
 
