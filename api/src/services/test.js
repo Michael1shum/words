@@ -93,21 +93,25 @@ class TestService {
 
   async getUserTestsResults(userId) {
     try {
+      // Убрали populate, так как testId уже содержит нужные данные
       const results = await UserTestResult.find({ userId })
-        .populate('testId', 'name questions')
         .lean();
-        // .sort({ createdAt: -1 });
 
       if (!results.length) {
         return [];
       }
 
       const formattedResults = results.map((result) => {
-        const test = result.testId;
+        // Проверяем, что testId существует
+        if (!result.testId) {
+          console.warn(`Test not found for result ${result._id}`);
+          return null;
+        }
 
         const questionsWithAnswers = result.answers.map((userAnswer) => {
-          const question = test.questions.find(
-            (q) => q._id.toString() === userAnswer.questionId.toString()
+          // Ищем вопрос в тесте (если testId.questions существует)
+          const question = result.testId.questions?.find(
+            q => q._id.toString() === userAnswer.questionId.toString()
           );
 
           return {
@@ -118,26 +122,28 @@ class TestService {
           };
         });
 
-        const correctAnswers = result.answers.filter((userAnswer) => userAnswer.isCorrect).length;
+        const correctAnswers = result.answers.filter(a => a.isCorrect).length;
         const totalAnswers = result.answers.length;
-        const correctPercentage = (correctAnswers / totalAnswers) * 100;
+        const correctPercentage = totalAnswers > 0
+          ? (correctAnswers / totalAnswers) * 100
+          : 0;
 
         return {
           answerId: result._id,
           testId: result.testId._id,
-          testName: test.name,
+          testName: result.testId.name || 'Без названия',
           totalQuestions: result.totalQuestions,
           questions: questionsWithAnswers,
-          createdAt: result.createdAt,
+          createdAt: result.createdAt.toISOString(), // Преобразуем дату в строку
           timeTaken: result.timeTaken,
           correctPercentage: correctPercentage.toFixed(2),
         };
-      });
+      }).filter(Boolean); // Фильтруем возможные null
 
       return formattedResults;
     } catch (e) {
       console.error('Error in getUserTestsResults:', e);
-      throw e; // Пробрасываем ошибку для обработки в контроллере
+      throw e;
     }
   }
 
