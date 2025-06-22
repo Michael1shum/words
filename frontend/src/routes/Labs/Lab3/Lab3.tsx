@@ -60,14 +60,16 @@ export const Lab3 = () => {
   const [Cdc, setCdc] = useState("313");
 
   // Преобразование дБм в ватты
-  const dbmToWatt = (dbm) => {
-    return Math.pow(10, (parseFloat(dbm) - 30) / 10);
+  const dbmToWatt = (dbm: string | number): number => {
+    const dbmValue = typeof dbm === 'string' ? parseFloat(dbm) : dbm;
+    return Math.pow(10, (dbmValue - 30) / 10);
   };
 
   // Преобразование ватт в дБм
-  const wattToDbm = (watt) => {
-    return 10 * Math.log10(watt) + 30;
+  const wattToDbm = (watt: number): string => {
+    return (10 * Math.log10(watt) + 30).toFixed(2);
   };
+
 
   const results = useMemo(() => {
     const muVal = parseFloat(mu);
@@ -134,7 +136,7 @@ const columsConfig: ColumnsType<any> = [
           </label>
 
           <label>
-            Количество <трейнов></трейнов> Nt:
+            Количество трейнов Nt:
             <input
               type="number"
               value={Nt}
@@ -172,6 +174,14 @@ const columsConfig: ColumnsType<any> = [
             />
           </label>
 
+          <label>
+            Темновые срабатывания Cdc:
+            <input
+              type="number"
+              value={Cdc}
+              onChange={e => setCdc(e.target.value)}
+            />
+          </label>
         </div>
       </div>
 
